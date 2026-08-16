@@ -148,7 +148,15 @@ def get_subscription(user_id: str) -> Optional[dict]:
 def save_prediction(prediction: dict) -> dict:
     if _supabase_enabled:
         try:
-            _supabase_client.table("predictions").insert(_filtered(prediction, _PREDICTION_COLUMNS)).execute()
+            # Upsert on (player_id, game_id) rather than insert: this makes
+            # writes idempotent. Without it, an infra-level retry (e.g. Render's
+            # proxy retrying a slow cold-start request) or simply the dashboard
+            # polling every 30s would each create a fresh duplicate row instead
+            # of updating the existing one for that player+game.
+            _supabase_client.table("predictions").upsert(
+                _filtered(prediction, _PREDICTION_COLUMNS),
+                on_conflict="player_id,game_id",
+            ).execute()
         except Exception as e:
             print(f"[database] save_prediction failed: {e}")
         return prediction
