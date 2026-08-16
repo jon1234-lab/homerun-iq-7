@@ -1,0 +1,25 @@
+# Secrets -- never commit these
+backend/.env
+frontend/.env.local
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# pybaseball's local scrape cache
+.pybaseball_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

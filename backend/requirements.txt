@@ -1,0 +1,15 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+pydantic==2.7.4
+python-dotenv==1.0.1
+requests==2.32.3
+# Pinned: supabase 2.5.0 requires httpx<0.28, but newer FastAPI/httpx
+# combinations pull in 0.28+, which breaks the Supabase client at import.
+httpx==0.27.2
+stripe==9.9.0
+websockets==12.0
+supabase==2.5.0
+redis==5.0.6
+python-multipart==0.0.9
+pandas>=2.0
+pybaseball>=2.2.5
