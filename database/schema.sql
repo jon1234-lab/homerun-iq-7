@@ -56,6 +56,12 @@ create index if not exists idx_predictions_player_id on predictions(player_id);
 create index if not exists idx_predictions_game_id on predictions(game_id);
 create index if not exists idx_predictions_created_at on predictions(created_at desc);
 
+-- One row per player per game: the backend upserts on this pair, so a
+-- retried request or repeated polling updates the existing row instead of
+-- inserting a duplicate.
+create unique index if not exists idx_predictions_player_game
+  on predictions(player_id, game_id);
+
 -- ------------------------------------------------------------
 -- game_state
 -- ------------------------------------------------------------
