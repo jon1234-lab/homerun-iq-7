@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GoalIQ — NHL anytime goalscorer model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ice:#EDF2F5; --sheet:#F8FBFC; --ink:#13212B; --muted:#5B6B77; --boards:#C9D4DB;
+  --crease:#3B7CB8; --crease-soft:#D6E5F2; --lamp:#D62828; --lamp-soft:#FBE3E3; --warn:#B7791F;
+  --num:"Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ice:#0F1A22; --sheet:#15232D; --ink:#E4ECF1; --muted:#90A2AE; --boards:#2A3B47;
+  --crease:#6EA8DC; --crease-soft:#1E3547; --lamp:#FF5A4F; --lamp-soft:#3A1C1C; --warn:#E0A84A; } }
+:root[data-theme="dark"]{
+  --ice:#0F1A22; --sheet:#15232D; --ink:#E4ECF1; --muted:#90A2AE; --boards:#2A3B47;
+  --crease:#6EA8DC; --crease-soft:#1E3547; --lamp:#FF5A4F; --lamp-soft:#3A1C1C; --warn:#E0A84A; }
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--ice);color:var(--ink);font:16px/1.5 var(--body);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+a{color:var(--crease)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--crease);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;padding:8px 0 20px;border-bottom:2px solid var(--boards)}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand h1{font:700 44px/1 var(--num);letter-spacing:.5px;margin:0}
+.brand p{margin:0;color:var(--muted)}
+.datebar{display:flex;align-items:center;gap:8px}
+.datebar button,.datebar input{background:var(--sheet);border:1px solid var(--boards);border-radius:6px;padding:6px 12px;cursor:pointer}
+nav.tabs{display:flex;gap:4px;margin:18px 0 12px}
+nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:6px 10px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--crease)}
+
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:8px 0 22px}
+.game{background:var(--sheet);border:1px solid var(--boards);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left}
+.game[aria-pressed="true"]{border-color:var(--crease);box-shadow:inset 0 0 0 1px var(--crease)}
+.game .mu{font:700 22px/1.1 var(--num)}
+.game .meta{color:var(--muted);font-size:13px}
+.game .gl{font-size:13px;margin-top:4px}
+.state-live{color:var(--lamp);font-weight:600}
+
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;color:var(--muted);font-size:14px}
+.filters select{background:var(--sheet);border:1px solid var(--boards);border-radius:6px;padding:4px 8px}
+.filters label{display:flex;gap:6px;align-items:center}
+
+.tablewrap{overflow-x:auto;background:var(--sheet);border:1px solid var(--boards);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--boards);white-space:nowrap}
+th{font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--sheet)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.player{display:flex;align-items:center;gap:10px}
+.player img{width:34px;height:34px;border-radius:50%;background:var(--ice);object-fit:cover}
+.player .nm{font-weight:600}
+.player .sub{color:var(--muted);font-size:13px}
+.prob{display:flex;align-items:center;gap:10px;min-width:170px}
+.prob b{font:700 24px/1 var(--num);width:58px;text-align:right}
+.bar{flex:1;height:8px;background:var(--crease-soft);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--crease)}
+.tag{display:inline-block;font-size:12px;padding:1px 6px;border-radius:4px;border:1px solid var(--boards);color:var(--muted)}
+.tag.pp1{border-color:var(--crease);color:var(--crease)}
+.tag.warn{border-color:var(--warn);color:var(--warn)}
+tr.scored{background:var(--lamp-soft)}
+tr.scored .prob b{color:var(--lamp)}
+tr.scored .nm::after{content:" scored";color:var(--lamp);font-weight:600;font-size:13px}
+@media (prefers-reduced-motion:no-preference){
+  tr.scored.fresh{animation:lamp 1.6s ease-out 2}
+  @keyframes lamp{0%{box-shadow:inset 6px 0 0 var(--lamp)}100%{box-shadow:inset 0 0 0 transparent}}
+}
+.empty{padding:40px 16px;text-align:center;color:var(--muted);white-space:normal}
+.note{color:var(--muted);font-size:14px;max-width:72ch}
+
+.tr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--sheet);border:1px solid var(--boards);border-radius:10px;padding:14px}
+.stat b{font:700 34px/1 var(--num);display:block}
+.stat span{color:var(--muted);font-size:14px}
+.calib{background:var(--sheet);border:1px solid var(--boards);border-radius:10px;padding:14px}
+.calib:empty{display:none}
+.calrow{display:grid;grid-template-columns:90px 1fr 110px;gap:10px;align-items:center;padding:4px 0}
+.calrow .pair{position:relative;height:14px;background:var(--crease-soft);border-radius:4px}
+.calrow .pair i{position:absolute;top:0;bottom:0;left:0;background:var(--crease);border-radius:4px;opacity:.45}
+.calrow .pair em{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--ink)}
+.faq h3{font:600 26px/1.1 var(--num);margin:26px 0 6px}
+.faq p{max-width:72ch;margin:0 0 10px}
+footer{margin-top:40px;color:var(--muted);font-size:13px;max-width:80ch}
+
+@media (max-width:640px){
+  .brand h1{font-size:36px}.brand p{display:none}
+  .games{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-16px;padding:0 16px 4px}
+  .game{flex:0 0 72%;scroll-snap-align:start}
+  table{min-width:0}
+  th:nth-child(n+4),td:nth-child(n+4){display:none}
+  .bar{display:none}.prob{min-width:0}.prob b{width:auto;font-size:22px}
+  th,td{padding:9px 8px} th{font-size:12px}
+  .player img{display:none}
+  td:first-child{white-space:normal;width:55%}
+  .player .sub{white-space:normal}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1>GoalIQ</h1><p>Anytime goalscorer probabilities for every NHL skater, every night.</p></div>
+    <div class="datebar" id="datebar">
+      <button type="button" data-shift="-1" aria-label="Previous day">Prev</button>
+      <input type="date" id="date" aria-label="Slate date">
+      <button type="button" data-shift="1" aria-label="Next day">Next</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="slate">Tonight</button>
+    <button role="tab" aria-selected="false" data-tab="record">Track record</button>
+    <button role="tab" aria-selected="false" data-tab="method">How it works</button>
+  </nav>
+
+  <section id="tab-slate">
+    <div class="games" id="games"></div>
+    <div class="filters">
+      <label>Team <select id="f-team"><option value="">All</option></select></label>
+      <label>Position <select id="f-pos"><option value="">All</option><option value="F">Forwards</option><option value="D">Defense</option></select></label>
+      <label>Power play <select id="f-pp"><option value="">Any</option><option value="pp1">PP1 only</option></select></label>
+      <label><input type="checkbox" id="f-best"> Best per game</label>
+      <label><input type="checkbox" id="f-sample"> Hide small samples</label>
+      <span id="updated"></span>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr>
+        <th data-k="name" scope="col">Player</th>
+        <th data-k="p_goal" class="num" scope="col" aria-sort="descending">Goal chance</th>
+        <th data-k="fair_odds" class="num" scope="col">Fair odds</th>
+        <th data-k="exp_shots" class="num" scope="col">Exp. shots</th>
+        <th data-k="sh_pct_reg" class="num" scope="col">Shooting %</th>
+        <th data-k="proj_pp_min" class="num" scope="col">PP min</th>
+        <th data-k="goalie_mult" class="num" scope="col">Goalie factor</th>
+        <th scope="col">Role</th>
+      </tr></thead>
+      <tbody id="rows"><tr><td colspan="8" class="empty">Loading tonight's slate…</td></tr></tbody>
+    </table></div>
+    <p class="note" id="snapnote"></p>
+  </section>
+
+  <section id="tab-record" hidden>
+    <div class="tr-grid" id="tr-stats"></div>
+    <div class="calib" id="tr-calib"></div>
+    <p class="note">Predictions lock at puck drop and are graded only after the game is final. The dark tick is how often players in each band actually scored; the shaded bar is what the model said.</p>
+  </section>
+
+  <section id="tab-method" hidden class="faq">
+    <h3>What the number means</h3>
+    <p>Goal chance is the probability a skater scores at least one goal tonight, including overtime. Fair odds convert that probability into American odds with no bookmaker margin, so a sportsbook price longer than the fair price is the one worth a look.</p>
+    <h3>What goes into it</h3>
+    <p>Each skater's shot rate and shooting percentage, pulled toward the league average for their position so small samples don't produce wild numbers. That rate is applied to tonight's projected ice time, with power-play minutes weighted heavily, then adjusted for the confirmed opposing goalie, how many shots the opponent allows, and home ice.</p>
+    <h3>Why you can trust the percentages</h3>
+    <p>Tested on 10,115 player-games from the 2025-26 season using only data available before each game. When the model said 10–13%, players scored about 10% of the time; in its top tier it predicted 31.5% and they scored 35.4%. It beat both a simple goals-per-game estimate and the league base rate.</p>
+    <h3>Lineups and goalies</h3>
+    <p>Lines, power-play units and starting goalies come from DailyFaceoff and refresh through the afternoon. Game-time decisions are flagged. Players with little NHL history carry a small-sample tag because their numbers lean on the positional average.</p>
+  </section>
+
+  <footer>GoalIQ is a research tool, not betting advice. Probabilities are estimates and players can be scratched late. Data: NHL.com, DailyFaceoff.</footer>
+</div>
+
+<script>
+const API = window.__GOALIQ_API__ ?? "";
+const $ = s => document.querySelector(s);
+const etToday = () => new Date().toLocaleDateString("en-CA", {timeZone: "America/New_York"});
+const PREGAME = ["FUT","PRE"], DONE = ["OFF","FINAL"];
+let slate = null, sortK = "p_goal", sortDir = -1, gameFilter = null, scoredSeen = new Set(), liveTimer;
+
+const fmtOdds = o => o == null ? "–" : (o > 0 ? "+" + o : String(o));
+const pct = (x, d=1) => (x*100).toFixed(d) + "%";
+const localTime = iso => new Date(iso).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+const posGroup = p => p === "D" ? "D" : "F";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+async function load(date){
+  clearTimeout(liveTimer);
+  $("#rows").innerHTML = `<tr><td colspan="8" class="empty">Loading ${esc(date)}…</td></tr>`;
+  try{
+    const r = await fetch(`${API}/api/slate?date=${date}`);
+    if(!r.ok) throw new Error("server returned " + r.status);
+    slate = await r.json();
+  }catch(e){
+    $("#rows").innerHTML = `<tr><td colspan="8" class="empty">Couldn't load the slate (${esc(e.message)}). Refresh in a minute.</td></tr>`; return;
+  }
+  scoredSeen = new Set(slate.players.filter(p => p.scored).map(p => p.player_id));
+  gameFilter = null; buildFilters(); render(); pollLive();
+}
+
+function buildFilters(){
+  const teams = [...new Set(slate.players.map(p => p.team))].sort();
+  $("#f-team").innerHTML = `<option value="">All</option>` + teams.map(t => `<option>${t}</option>`).join("");
+  const g = $("#games");
+  g.innerHTML = slate.games.map(x => {
+    const ag = x.goalies[x.away] || {}, hg = x.goalies[x.home] || {};
+    const when = PREGAME.includes(x.state) ? localTime(x.start_utc)
+      : `<span class="state-live">${DONE.includes(x.state) ? "Final" : "In progress"}</span>`;
+    const gl = (o) => esc(o.name || "TBD") + (o.status === "Likely" ? " (likely)" : "");
+    return `<button class="game" type="button" data-gid="${x.game_id}" aria-pressed="false">
+      <div class="mu">${x.away} at ${x.home}</div><div class="meta">${when}</div>
+      <div class="gl">${gl(ag)} vs ${gl(hg)}</div></button>`;}).join("");
+  g.querySelectorAll(".game").forEach(b => b.onclick = () => {
+    const id = +b.dataset.gid; gameFilter = gameFilter === id ? null : id;
+    g.querySelectorAll(".game").forEach(z => z.setAttribute("aria-pressed", String(+z.dataset.gid === gameFilter)));
+    render();
+  });
+}
+
+function rows(){
+  let ps = slate.players.slice();
+  const t = $("#f-team").value, pos = $("#f-pos").value, pp = $("#f-pp").value;
+  if (gameFilter) ps = ps.filter(p => p.game_id === gameFilter);
+  if (t) ps = ps.filter(p => p.team === t);
+  if (pos) ps = ps.filter(p => posGroup(p.pos) === pos);
+  if (pp) ps = ps.filter(p => p.pp_unit === pp);
+  if ($("#f-sample").checked) ps = ps.filter(p => p.gp_sample >= 20);
+  if ($("#f-best").checked){ const seen = new Set(); ps = ps.sort((a,b)=>b.p_goal-a.p_goal).filter(p => !seen.has(p.game_id) && seen.add(p.game_id)); }
+  ps.sort((a,b) => { const x=a[sortK], y=b[sortK]; if (typeof x === "string") return sortDir * x.localeCompare(y); return sortDir * ((x ?? -1e9) - (y ?? -1e9)); });
+  return ps;
+}
+
+function render(){
+  if (!slate.games.length){ $("#rows").innerHTML = `<tr><td colspan="8" class="empty">No NHL games on this date. Pick another day above.</td></tr>`; return; }
+  const ps = rows(), games = Object.fromEntries(slate.games.map(g => [g.game_id, g]));
+  if (!ps.length){ $("#rows").innerHTML = `<tr><td colspan="8" class="empty">No skaters match these filters. Clear a filter to see more.</td></tr>`; return; }
+  const max = Math.max(...slate.players.map(p => p.p_goal), .01);
+  $("#rows").innerHTML = ps.map(p => {
+    const g = games[p.game_id], og = (g.goalies[p.opp] || {}).name || "TBD";
+    const scored = p.scored === true, fresh = scored && !scoredSeen.has(p.player_id);
+    const tags = [
+      p.pp_unit ? `<span class="tag ${p.pp_unit}">${p.pp_unit.toUpperCase()}</span>` : "",
+      p.line ? `<span class="tag">${p.line.startsWith("d") ? "Pair " + p.line[1] : "Line " + p.line[1]}</span>` : "",
+      p.gtd ? `<span class="tag warn">Game-time call</span>` : "",
+      p.gp_sample < 20 ? `<span class="tag warn">Small sample</span>` : ""].join(" ");
+    return `<tr class="${scored ? "scored" : ""} ${fresh ? "fresh" : ""}">
+      <td><div class="player">${p.headshot ? `<img src="${esc(p.headshot)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : ""}
+        <div><div class="nm">${esc(p.name)}</div><div class="sub">${p.team} ${p.home ? "vs" : "at"} ${p.opp}, facing ${esc(og)}</div></div></div></td>
+      <td class="num"><div class="prob"><div class="bar" aria-hidden="true"><i style="width:${(p.p_goal/max*100).toFixed(1)}%"></i></div><b>${pct(p.p_goal)}</b></div></td>
+      <td class="num">${fmtOdds(p.fair_odds)}</td>
+      <td class="num">${p.exp_shots.toFixed(1)}</td>
+      <td class="num">${pct(p.sh_pct_reg)}</td>
+      <td class="num">${p.proj_pp_min.toFixed(1)}</td>
+      <td class="num" title="Above 1.00 means the opposing goalie is easier to score on than average">${p.goalie_mult.toFixed(2)}</td>
+      <td>${tags}</td></tr>`;}).join("");
+  ps.filter(p => p.scored).forEach(p => scoredSeen.add(p.player_id));
+  $("#updated").textContent = slate.generated_utc ? "Updated " + localTime(slate.generated_utc) : "";
+}
+
+async function pollLive(){
+  clearTimeout(liveTimer);
+  if (!slate || !slate.games.some(g => !PREGAME.includes(g.state) && !DONE.includes(g.state)) && slate.date !== etToday()) return;
+  try{
+    const d = await (await fetch(`${API}/api/live?date=${slate.date}`)).json();
+    const scorers = {}; d.games.forEach(g => Object.keys(g.scorers).forEach(pid => scorers[pid] = true));
+    let changed = false;
+    slate.players.forEach(p => { if (scorers[p.player_id] && !p.scored){ p.scored = true; changed = true; } });
+    if (changed) render();
+  }catch(e){}
+  liveTimer = setTimeout(pollLive, 60000);
+}
+
+async function loadRecord(){
+  let d;
+  try{ d = await (await fetch(`${API}/api/track-record`)).json(); }
+  catch(e){ $("#tr-stats").innerHTML = `<div class="stat"><span>Couldn't load the track record. Refresh in a minute.</span></div>`; return; }
+  if (!d.n){ $("#tr-stats").innerHTML = `<div class="stat"><b>0</b><span>graded predictions so far. Games grade once they go final.</span></div>`; $("#tr-calib").innerHTML = ""; return; }
+  $("#tr-stats").innerHTML = `
+    <div class="stat"><b>${d.n.toLocaleString()}</b><span>graded player-games</span></div>
+    <div class="stat"><b>${d.top_pick_hits} of ${d.top_pick_days}</b><span>nights the model's top pick scored (expected ${d.top_pick_expected})</span></div>
+    <div class="stat"><b>${d.brier}</b><span>Brier score (lower is better)</span></div>`;
+  $("#tr-calib").innerHTML = d.buckets.map(b => `<div class="calrow"><span>${b.range}</span>
+    <div class="pair"><i style="width:${Math.min(b.predicted/.5*100,100)}%"></i><em style="left:${Math.min(b.actual/.5*100,100)}%"></em></div>
+    <span class="num">${pct(b.actual)} of ${b.n}</span></div>`).join("");
+}
+
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav.tabs button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+  ["slate","record","method"].forEach(t => $("#tab-" + t).hidden = t !== b.dataset.tab);
+  if (b.dataset.tab === "record") loadRecord();
+});
+document.querySelectorAll("th[data-k]").forEach(th => th.onclick = () => {
+  const k = th.dataset.k; sortDir = sortK === k ? -sortDir : (k === "name" ? 1 : -1); sortK = k;
+  document.querySelectorAll("th").forEach(x => x.removeAttribute("aria-sort"));
+  th.setAttribute("aria-sort", sortDir > 0 ? "ascending" : "descending"); render();
+});
+["#f-team","#f-pos","#f-pp","#f-best","#f-sample"].forEach(s => $(s).onchange = render);
+$("#date").onchange = e => load(e.target.value);
+document.querySelectorAll("#datebar button").forEach(b => b.onclick = () => {
+  const d = new Date($("#date").value + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + +b.dataset.shift);
+  const iso = d.toISOString().slice(0,10); $("#date").value = iso; load(iso);
+});
+$("#date").value = etToday(); load(etToday());
+</script>
+</body>
+</html>
