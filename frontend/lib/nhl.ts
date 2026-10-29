@@ -22,6 +22,11 @@ export type TopBacktest = { key: string; market: string; picks: string; predicte
 export type Summary = { run_date: string; data_through: string; champions?: Record<string, string>; notes?: string[] };
 export type ParlayLeg = { player: string; playerId: number; team: string; market: string; p: number; result?: string };
 export type Parlay = { parlay_date: string; type: string; legs: ParlayLeg[]; legs_n: number; p: number; fair_odds: string; model: string; result: string };
+export type GameLog = { date: string; opp: string; toi: number; pp_toi: number; sog: number; xg: number; g: number; pts: number };
+export type TeamPick = {
+  team: string; opp: string; player: string; playerId: number; p_goal: number; fair_odds: string; opp_goalie: string;
+  gp: number; g: number; pts: number; sog: number; xg: number; games: GameLog[];
+};
 export type Pick = { pick_date: string; market: string; rank: number; player: string; team: string; opp: string; p: number; fair_odds: string; model: string; result: string; stat: number | null };
 
 async function sb<T>(path: string): Promise<T> {
@@ -33,19 +38,19 @@ async function sb<T>(path: string): Promise<T> {
 }
 
 export type Snapshots = {
-  today: GoalRow[]; today_pts: PointRow[]; today_sog: ShotRow[]; msum: MarketRecord[]; parlay_summary: ParlayRecord[];
+  today: GoalRow[]; today_pts: PointRow[]; today_sog: ShotRow[]; team_picks: TeamPick[]; msum: MarketRecord[]; parlay_summary: ParlayRecord[];
   parlay_bt: ParlayBacktest[]; top: TopBacktest[]; summary: Summary | null; updated_at: string | null;
 };
 
 export async function getSnapshots(): Promise<Snapshots> {
-  const keys = ["today", "today_pts", "today_sog", "msum", "parlay_summary", "parlay_bt", "top", "summary"];
+  const keys = ["today", "today_pts", "today_sog", "team_picks", "msum", "parlay_summary", "parlay_bt", "top", "summary"];
   const rows = await sb<{ key: string; data: unknown; updated_at: string }[]>(
     `nhl_props_snapshots?select=key,data,updated_at&key=in.(${keys.join(",")})`
   );
   const m = new Map(rows.map((r) => [r.key, r]));
   const get = <T,>(k: string, d: T): T => (m.get(k)?.data as T) ?? d;
   return {
-    today: get("today", []), today_pts: get("today_pts", []), today_sog: get("today_sog", []), msum: get("msum", []),
+    today: get("today", []), today_pts: get("today_pts", []), today_sog: get("today_sog", []), team_picks: get("team_picks", []), msum: get("msum", []),
     parlay_summary: get("parlay_summary", []), parlay_bt: get("parlay_bt", []), top: get("top", []),
     summary: get<Summary | null>("summary", null), updated_at: m.get("summary")?.updated_at ?? null,
   };

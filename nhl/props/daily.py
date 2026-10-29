@@ -538,6 +538,21 @@ def fix_names(rows, W):
     for r in rows: r['player'] = names.get(int(r['playerId']), r['player'])
     return rows
 
+def team_picks(rows, PG):
+    """Top anytime-goal pick for every team on the slate, with his game-by-game log this season."""
+    out = []
+    for t in sorted({r['team'] for r in rows}):
+        r = max((x for x in rows if x['team'] == t), key=lambda x: x['p_goal'])
+        g = PG[(PG.playerId == r['playerId']) & (PG.season == CUR)].sort_values('date')
+        games = [{'date': str(x.date.date()), 'opp': ('vs ' if x.home_or_away == 'HOME' else '@ ') + x.opposingTeam,
+                  'toi': round(float(x.icetime) / 60, 1), 'pp_toi': round(float(x.pp_toi) / 60, 1), 'sog': int(x.I_F_shotsOnGoal or 0),
+                  'xg': round(float(x.I_F_xGoals or 0), 2), 'g': int(x.I_F_goals or 0), 'pts': int(x.I_F_points or 0)} for x in g.itertuples()]
+        tot = lambda k: sum(x[k] for x in games)
+        out.append({'team': t, 'opp': r['opp'], 'player': r['player'], 'playerId': r['playerId'], 'p_goal': r['p_goal'], 'fair_odds': fair(r['p_goal']),
+                    'opp_goalie': r['opp_goalie'], 'gp': len(games), 'g': tot('g'), 'pts': tot('pts'), 'sog': tot('sog'),
+                    'xg': round(tot('xg'), 2), 'games': games[::-1]})
+    return sorted(out, key=lambda x: -x['p_goal'])
+
 def goal_view(rows, n):
     keep = ('date', 'player', 'playerId', 'team', 'opp', 'p_goal', 'toi', 'pp_toi', 'xg60', 'sog', 'finishing', 'due', 'opp_goalie')
     return [{k: r[k] for k in keep} | {'fair_odds': fair(r['p_goal'])} for r in sorted(rows, key=lambda r: -r['p_goal'])[:n]]
@@ -793,7 +808,8 @@ def main():
     for n, o in outs.items(): W(n, o)
     W('tracker.json', tracker); W('champion.json', champs); W('changelog.json', changelog); W('parlays.json', parlays)
     write_supabase_sql(A.out, RD, tracker, parlays, changelog, champs,
-                       {'today': today, 'today_pts': today_pts, 'today_sog': today_sog, 'msum': msum, 'parlay_summary': psum,
+                       {'today': today, 'today_pts': today_pts, 'today_sog': today_sog, 'team_picks': team_picks(brd, PG) if brd else [],
+                        'msum': msum, 'parlay_summary': psum,
                         'parlay_bt': parlay_bt, 'top': top, 'summary': {k: summary[k] for k in ('run_date', 'data_through', 'champions', 'notes')}})
     log('done', json.dumps(summary, indent=1))
 

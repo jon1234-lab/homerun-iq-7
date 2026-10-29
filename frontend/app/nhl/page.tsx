@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Tabs from "@/components/nhl/Tabs";
 import {
-  GoalRow, Parlay, Pick, PointRow, ShotRow, Snapshots,
+  GoalRow, Parlay, Pick, PointRow, ShotRow, Snapshots, TeamPick,
   getParlays, getRecentParlays, getRecentResults, getSnapshots, pct,
 } from "@/lib/nhl";
 
@@ -73,6 +73,76 @@ function Shots({ rows }: { rows: ShotRow[] }) {
           meta={`2+ ${pct(r.p_sog2)} (${r.fair2}) · 4+ ${pct(r.p_sog4)} (${r.fair4}) · ${r.sog.toFixed(1)} SOG/gm`}
           big={pct(r.p_sog3)} label="3+ shots" fair={r.fair3} />
       ))}
+    </div>
+  );
+}
+
+const md = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+function TeamCard({ t }: { t: TeamPick }) {
+  return (
+    <details className="group rounded-xl border border-white/10 bg-white/[0.03] open:bg-white/[0.05]">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-3 py-3 sm:px-4 [&::-webkit-details-marker]:hidden">
+        <span className="w-10 shrink-0 rounded-md bg-white/10 py-1 text-center font-mono text-xs font-semibold text-gray-200">{t.team}</span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-white">{t.player}</p>
+          <p className="truncate text-xs text-gray-400">{t.opp} · vs {t.opp_goalie}</p>
+          <p className="text-[11px] text-gray-500">
+            {t.gp} GP · <span className="text-gray-300">{t.g} G</span> · {t.pts} P · {t.sog} SOG · {t.xg.toFixed(1)} xG
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-[3px]" aria-label="Goals by game, oldest to newest">
+            {[...t.games].reverse().map((g) => (
+              <span
+                key={g.date}
+                title={`${md(g.date)} ${g.opp}: ${g.g} G, ${g.sog} SOG`}
+                className={`h-2.5 w-2.5 rounded-sm ${g.g > 1 ? "bg-emerald-300" : g.g === 1 ? "bg-emerald-500" : g.pts > 0 ? "bg-white/25" : "bg-white/10"}`}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="font-mono text-base font-semibold text-emerald-400 tabular-nums">{pct(t.p_goal)}</p>
+          <p className="text-[10px] uppercase tracking-wide text-gray-600">Anytime goal</p>
+          <p className="font-mono text-[11px] text-gray-400 tabular-nums">Fair {t.fair_odds}</p>
+        </div>
+        <span className="shrink-0 text-xs text-gray-500 transition-transform group-open:rotate-180">▾</span>
+      </summary>
+      <div className="overflow-x-auto border-t border-white/10 px-1 pb-2 sm:px-2">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-gray-500">
+              <th className="px-2 py-2 text-left font-medium">Date</th><th className="px-2 py-2 text-left font-medium">Opp</th>
+              <th className="px-2 py-2 text-right font-medium">TOI</th><th className="px-2 py-2 text-right font-medium">PP</th>
+              <th className="px-2 py-2 text-right font-medium">SOG</th><th className="px-2 py-2 text-right font-medium">xG</th>
+              <th className="px-2 py-2 text-right font-medium">G</th><th className="px-2 py-2 text-right font-medium">P</th>
+            </tr>
+          </thead>
+          <tbody className="font-mono tabular-nums">
+            {t.games.map((g) => (
+              <tr key={g.date} className={`border-t border-white/5 ${g.g > 0 ? "bg-emerald-400/[0.06]" : ""}`}>
+                <td className="px-2 py-1.5 font-sans text-gray-300">{md(g.date)}</td><td className="px-2 py-1.5 font-sans text-gray-400">{g.opp}</td>
+                <td className="px-2 py-1.5 text-right">{g.toi.toFixed(1)}</td><td className="px-2 py-1.5 text-right text-gray-400">{g.pp_toi.toFixed(1)}</td>
+                <td className="px-2 py-1.5 text-right">{g.sog}</td><td className="px-2 py-1.5 text-right text-gray-400">{g.xg.toFixed(2)}</td>
+                <td className={`px-2 py-1.5 text-right ${g.g > 0 ? "font-semibold text-emerald-400" : "text-gray-500"}`}>{g.g}</td>
+                <td className="px-2 py-1.5 text-right">{g.pts}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  );
+}
+
+function ByTeam({ rows }: { rows: TeamPick[] }) {
+  if (!rows.length) return <Empty text="No games today." />;
+  return (
+    <div>
+      <p className="mb-3 text-xs text-gray-400">
+        The model&apos;s most likely goal scorer on every team playing tonight. Squares show every game this season, oldest to
+        newest — green for a goal, brighter for two or more, grey for a point without a goal. Tap a player for his full game log.
+      </p>
+      <div className="flex flex-col gap-2">{rows.map((t) => <TeamCard key={t.team} t={t} />)}</div>
     </div>
   );
 }
@@ -278,6 +348,7 @@ export default async function NhlPage() {
         <Tabs
           tabs={[
             { id: "goals", label: "Goals", content: <Goals rows={s.today} /> },
+            { id: "teams", label: "By team", content: <ByTeam rows={s.team_picks} /> },
             { id: "points", label: "Points", content: <Points rows={s.today_pts} /> },
             { id: "shots", label: "Shots", content: <Shots rows={s.today_sog} /> },
             { id: "parlays", label: "Parlays", content: <Parlays rows={parlays} /> },
