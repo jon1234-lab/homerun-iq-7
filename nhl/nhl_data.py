@@ -196,6 +196,18 @@ def line_combos(team):
     return out, combo.get("updatedAt")
 
 
+def boxscore_stats(game_id):
+    """(gameState, {playerId: [goals, points, sog]}) — works live and after FINAL."""
+    d = _get_json(f"{WEB}/gamecenter/{game_id}/boxscore")
+    out = {}
+    for side in ("awayTeam", "homeTeam"):
+        t = (d.get("playerByGameStats") or {}).get(side, {})
+        for grp in ("forwards", "defense"):
+            for p in t.get(grp, []):
+                out[str(p["playerId"])] = [p.get("goals") or 0, p.get("points") or 0, p.get("sog") or 0]
+    return d.get("gameState"), out
+
+
 def boxscore_goals(game_id):
     """(gameState, {playerId: goals}) — works live and after FINAL."""
     d = _get_json(f"{WEB}/gamecenter/{game_id}/boxscore")

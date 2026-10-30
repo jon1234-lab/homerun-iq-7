@@ -3,301 +3,535 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GoalIQ — NHL anytime goalscorer model</title>
+<title>GoalIQ — NHL goalscorer, points and shots model</title>
+<meta name="description" content="Model probabilities for every NHL skater, every night: anytime goals, points and shots on goal, with a public, graded track record.">
+<meta name="theme-color" content="#070b14">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ice:#EDF2F5; --sheet:#F8FBFC; --ink:#13212B; --muted:#5B6B77; --boards:#C9D4DB;
-  --crease:#3B7CB8; --crease-soft:#D6E5F2; --lamp:#D62828; --lamp-soft:#FBE3E3; --warn:#B7791F;
-  --num:"Barlow Condensed", "Arial Narrow", Arial, sans-serif;
-  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --bg:#070b14; --bg2:#0a101c; --card:#0d1422; --card2:#111a2b; --line:#1b2536; --line2:#253147;
+  --ink:#e8eef6; --muted:#8b98ab; --dim:#5f6c80;
+  --ice:#4cc3f5; --ice-soft:rgba(76,195,245,.14); --ice-ink:#062030;
+  --hit:#2fd17a; --hit-soft:rgba(47,209,122,.13); --miss:#f2555a; --miss-soft:rgba(242,85,90,.12); --warn:#f0b54a;
+  --head:"Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --body:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --ice:#0F1A22; --sheet:#15232D; --ink:#E4ECF1; --muted:#90A2AE; --boards:#2A3B47;
-  --crease:#6EA8DC; --crease-soft:#1E3547; --lamp:#FF5A4F; --lamp-soft:#3A1C1C; --warn:#E0A84A; } }
-:root[data-theme="dark"]{
-  --ice:#0F1A22; --sheet:#15232D; --ink:#E4ECF1; --muted:#90A2AE; --boards:#2A3B47;
-  --crease:#6EA8DC; --crease-soft:#1E3547; --lamp:#FF5A4F; --lamp-soft:#3A1C1C; --warn:#E0A84A; }
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--ice);color:var(--ink);font:16px/1.5 var(--body);
-  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-a{color:var(--crease)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);
+  background-image:radial-gradient(1200px 400px at 50% -200px, rgba(76,195,245,.07), transparent);
+  min-height:100vh;padding-bottom:env(safe-area-inset-bottom,0)}
+a{color:var(--ice);text-decoration:none} a:hover{text-decoration:underline}
 button,select,input{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--crease);outline-offset:2px}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ice);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
 
-header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;padding:8px 0 20px;border-bottom:2px solid var(--boards)}
-.brand{display:flex;align-items:baseline;gap:12px}
-.brand h1{font:700 44px/1 var(--num);letter-spacing:.5px;margin:0}
-.brand p{margin:0;color:var(--muted)}
-.datebar{display:flex;align-items:center;gap:8px}
-.datebar button,.datebar input{background:var(--sheet);border:1px solid var(--boards);border-radius:6px;padding:6px 12px;cursor:pointer}
-nav.tabs{display:flex;gap:4px;margin:18px 0 12px}
-nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:6px 10px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap}
-nav.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--crease)}
+/* header */
+header.top{border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;background:rgba(7,11,20,.88);backdrop-filter:blur(10px)}
+header.top .wrap{display:flex;align-items:center;gap:28px;height:62px}
+.logo{font:700 21px/1 var(--head);letter-spacing:-.3px;color:var(--ink);display:flex;align-items:baseline;gap:12px}
+.logo b{color:var(--ice)} .logo small{font:500 11px/1 var(--body);letter-spacing:1.6px;color:var(--dim)}
+nav.main{display:flex;gap:4px;margin-left:auto}
+nav.main a{color:var(--muted);padding:8px 12px;border-radius:8px;font-weight:500;position:relative}
+nav.main a:hover{color:var(--ink);text-decoration:none;background:var(--card)}
+nav.main a[aria-current="page"]{color:var(--ink)}
+nav.main a[aria-current="page"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-12px;height:2px;background:var(--ice);border-radius:2px}
+.acct{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:9px;padding:8px 14px;font-weight:600;border:1px solid var(--line2);background:var(--card);color:var(--ink);white-space:nowrap}
+.btn:hover{text-decoration:none;border-color:var(--dim)}
+.btn.pri{background:var(--ice);border-color:var(--ice);color:var(--ice-ink)}
+.btn.pri:hover{filter:brightness(1.07)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--line2);display:grid;place-items:center;font-weight:700;font-size:13px;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.badge-pro{font:700 10px/1 var(--body);letter-spacing:.8px;padding:4px 6px;border-radius:5px;background:var(--ice-soft);color:var(--ice)}
 
-.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:8px 0 22px}
-.game{background:var(--sheet);border:1px solid var(--boards);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left}
-.game[aria-pressed="true"]{border-color:var(--crease);box-shadow:inset 0 0 0 1px var(--crease)}
-.game .mu{font:700 22px/1.1 var(--num)}
-.game .meta{color:var(--muted);font-size:13px}
-.game .gl{font-size:13px;margin-top:4px}
-.state-live{color:var(--lamp);font-weight:600}
+/* date bar */
+.datebar{display:flex;align-items:center;gap:10px;padding:16px 0 18px;border-bottom:1px solid var(--line)}
+.iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--card);display:grid;place-items:center;color:var(--muted)}
+.iconbtn:hover{color:var(--ink);border-color:var(--dim)}
+.datebar input{background:var(--card);border:1px solid var(--line2);border-radius:9px;padding:6px 10px;height:36px}
+.datebar .lbl{font:600 15px var(--head)}
+.datebar .rel{margin-left:auto;font-size:11px;letter-spacing:1.6px;color:var(--dim);text-transform:uppercase}
+main{padding:22px 0 40px;min-height:60vh}
+h1.page{font:600 26px/1.15 var(--head);margin:0 0 4px;letter-spacing:-.3px}
+.sub{color:var(--muted);margin:0 0 18px}
 
-.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;color:var(--muted);font-size:14px}
-.filters select{background:var(--sheet);border:1px solid var(--boards);border-radius:6px;padding:4px 8px}
-.filters label{display:flex;gap:6px;align-items:center}
+/* games strip */
+.games{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 6px;margin:0 -2px 18px;scroll-snap-type:x proximity}
+.game{flex:0 0 226px;scroll-snap-align:start;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.game:hover{border-color:var(--line2)}
+.game[aria-pressed="true"]{border-color:var(--ice);box-shadow:0 0 0 1px var(--ice) inset}
+.game .mu{display:flex;justify-content:space-between;align-items:baseline;font:700 15px var(--head)}
+.game .mu span{color:var(--dim);font-weight:500;margin:0 3px}
+.game .when{font:500 13px var(--body);color:var(--muted)}
+.game .when.live{color:var(--hit)} .game .when.final{color:var(--dim)}
+.game .gl{display:grid;grid-template-columns:38px 1fr auto;gap:2px 6px;margin-top:8px;font-size:13px}
+.game .gl i{font-style:normal;color:var(--dim);font:600 11px var(--head);letter-spacing:.5px;align-self:center}
+.game .gl em{font-style:normal;font-size:10px;letter-spacing:.8px;color:var(--dim);text-transform:uppercase;align-self:center}
+.game .gl em.ok{color:var(--hit)}
 
-.tablewrap{overflow-x:auto;background:var(--sheet);border:1px solid var(--boards);border-radius:10px}
-table{border-collapse:collapse;width:100%;min-width:760px}
-th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--boards);white-space:nowrap}
-th{font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--sheet)}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-tr:last-child td{border-bottom:0}
-.player{display:flex;align-items:center;gap:10px}
-.player img{width:34px;height:34px;border-radius:50%;background:var(--ice);object-fit:cover}
-.player .nm{font-weight:600}
-.player .sub{color:var(--muted);font-size:13px}
-.prob{display:flex;align-items:center;gap:10px;min-width:170px}
-.prob b{font:700 24px/1 var(--num);width:58px;text-align:right}
-.bar{flex:1;height:8px;background:var(--crease-soft);border-radius:4px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--crease)}
-.tag{display:inline-block;font-size:12px;padding:1px 6px;border-radius:4px;border:1px solid var(--boards);color:var(--muted)}
-.tag.pp1{border-color:var(--crease);color:var(--crease)}
-.tag.warn{border-color:var(--warn);color:var(--warn)}
-tr.scored{background:var(--lamp-soft)}
-tr.scored .prob b{color:var(--lamp)}
-tr.scored .nm::after{content:" scored";color:var(--lamp);font-weight:600;font-size:13px}
-@media (prefers-reduced-motion:no-preference){
-  tr.scored.fresh{animation:lamp 1.6s ease-out 2}
-  @keyframes lamp{0%{box-shadow:inset 6px 0 0 var(--lamp)}100%{box-shadow:inset 0 0 0 transparent}}
-}
-.empty{padding:40px 16px;text-align:center;color:var(--muted);white-space:normal}
-.note{color:var(--muted);font-size:14px;max-width:72ch}
+/* controls */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.search{flex:1 1 240px;position:relative}
+.search input{width:100%;background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:9px 12px 9px 36px;height:40px}
+.search svg{position:absolute;left:12px;top:12px;color:var(--dim)}
+select.sel{background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:0 10px;height:40px}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:7px;padding:6px 12px;color:var(--muted);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--ice-soft);color:var(--ice)}
+.chip{border:1px solid var(--line2);background:var(--card);border-radius:10px;padding:0 13px;height:40px;color:var(--muted);font-weight:500}
+.chip[aria-pressed="true"]{border-color:var(--ice);color:var(--ice);background:var(--ice-soft)}
+.markets{margin-bottom:14px}
+.count{font-size:11px;letter-spacing:1.6px;color:var(--dim);text-transform:uppercase;margin:4px 0 8px}
+.note{font-size:13px;color:var(--muted)}
 
-.tr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px}
-.stat{background:var(--sheet);border:1px solid var(--boards);border-radius:10px;padding:14px}
-.stat b{font:700 34px/1 var(--num);display:block}
-.stat span{color:var(--muted);font-size:14px}
-.calib{background:var(--sheet);border:1px solid var(--boards);border-radius:10px;padding:14px}
-.calib:empty{display:none}
-.calrow{display:grid;grid-template-columns:90px 1fr 110px;gap:10px;align-items:center;padding:4px 0}
-.calrow .pair{position:relative;height:14px;background:var(--crease-soft);border-radius:4px}
-.calrow .pair i{position:absolute;top:0;bottom:0;left:0;background:var(--crease);border-radius:4px;opacity:.45}
-.calrow .pair em{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--ink)}
-.faq h3{font:600 26px/1.1 var(--num);margin:26px 0 6px}
-.faq p{max-width:72ch;margin:0 0 10px}
-footer{margin-top:40px;color:var(--muted);font-size:13px;max-width:80ch}
+/* table */
+table.board{width:100%;border-collapse:collapse}
+table.board th{font:600 10.5px/1.25 var(--body);letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+table.board th:first-child{text-align:left}
+table.board th[aria-sort]{color:var(--ice)}
+table.board th[aria-sort="descending"]::after{content:" ↓"} table.board th[aria-sort="ascending"]::after{content:" ↑"}
+table.board td{padding:12px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+table.board td:first-child{text-align:left}
+table.board tr.hit td{background:var(--hit-soft)}
+.who{display:flex;gap:12px;align-items:center;min-width:0}
+.hs{width:40px;height:40px;border-radius:50%;background:var(--card2);border:1px solid var(--line);flex:0 0 40px;overflow:hidden}
+.hs img{width:100%;height:100%;object-fit:cover}
+.nm{font-weight:600;font-size:15px}
+.meta{color:var(--muted);font-size:13px}
+.tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.tag{font:600 10.5px/1 var(--body);letter-spacing:.6px;padding:4px 6px;border-radius:5px;border:1px solid var(--line2);color:var(--muted);text-transform:uppercase}
+.tag.pp1{color:var(--ice);border-color:rgba(76,195,245,.35);background:var(--ice-soft)}
+.tag.warn{color:var(--warn);border-color:rgba(240,181,74,.35)}
+.tag.goal{color:var(--hit);border-color:rgba(47,209,122,.4);background:var(--hit-soft)}
+.prob{min-width:150px}
+.prob b{font:700 18px var(--head);display:block}
+.bar{height:4px;border-radius:3px;background:var(--line2);margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ice);border-radius:3px}
+.tip{border-bottom:1px dotted var(--dim);cursor:help}
 
-@media (max-width:640px){
-  .brand h1{font-size:36px}.brand p{display:none}
-  .games{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-16px;padding:0 16px 4px}
-  .game{flex:0 0 72%;scroll-snap-align:start}
-  table{min-width:0}
-  th:nth-child(n+4),td:nth-child(n+4){display:none}
-  .bar{display:none}.prob{min-width:0}.prob b{width:auto;font-size:22px}
-  th,td{padding:9px 8px} th{font-size:12px}
-  .player img{display:none}
-  td:first-child{white-space:normal;width:55%}
-  .player .sub{white-space:normal}
+/* cards (mobile + lists) */
+.cards{display:none}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.pcard.hit{border-color:rgba(47,209,122,.45);background:linear-gradient(var(--hit-soft),var(--hit-soft)),var(--card)}
+.pcard .row{display:flex;gap:12px;align-items:center}
+.pcard .right{margin-left:auto;text-align:right}
+.pcard .right b{font:700 18px var(--head)}
+.pcard details summary{list-style:none;cursor:pointer}
+.pcard details summary::-webkit-details-marker{display:none}
+.pcard dl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 0;font-size:13px}
+.pcard dt{color:var(--dim);font-size:11px} .pcard dd{margin:0;font-weight:600}
+
+/* paywall */
+.lockcard{margin:14px 0;border:1px solid rgba(76,195,245,.35);border-radius:16px;padding:22px;background:
+  linear-gradient(135deg, rgba(76,195,245,.10), rgba(76,195,245,.02) 60%), var(--card);display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+.lockcard h3{font:600 20px/1.2 var(--head);margin:0 0 6px}
+.lockcard p{margin:0;color:var(--muted)}
+.lockcard ul{margin:10px 0 0;padding:0;list-style:none;color:var(--ink);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}
+.lockcard li::before{content:"✓  ";color:var(--ice);font-weight:700}
+.lockcard .cta{text-align:center}
+.lockcard .cta small{display:block;color:var(--dim);margin-top:6px;font-size:12px}
+.ghost-rows{position:relative;margin-top:-6px}
+.ghost{height:58px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 12px;opacity:.45}
+.ghost span{height:10px;border-radius:5px;background:var(--line2)}
+
+/* best bets / parlays */
+.list{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.li{display:grid;grid-template-columns:34px 44px 1fr auto auto 92px;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+.li:last-child{border-bottom:0}
+.rank{font:700 15px var(--head);color:var(--dim);text-align:center}
+.li .pp{text-align:right} .li .pp b{font:700 17px var(--head);display:block} .li .pp small{color:var(--muted)}
+.res{font:600 11px/1 var(--body);letter-spacing:.6px;text-transform:uppercase;padding:6px 8px;border-radius:6px;text-align:center;background:var(--card2);color:var(--muted)}
+.res.Hit,.res.Won{background:var(--hit-soft);color:var(--hit)} .res.Miss,.res.Lost{background:var(--miss-soft);color:var(--miss)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.parlay{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.parlay h3{font:600 16px var(--head);margin:0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.leg{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}
+.leg:last-of-type{border-bottom:0}
+.leg .hs{width:32px;height:32px;flex-basis:32px}
+.leg .ic{margin-left:auto;font-weight:700}
+.parlay .foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.parlay .foot b{font:700 20px var(--head)}
+
+/* record */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.kpi h3{font:600 15px var(--head);margin:0 0 10px;display:flex;justify-content:space-between}
+.kpi .big{font:700 30px/1 var(--head)} .kpi .big small{font-size:14px;color:var(--muted);font-weight:500}
+.tiers{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+.tiers td,.tiers th{padding:6px 0;border-top:1px solid var(--line);text-align:right}
+.tiers th{color:var(--dim);font-weight:500;font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.tiers td:first-child,.tiers th:first-child{text-align:left}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.panel h2{font:600 18px var(--head);margin:0 0 4px}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+table.simple{width:100%;border-collapse:collapse;font-size:14px}
+table.simple th,table.simple td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right}
+table.simple th{color:var(--dim);font-weight:500;font-size:11px;letter-spacing:.8px;text-transform:uppercase}
+table.simple td:first-child,table.simple th:first-child{text-align:left}
+
+/* prose */
+.prose{max-width:72ch} .prose h2{font:600 20px var(--head);margin:28px 0 8px} .prose p,.prose li{color:#c9d3df}
+.price-card{max-width:440px;background:var(--card);border:1px solid rgba(76,195,245,.4);border-radius:18px;padding:24px;margin-top:10px}
+.price-card .p{font:700 40px/1 var(--head)} .price-card .p small{font-size:16px;color:var(--muted);font-weight:500}
+.price-card ul{padding:0;list-style:none;margin:16px 0 20px} .price-card li{padding:6px 0;border-bottom:1px solid var(--line)}
+.price-card li::before{content:"✓  ";color:var(--ice);font-weight:700}
+
+/* states */
+.empty,.err{text-align:center;padding:56px 16px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:16px}
+.empty h3,.err h3{color:var(--ink);font:600 18px var(--head);margin:0 0 6px}
+.skel{height:58px;border-radius:12px;margin-bottom:8px;background:linear-gradient(90deg,var(--card) 0,var(--card2) 50%,var(--card) 100%);background-size:200% 100%;animation:sk 1.3s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--line2);padding:10px 16px;border-radius:10px;z-index:50;font-size:14px}
+.banner{background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;color:var(--muted)}
+
+footer{border-top:1px solid var(--line);padding:24px 0 100px;color:var(--dim);font-size:12.5px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between}
+footer a{color:var(--muted)}
+
+/* bottom nav (mobile) */
+nav.bottom{display:none}
+@media (max-width:860px){
+  .wrap{padding:0 16px}
+  nav.main,.logo small{display:none}
+  .acct{margin-left:auto}
+  nav.bottom{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(10,16,28,.96);
+    backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0))}
+  nav.bottom a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--dim);padding:4px 0}
+  nav.bottom a[aria-current="page"]{color:var(--ice)}
+  nav.bottom a:hover{text-decoration:none}
+  table.board{display:none} .cards{display:block}
+  .li{grid-template-columns:26px 36px 1fr auto;row-gap:6px} .li .hide-m{display:none}
+  .li .res{grid-column:3 / 5;justify-self:start}
+  .kpis{grid-template-columns:1fr}
+  .lockcard{grid-template-columns:1fr} .lockcard ul{grid-template-columns:1fr}
+  .datebar .rel{display:none}
+  .pgrid{grid-template-columns:1fr}
+  .game{flex-basis:210px}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><h1>GoalIQ</h1><p>Anytime goalscorer probabilities for every NHL skater, every night.</p></div>
-    <div class="datebar" id="datebar">
-      <button type="button" data-shift="-1" aria-label="Previous day">Prev</button>
-      <input type="date" id="date" aria-label="Slate date">
-      <button type="button" data-shift="1" aria-label="Next day">Next</button>
-    </div>
-  </header>
-
-  <nav class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="slate">Tonight</button>
-    <button role="tab" aria-selected="false" data-tab="record">Track record</button>
-    <button role="tab" aria-selected="false" data-tab="method">How it works</button>
+<header class="top"><div class="wrap">
+  <a class="logo" href="/" data-link><span>Goal<b>IQ</b></span><small>NHL PROPS MODEL</small></a>
+  <nav class="main" aria-label="Main">
+    <a href="/" data-link>Tonight</a><a href="/best-bets" data-link>Best Bets</a><a href="/parlays" data-link>Parlays</a>
+    <a href="/track-record" data-link>Track Record</a><a href="/how-it-works" data-link>How it works</a>
   </nav>
+  <div class="acct" id="acct"></div>
+</div></header>
 
-  <section id="tab-slate">
-    <div class="games" id="games"></div>
-    <div class="filters">
-      <label>Team <select id="f-team"><option value="">All</option></select></label>
-      <label>Position <select id="f-pos"><option value="">All</option><option value="F">Forwards</option><option value="D">Defense</option></select></label>
-      <label>Power play <select id="f-pp"><option value="">Any</option><option value="pp1">PP1 only</option></select></label>
-      <label><input type="checkbox" id="f-best"> Best per game</label>
-      <label><input type="checkbox" id="f-sample"> Hide small samples</label>
-      <span id="updated"></span>
-    </div>
-    <div class="tablewrap"><table>
-      <thead><tr>
-        <th data-k="name" scope="col">Player</th>
-        <th data-k="p_goal" class="num" scope="col" aria-sort="descending">Goal chance</th>
-        <th data-k="fair_odds" class="num" scope="col">Fair odds</th>
-        <th data-k="exp_shots" class="num" scope="col">Exp. shots</th>
-        <th data-k="sh_pct_reg" class="num" scope="col">Shooting %</th>
-        <th data-k="proj_pp_min" class="num" scope="col">PP min</th>
-        <th data-k="goalie_mult" class="num" scope="col">Goalie factor</th>
-        <th scope="col">Role</th>
-      </tr></thead>
-      <tbody id="rows"><tr><td colspan="8" class="empty">Loading tonight's slate…</td></tr></tbody>
-    </table></div>
-    <p class="note" id="snapnote"></p>
-  </section>
-
-  <section id="tab-record" hidden>
-    <div class="tr-grid" id="tr-stats"></div>
-    <div class="calib" id="tr-calib"></div>
-    <p class="note">Predictions lock at puck drop and are graded only after the game is final. The dark tick is how often players in each band actually scored; the shaded bar is what the model said.</p>
-  </section>
-
-  <section id="tab-method" hidden class="faq">
-    <h3>What the number means</h3>
-    <p>Goal chance is the probability a skater scores at least one goal tonight, including overtime. Fair odds convert that probability into American odds with no bookmaker margin, so a sportsbook price longer than the fair price is the one worth a look.</p>
-    <h3>What goes into it</h3>
-    <p>Each skater's shot rate and shooting percentage, pulled toward the league average for their position so small samples don't produce wild numbers. That rate is applied to tonight's projected ice time, with power-play minutes weighted heavily, then adjusted for the confirmed opposing goalie, how many shots the opponent allows, and home ice.</p>
-    <h3>Why you can trust the percentages</h3>
-    <p>Tested on 10,115 player-games from the 2025-26 season using only data available before each game. When the model said 10–13%, players scored about 10% of the time; in its top tier it predicted 31.5% and they scored 35.4%. It beat both a simple goals-per-game estimate and the league base rate.</p>
-    <h3>Lineups and goalies</h3>
-    <p>Lines, power-play units and starting goalies come from DailyFaceoff and refresh through the afternoon. Game-time decisions are flagged. Players with little NHL history carry a small-sample tag because their numbers lean on the positional average.</p>
-  </section>
-
-  <footer>GoalIQ is a research tool, not betting advice. Probabilities are estimates and players can be scratched late. Data: NHL.com, DailyFaceoff.</footer>
+<div class="wrap">
+  <div class="datebar" id="datebar">
+    <button class="iconbtn" data-shift="-1" aria-label="Previous day"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+    <input type="date" id="date" aria-label="Slate date">
+    <button class="iconbtn" data-shift="1" aria-label="Next day"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+    <span class="lbl" id="datelbl"></span><span class="rel" id="daterel"></span>
+  </div>
+  <main id="view" tabindex="-1"></main>
 </div>
 
+<footer><div class="wrap">
+  <span>For entertainment only. Not betting advice. 21+. Gambling problem? Call 1-800-GAMBLER.</span>
+  <span><a href="/pricing" data-link>Pricing</a> · <a href="/terms" data-link>Terms &amp; responsible play</a></span>
+</div></footer>
+
+<nav class="bottom" aria-label="Main">
+  <a href="/" data-link><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg>Tonight</a>
+  <a href="/best-bets" data-link><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Best Bets</a>
+  <a href="/parlays" data-link><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Parlays</a>
+  <a href="/track-record" data-link><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Record</a>
+  <a href="/how-it-works" data-link><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 1-1 1.7M12 17h.01"/></svg>How</a>
+</nav>
+
 <script>
-const API = window.__GOALIQ_API__ ?? "";
-const $ = s => document.querySelector(s);
-const etToday = () => new Date().toLocaleDateString("en-CA", {timeZone: "America/New_York"});
-const PREGAME = ["FUT","PRE"], DONE = ["OFF","FINAL"];
-let slate = null, sortK = "p_goal", sortDir = -1, gameFilter = null, scoredSeen = new Set(), liveTimer;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (x, d = 1) => x == null ? "–" : (x * 100).toFixed(d) + "%";
+const odds = o => o == null ? "–" : (typeof o === "string" ? o : (o > 0 ? "+" + o : String(o)));
+const etToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+const PREGAME = ["FUT", "PRE"], FINAL = ["FINAL", "OFF"];
+const MK = { goal: { key: "p_goal", fair: "fair_goal", label: "Anytime goal", stat: 0, need: 1 },
+             point: { key: "p_point", fair: "fair_point", label: "1+ point", stat: 1, need: 1 },
+             sog: { key: "p_sog3", fair: "fair_sog3", label: "3+ shots on goal", stat: 2, need: 3 } };
+const ST = { me: null, date: etToday(), market: "goal", game: null, sort: null, dir: -1, filters: { team: "", pos: "", pp1: false, gtd: false, q: "" },
+             board: null, live: {}, liveTimer: null, bbMarket: "Goal" };
 
-const fmtOdds = o => o == null ? "–" : (o > 0 ? "+" + o : String(o));
-const pct = (x, d=1) => (x*100).toFixed(d) + "%";
-const localTime = iso => new Date(iso).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
-const posGroup = p => p === "D" ? "D" : "F";
-const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function api(path) {
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 60000);
+  try {
+    const r = await fetch(path, { credentials: "same-origin", signal: ctl.signal });
+    if (!r.ok) { let m = ""; try { m = (await r.json()).detail } catch (e) {} throw new Error(m || "Server returned " + r.status); }
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+function headshot(url, alt = "") { return `<span class="hs">${url ? `<img src="${esc(url)}" alt="${esc(alt)}" loading="lazy" onerror="this.remove()">` : ""}</span>`; }
+const hsUrl = (team, id) => `https://assets.nhle.com/mugs/nhl/20262027/${team}/${id}.png`;
+const skel = (n = 6) => Array.from({ length: n }, () => `<div class="skel"></div>`).join("");
+function errBox(msg, retry) { return `<div class="err"><h3>Couldn't load this</h3><p>${esc(msg)}</p><button class="btn" onclick="${retry}">Retry</button></div>`; }
+function localTime(iso) { return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+function niceDate(d) { return new Date(d + "T12:00:00").toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }); }
 
-async function load(date){
-  clearTimeout(liveTimer);
-  $("#rows").innerHTML = `<tr><td colspan="8" class="empty">Loading ${esc(date)}…</td></tr>`;
-  try{
-    const r = await fetch(`${API}/api/slate?date=${date}`);
-    if(!r.ok) throw new Error("server returned " + r.status);
-    slate = await r.json();
-  }catch(e){
-    $("#rows").innerHTML = `<tr><td colspan="8" class="empty">Couldn't load the slate (${esc(e.message)}). Refresh in a minute.</td></tr>`; return;
-  }
-  scoredSeen = new Set(slate.players.filter(p => p.scored).map(p => p.player_id));
-  gameFilter = null; buildFilters(); render(); pollLive();
+/* ---------------- account + paywall ---------------- */
+async function loadMe() {
+  try { ST.me = await api("/api/me"); } catch (e) { ST.me = { logged_in: false, pro: false, signin_ready: false }; }
+  const a = $("#acct"), me = ST.me, next = encodeURIComponent(location.pathname);
+  if (me.pro) a.innerHTML = `<span class="badge-pro">PRO</span><button class="avatar" id="av" title="${esc(me.name)}">${me.pic ? `<img src="${esc(me.pic)}" alt="">` : esc((me.name || "?")[0].toUpperCase())}</button>`;
+  else if (me.logged_in) a.innerHTML = `<a class="btn pri sm" href="${esc(me.checkout_url || "/pricing")}">Get Pro</a><button class="avatar" id="av" title="${esc(me.name)}">${me.pic ? `<img src="${esc(me.pic)}" alt="">` : esc((me.name || "?")[0].toUpperCase())}</button>`;
+  else a.innerHTML = `${me.signin_ready ? `<a class="btn sm" href="/auth/login?next=${next}">Sign in</a>` : ""}<a class="btn pri sm" href="/pricing" data-link>Get Pro</a>`;
+  const av = $("#av"); if (av) av.onclick = () => { if (confirm(`Signed in as ${me.name || "Whop user"}.\n\nSign out?`)) location.href = "/auth/logout"; };
+  const q = new URLSearchParams(location.search);
+  if (q.get("signin") === "failed") toast(q.get("reason") || "Sign-in didn't complete. Try again.");
+}
+function lockCard(n, what) {
+  const me = ST.me || {};
+  const cta = me.logged_in
+    ? `<a class="btn pri" href="${esc(me.checkout_url || "/pricing")}">Get GoalIQ Pro</a><small>$14.99/month · cancel anytime</small>`
+    : `<a class="btn pri" href="/pricing" data-link>Get GoalIQ Pro</a><small>$14.99/month · ${me.signin_ready ? `<a href="/auth/login?next=${encodeURIComponent(location.pathname)}">already a member? Sign in</a>` : "cancel anytime"}</small>`;
+  return `<div class="lockcard"><div><h3>${esc(what)}</h3><p>${n ? `${n} more ${n === 1 ? "row is" : "rows are"} locked for this date.` : "This is part of GoalIQ Pro."} Free accounts see the top 3 goal picks every night.</p>
+    <ul><li>Every skater, every game</li><li>Points and shots-on-goal boards</li><li>All 30 Best Bets each night</li><li>Model parlays with fair odds</li></ul></div>
+    <div class="cta">${cta}</div></div>`;
 }
 
-function buildFilters(){
-  const teams = [...new Set(slate.players.map(p => p.team))].sort();
-  $("#f-team").innerHTML = `<option value="">All</option>` + teams.map(t => `<option>${t}</option>`).join("");
-  const g = $("#games");
-  g.innerHTML = slate.games.map(x => {
-    const ag = x.goalies[x.away] || {}, hg = x.goalies[x.home] || {};
-    const when = PREGAME.includes(x.state) ? localTime(x.start_utc)
-      : `<span class="state-live">${DONE.includes(x.state) ? "Final" : "In progress"}</span>`;
-    const gl = (o) => esc(o.name || "TBD") + (o.status === "Likely" ? " (likely)" : "");
-    return `<button class="game" type="button" data-gid="${x.game_id}" aria-pressed="false">
-      <div class="mu">${x.away} at ${x.home}</div><div class="meta">${when}</div>
-      <div class="gl">${gl(ag)} vs ${gl(hg)}</div></button>`;}).join("");
-  g.querySelectorAll(".game").forEach(b => b.onclick = () => {
-    const id = +b.dataset.gid; gameFilter = gameFilter === id ? null : id;
-    g.querySelectorAll(".game").forEach(z => z.setAttribute("aria-pressed", String(+z.dataset.gid === gameFilter)));
-    render();
+/* ---------------- routing ---------------- */
+const ROUTES = { "/": tonight, "/best-bets": bestBets, "/parlays": parlays, "/track-record": record, "/how-it-works": how, "/pricing": pricing, "/terms": terms };
+function go(path, push = true) {
+  if (push) history.pushState({}, "", path);
+  const p = location.pathname in ROUTES ? location.pathname : "/";
+  document.querySelectorAll("nav a[data-link]").forEach(a => a.getAttribute("href") === p ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  $("#datebar").style.display = ["/", "/best-bets", "/parlays"].includes(p) ? "" : "none";
+  clearTimeout(ST.liveTimer);
+  ROUTES[p]();
+  window.scrollTo(0, 0);
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-link]");
+  if (a && !e.metaKey && !e.ctrlKey && a.origin === location.origin) { e.preventDefault(); go(a.pathname); }
+});
+window.addEventListener("popstate", () => go(location.pathname, false));
+function setDate(d) {
+  ST.date = d; $("#date").value = d; $("#datelbl").textContent = niceDate(d);
+  const t = etToday(); $("#daterel").textContent = d === t ? "Tonight" : d < t ? "Past slate" : "Upcoming";
+}
+$("#date").onchange = e => { if (e.target.value) { setDate(e.target.value); go(location.pathname, false); } };
+document.querySelectorAll("#datebar [data-shift]").forEach(b => b.onclick = () => {
+  const d = new Date(ST.date + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + +b.dataset.shift);
+  setDate(d.toISOString().slice(0, 10)); go(location.pathname, false);
+});
+
+/* ---------------- Tonight ---------------- */
+async function tonight() {
+  const v = $("#view");
+  v.innerHTML = `<div class="games">${skel(1).replace("skel", "skel").repeat(1)}</div>${skel(8)}`;
+  let b;
+  try { b = await api(`/api/board?date=${ST.date}&market=${ST.market}`); }
+  catch (e) { v.innerHTML = errBox(e.name === "AbortError" ? "The model is waking up. Give it a few seconds." : e.message, "go(location.pathname,false)"); return; }
+  ST.board = b;
+  if (!b.games.length) { v.innerHTML = `<div class="empty"><h3>No NHL games on this date</h3><p>Pick another day with the arrows above.</p></div>`; return; }
+  const teams = [...new Set(b.games.flatMap(g => [g.away, g.home]))].sort();
+  v.innerHTML = `
+    <div class="games" id="games">${b.games.map(gameCard).join("")}</div>
+    ${b.source === "early" ? `<div class="banner">Early look from the original GoalIQ goal model. Tonight's full model run, with points and shots, lands mid-afternoon Eastern once goalies are confirmed.</div>` : ""}
+    <div class="seg markets" role="group" aria-label="Market">${Object.entries(MK).map(([k, m]) => `<button data-mk="${k}" aria-pressed="${ST.market === k}">${m.label}</button>`).join("")}</div>
+    <div class="controls">
+      <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search players" value="${esc(ST.filters.q)}" aria-label="Search players"></label>
+      <select class="sel" id="fteam" aria-label="Team"><option value="">All teams</option>${teams.map(t => `<option ${ST.filters.team === t ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <div class="seg" role="group" aria-label="Position">${[["", "All"], ["F", "Forwards"], ["D", "Defense"]].map(([k, l]) => `<button data-pos="${k}" aria-pressed="${ST.filters.pos === k}">${l}</button>`).join("")}</div>
+      <button class="chip" id="fpp" aria-pressed="${ST.filters.pp1}">PP1 only</button>
+      <button class="chip" id="fgtd" aria-pressed="${ST.filters.gtd}">Hide game-time decisions</button>
+    </div>
+    <div id="tbl"></div>`;
+  $("#games").onclick = e => { const c = e.target.closest(".game"); if (!c) return; ST.game = ST.game === +c.dataset.gid ? null : +c.dataset.gid; document.querySelectorAll(".game").forEach(x => x.setAttribute("aria-pressed", String(+x.dataset.gid === ST.game))); renderBoard(); };
+  v.querySelectorAll("[data-mk]").forEach(x => x.onclick = () => { ST.market = x.dataset.mk; ST.sort = null; tonight(); });
+  v.querySelectorAll("[data-pos]").forEach(x => x.onclick = () => { ST.filters.pos = x.dataset.pos; v.querySelectorAll("[data-pos]").forEach(y => y.setAttribute("aria-pressed", String(y === x))); renderBoard(); });
+  $("#q").oninput = e => { ST.filters.q = e.target.value; renderBoard(); };
+  $("#fteam").onchange = e => { ST.filters.team = e.target.value; renderBoard(); };
+  $("#fpp").onclick = e => { ST.filters.pp1 = !ST.filters.pp1; e.target.setAttribute("aria-pressed", ST.filters.pp1); renderBoard(); };
+  $("#fgtd").onclick = e => { ST.filters.gtd = !ST.filters.gtd; e.target.setAttribute("aria-pressed", ST.filters.gtd); renderBoard(); };
+  renderBoard(); pollLive();
+}
+function gameCard(g) {
+  const live = !PREGAME.includes(g.state), fin = FINAL.includes(g.state);
+  const gl = t => { const x = g.goalies[t] || {}; const ok = (x.status || "").toLowerCase() === "confirmed";
+    return `<i>${t}</i><span>${esc(x.name || "TBD")}</span><em class="${ok ? "ok" : ""}">${x.name ? esc(x.status || "Unconfirmed") : ""}</em>`; };
+  return `<button class="game" data-gid="${g.game_id}" aria-pressed="${ST.game === g.game_id}">
+    <div class="mu"><div>${g.away}<span>at</span>${g.home}</div><div class="when ${fin ? "final" : live ? "live" : ""}">${fin ? "Final" : live ? "Live" : localTime(g.start_utc)}</div></div>
+    <div class="gl">${gl(g.away)}${gl(g.home)}</div></button>`;
+}
+function liveHit(p) {
+  const s = ST.live[p.player_id]; if (!s) return false; const m = MK[ST.market]; return s[m.stat] >= m.need;
+}
+function renderBoard() {
+  const b = ST.board, m = MK[ST.market], f = ST.filters;
+  let ps = b.players.slice();
+  if (ST.game) ps = ps.filter(p => p.game_id === ST.game);
+  if (f.team) ps = ps.filter(p => p.team === f.team);
+  if (f.pos) ps = ps.filter(p => (p.pos === "D" ? "D" : "F") === f.pos);
+  if (f.pp1) ps = ps.filter(p => p.pp_unit === "pp1");
+  if (f.gtd) ps = ps.filter(p => !p.gtd);
+  if (f.q) { const q = f.q.toLowerCase(); ps = ps.filter(p => p.name.toLowerCase().includes(q)); }
+  const sk = ST.sort || m.key;
+  ps.sort((a, c) => { const x = a[sk], y = c[sk]; if (typeof x === "string") return ST.dir * x.localeCompare(y); return ST.dir * ((x ?? -1e9) - (y ?? -1e9)); });
+  const max = Math.max(.01, ...b.players.map(p => p[m.key] || 0));
+  const cols = ST.market === "goal" ? [["sog_proj", "Exp. shots", 1], ["xg60", "xG / 60", 2], ["pp_toi", "PP min", 1], ["finishing", "Finishing", 2]]
+             : ST.market === "point" ? [["toi", "TOI", 1], ["pp_toi", "PP min", 1], ["sog_proj", "Exp. shots", 1]]
+             : [["sog_proj", "Exp. shots", 2], ["p_sog2", "2+ SOG", "%"], ["p_sog4", "4+ SOG", "%"], ["toi", "TOI", 1]];
+  const fmt = (v, d) => v == null ? "–" : d === "%" ? pct(v, 0) : Number(v).toFixed(d);
+  const tags = p => `<div class="tags">${liveHit(p) ? `<span class="tag goal">${ST.market === "goal" ? "🚨 Goal" : "Hit"}</span>` : ""}${p.pp_unit ? `<span class="tag ${p.pp_unit}">${p.pp_unit}</span>` : ""}${p.line ? `<span class="tag">${p.line[0] === "d" ? "Pair " : "Line "}${p.line[1]}</span>` : ""}${p.gtd ? `<span class="tag warn">Game-time call</span>` : ""}</div>`;
+  const sub = p => `${p.team} ${p.home ? "vs" : "at"} ${p.opp} · facing ${esc(p.opp_goalie || "TBD")}`;
+  const locked = b.locked || 0;
+  const th = (k, l, cls = "") => `<th data-k="${k}" ${sk === k ? `aria-sort="${ST.dir < 0 ? "descending" : "ascending"}"` : ""} class="${cls}">${l}</th>`;
+  let html = `<div class="count">${b.players.length + locked} skaters${b.lineups_note ? ` · ${esc(b.lineups_note)}` : ""}</div>`;
+  if (!ps.length && !locked) html += `<div class="empty"><h3>No skaters match</h3><p>Clear a filter to see more.</p></div>`;
+  else {
+    html += `<table class="board"><thead><tr>${th("name", "Player")}${th(m.key, m.label + " chance")}${th(m.fair, "Fair odds")}${cols.map(c => th(c[0], c[1])).join("")}</tr></thead><tbody>
+      ${ps.map(p => `<tr class="${liveHit(p) ? "hit" : ""}"><td><div class="who">${headshot(p.headshot)}<div><div class="nm">${esc(p.name)}</div><div class="meta">${sub(p)}</div>${tags(p)}</div></div></td>
+        <td class="prob num"><b>${pct(p[m.key])}</b><div class="bar"><i style="width:${(100 * (p[m.key] || 0) / max).toFixed(1)}%"></i></div></td>
+        <td class="num">${odds(p[m.fair])}</td>${cols.map(c => `<td class="num">${fmt(p[c[0]], c[2])}</td>`).join("")}</tr>`).join("")}</tbody></table>
+      <div class="cards">${ps.map(p => `<div class="pcard ${liveHit(p) ? "hit" : ""}"><details><summary><div class="row">${headshot(p.headshot)}<div style="min-width:0"><div class="nm">${esc(p.name)}</div><div class="meta">${sub(p)}</div></div>
+        <div class="right num"><b>${pct(p[m.key])}</b><div class="meta">${odds(p[m.fair])}</div></div></div><div class="bar"><i style="width:${(100 * (p[m.key] || 0) / max).toFixed(1)}%"></i></div>${tags(p)}</summary>
+        <dl>${cols.map(c => `<div><dt>${c[1]}</dt><dd class="num">${fmt(p[c[0]], c[2])}</dd></div>`).join("")}</dl></details></div>`).join("")}</div>`;
+  }
+  if (locked) html += `<div class="ghost-rows" aria-hidden="true">${Array.from({ length: 3 }, () => `<div class="ghost"><span style="width:40px;height:40px;border-radius:50%"></span><span style="width:160px"></span><span style="width:60px;margin-left:auto"></span></div>`).join("")}</div>`
+    + lockCard(locked, ST.market === "goal" ? "See every skater on tonight's board" : `The ${m.label} board is part of Pro`);
+  $("#tbl").innerHTML = html;
+  $("#tbl").querySelectorAll("th[data-k]").forEach(t => t.onclick = () => { const k = t.dataset.k; ST.dir = ST.sort === k ? -ST.dir : (k === "name" ? 1 : -1); ST.sort = k; renderBoard(); });
+}
+async function pollLive() {
+  clearTimeout(ST.liveTimer);
+  const b = ST.board; if (!b || !b.games.some(g => !PREGAME.includes(g.state))) return;
+  try {
+    const d = await api(`/api/live?date=${b.date}`); ST.live = {};
+    d.games.forEach(g => Object.assign(ST.live, g.stats));
+    if (location.pathname === "/") renderBoard();
+  } catch (e) {}
+  if (b.games.some(g => !PREGAME.includes(g.state) && !FINAL.includes(g.state))) ST.liveTimer = setTimeout(pollLive, 60000);
+}
+
+/* ---------------- Best Bets ---------------- */
+async function bestBets() {
+  const v = $("#view");
+  v.innerHTML = `<h1 class="page">Best bets</h1><p class="sub">The model's top 10 per market for ${niceDate(ST.date)}, graded against the final box score.</p>${skel(6)}`;
+  let d; try { d = await api(`/api/picks?date=${ST.date}`); } catch (e) { v.innerHTML += errBox(e.message, "go(location.pathname,false)"); return; }
+  const mks = ["Goal", "1+ point", "3+ SOG"], labels = { "Goal": "Anytime goal", "1+ point": "1+ point", "3+ SOG": "3+ shots on goal" };
+  const total = mks.reduce((s, k) => s + d.markets[k].length + (d.locked[k] || 0), 0);
+  const body = () => {
+    const k = ST.bbMarket, rs = d.markets[k], lk = d.locked[k] || 0;
+    if (!rs.length && !lk) return `<div class="empty"><h3>No picks posted for this date</h3><p>Picks post mid-afternoon Eastern, after starting goalies are confirmed.</p></div>`;
+    return (rs.length ? `<div class="list">${rs.map(r => `<div class="li"><span class="rank">${r.rank}</span>${headshot(hsUrl(r.team, r.player_id))}
+      <div><div class="nm">${esc(r.player)}</div><div class="meta">${esc(r.team)} ${esc(r.opp)}</div></div>
+      <div class="pp num"><b>${pct(r.p)}</b><small>fair ${esc(r.fair_odds)}</small></div>
+      <div class="meta hide-m num">${r.stat != null ? `${r.stat} ${k === "Goal" ? (r.stat === 1 ? "goal" : "goals") : k === "1+ point" ? (r.stat === 1 ? "point" : "points") : "SOG"}` : ""}</div>
+      <span class="res ${esc(r.result)}">${esc(r.result)}</span></div>`).join("")}</div>` : "")
+      + (lk ? lockCard(lk, k === "Goal" ? "See all 10 goal picks" : `The ${labels[k]} picks are part of Pro`) : "");
+  };
+  v.innerHTML = `<h1 class="page">Best bets</h1><p class="sub">The model's top 10 per market for ${niceDate(ST.date)}, graded against the final box score.</p>
+    <div class="seg markets" role="group" aria-label="Market">${mks.map(k => `<button data-bb="${k}" aria-pressed="${ST.bbMarket === k}">${labels[k]}</button>`).join("")}</div>
+    <div id="bb">${total ? body() : `<div class="empty"><h3>No picks posted for this date</h3><p>Picks post mid-afternoon Eastern, after starting goalies are confirmed.</p></div>`}</div>`;
+  v.querySelectorAll("[data-bb]").forEach(x => x.onclick = () => { ST.bbMarket = x.dataset.bb; v.querySelectorAll("[data-bb]").forEach(y => y.setAttribute("aria-pressed", String(y === x))); $("#bb").innerHTML = body(); });
+}
+
+/* ---------------- Parlays ---------------- */
+async function parlays() {
+  const v = $("#view");
+  v.innerHTML = `<h1 class="page">Parlays</h1><p class="sub">Model-built tickets for ${niceDate(ST.date)}: one player per game, so legs don't depend on each other.</p>${skel(4)}`;
+  let d; try { d = await api(`/api/parlays?date=${ST.date}`); } catch (e) { v.innerHTML += errBox(e.message, "go(location.pathname,false)"); return; }
+  const head = `<h1 class="page">Parlays</h1><p class="sub">Model-built tickets for ${niceDate(ST.date)}: one player per game, so legs don't depend on each other.</p>`;
+  if (!d.parlays.length && !d.locked) { v.innerHTML = head + `<div class="empty"><h3>No parlays posted for this date</h3><p>Tickets post with the picks, mid-afternoon Eastern.</p></div>`; return; }
+  if (!d.parlays.length) {
+    v.innerHTML = head + `<div class="pgrid">${d.teaser.map(t => `<div class="parlay" aria-hidden="true"><h3>${esc(t.type)}<span class="res">${t.legs_n} legs</span></h3>
+      ${Array.from({ length: t.legs_n }, () => `<div class="leg" style="opacity:.4"><span class="hs"></span><span style="height:10px;width:140px;border-radius:5px;background:var(--line2)"></span></div>`).join("")}</div>`).join("")}</div>`
+      + lockCard(d.locked, `Tonight's ${d.locked} model parlays are part of Pro`);
+    return;
+  }
+  const icon = r => r === "Hit" ? `<span class="ic" style="color:var(--hit)">✓</span>` : r === "Miss" ? `<span class="ic" style="color:var(--miss)">✗</span>` : r === "Did not play" ? `<span class="ic meta">void</span>` : `<span class="ic meta">·</span>`;
+  v.innerHTML = head + `<div class="pgrid">${d.parlays.map((p, i) => `<div class="parlay"><h3>${esc(p.type)}<span class="res ${esc(p.result.split(" ")[0])}">${esc(p.result)}</span></h3>
+    ${p.legs.map(l => `<div class="leg">${headshot(hsUrl(l.team, l.playerId))}<div><div class="nm">${esc(l.player)}</div><div class="meta">${esc(l.team)} · ${esc(l.market)} · ${pct(l.p, 0)}</div></div>${icon(l.result)}</div>`).join("")}
+    <div class="foot"><div><b class="num">${pct(p.p)}</b> <span class="meta">fair ${esc(p.fair_odds)}</span></div><button class="btn sm" data-copy="${i}">Copy legs</button></div></div>`).join("")}</div>`;
+  v.querySelectorAll("[data-copy]").forEach(b => b.onclick = async () => {
+    const p = d.parlays[+b.dataset.copy];
+    const txt = p.legs.map(l => `${l.player} ${l.market === "Goal" ? "anytime goal" : l.market}`).join(" + ");
+    try { await navigator.clipboard.writeText(txt); toast("Copied"); } catch (e) { prompt("Copy the legs:", txt); }
   });
 }
 
-function rows(){
-  let ps = slate.players.slice();
-  const t = $("#f-team").value, pos = $("#f-pos").value, pp = $("#f-pp").value;
-  if (gameFilter) ps = ps.filter(p => p.game_id === gameFilter);
-  if (t) ps = ps.filter(p => p.team === t);
-  if (pos) ps = ps.filter(p => posGroup(p.pos) === pos);
-  if (pp) ps = ps.filter(p => p.pp_unit === pp);
-  if ($("#f-sample").checked) ps = ps.filter(p => p.gp_sample >= 20);
-  if ($("#f-best").checked){ const seen = new Set(); ps = ps.sort((a,b)=>b.p_goal-a.p_goal).filter(p => !seen.has(p.game_id) && seen.add(p.game_id)); }
-  ps.sort((a,b) => { const x=a[sortK], y=b[sortK]; if (typeof x === "string") return sortDir * x.localeCompare(y); return sortDir * ((x ?? -1e9) - (y ?? -1e9)); });
-  return ps;
+/* ---------------- Track record ---------------- */
+async function record() {
+  const v = $("#view");
+  v.innerHTML = `<h1 class="page">Track record</h1><p class="sub">Every published pick, graded against the final box score. Nothing deleted, nothing hidden.</p>${skel(5)}`;
+  let d; try { d = await api("/api/record"); } catch (e) { v.innerHTML += errBox(e.message, "go(location.pathname,false)"); return; }
+  const labels = { "Goal": "Anytime goal", "1+ point": "1+ point", "3+ SOG": "3+ shots on goal" };
+  const graded = d.markets.reduce((s, m) => s + m.graded, 0);
+  const kpi = m => `<div class="kpi"><h3>${labels[m.market]}<span class="meta">${m.graded} graded</span></h3>
+    ${m.graded ? `<div class="big num">${pct(m.hits / m.graded)} <small>hit rate · ${m.hits} of ${m.graded}</small></div><div class="meta" style="margin-top:6px">Model expected ${m.expected} hits</div>
+    <table class="tiers"><tr><th>Picks</th><th>Hits</th><th>Expected</th><th>Rate</th></tr>${m.tiers.map(t => `<tr><td>${t.label}</td><td class="num">${t.hits}/${t.n}</td><td class="num">${t.expected}</td><td class="num">${pct(t.hits / t.n, 0)}</td></tr>`).join("")}</table>`
+    : `<div class="meta">Grading starts once the first picks' games go final.</div>`}</div>`;
+  const g = d.markets[0];
+  const chart = series => {
+    if (!series.length) return "";
+    const W = 900, H = 200, pad = 26, n = series.length, bw = Math.max(4, Math.min(26, (W - pad * 2) / n - 4));
+    const maxv = Math.max(1, ...series.map(s => Math.max(s.hits, s.expected)));
+    const x = i => pad + (i + .5) * (W - pad * 2) / n, y = v => H - pad - (v / maxv) * (H - pad * 2);
+    const bars = series.map((s, i) => `<rect x="${x(i) - bw / 2}" y="${y(s.hits)}" width="${bw}" height="${H - pad - y(s.hits)}" rx="2" fill="var(--ice)" opacity=".85"><title>${s.date}: ${s.hits} of ${s.n} hit (expected ${s.expected})</title></rect>`).join("");
+    const line = series.map((s, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(s.expected).toFixed(1)}`).join("");
+    const ticks = series.map((s, i) => (n <= 14 || i % Math.ceil(n / 10) === 0) ? `<text x="${x(i)}" y="${H - 6}" fill="var(--dim)" font-size="11" text-anchor="middle">${s.date.slice(5).replace("-", "/")}</text>` : "").join("");
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily goal-pick hits versus model expectation"><line x1="${pad}" x2="${W - pad}" y1="${H - pad}" y2="${H - pad}" stroke="var(--line2)"/>${bars}<path d="${line}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="4 4"/>${ticks}</svg>
+      <div class="legend"><span><i style="background:var(--ice)"></i>Goal picks that scored</span><span><i style="background:var(--ink)"></i>Model expectation</span></div>`;
+  };
+  v.innerHTML = `<h1 class="page">Track record</h1><p class="sub">Every published pick since ${d.since ? niceDate(d.since) : "launch"}, graded against the final box score. Nothing deleted, nothing hidden. Today's picks show here the morning after their games.</p>
+    <div class="kpis">${d.markets.map(kpi).join("")}</div>
+    ${g.days.length ? `<div class="panel chart"><h2>Goal picks by night</h2><p class="note">Bars are how many of the night's top 10 scored; the dashed line is how many the model expected.</p>${chart(g.days)}</div>` : ""}
+    <div class="panel"><h2>Parlays</h2>${d.parlays.length ? `<table class="simple"><tr><th>Type</th><th>Graded</th><th>Won</th><th>Expected wins</th></tr>${d.parlays.map(p => `<tr><td>${esc(p.type)}</td><td class="num">${p.graded}</td><td class="num">${p.won}</td><td class="num">${p.expected}</td></tr>`).join("")}</table>` : `<p class="note">No parlays graded yet.</p>`}</div>
+    <div class="panel"><h2>How the model did on last season</h2><p class="note">Trained only on 2024-25, then tested on every 2025-26 game it had never seen. Predicted and actual hit rates should match, and they do.</p>
+      <table class="simple"><tr><th>Picks</th><th>Market</th><th>Predicted</th><th>Actual</th><th>Picks tested</th></tr>${d.backtest.top.map(t => `<tr><td>${esc(t.picks)}</td><td>${esc(t.market)}</td><td class="num">${t.predicted_pct}%</td><td class="num">${t.actual_pct}%</td><td class="num">${t.picks_n.toLocaleString()}</td></tr>`).join("")}</table></div>
+    <p class="note">Current models: goals ${esc(d.champions.goal || "–")}, points ${esc(d.champions.point || "–")}, shots ${esc(d.champions.sog || "–")}. ${graded ? "" : "The live record starts with the first graded slate."}</p>`;
 }
 
-function render(){
-  if (!slate.games.length){ $("#rows").innerHTML = `<tr><td colspan="8" class="empty">No NHL games on this date. Pick another day above.</td></tr>`; return; }
-  const ps = rows(), games = Object.fromEntries(slate.games.map(g => [g.game_id, g]));
-  if (!ps.length){ $("#rows").innerHTML = `<tr><td colspan="8" class="empty">No skaters match these filters. Clear a filter to see more.</td></tr>`; return; }
-  const max = Math.max(...slate.players.map(p => p.p_goal), .01);
-  $("#rows").innerHTML = ps.map(p => {
-    const g = games[p.game_id], og = (g.goalies[p.opp] || {}).name || "TBD";
-    const scored = p.scored === true, fresh = scored && !scoredSeen.has(p.player_id);
-    const tags = [
-      p.pp_unit ? `<span class="tag ${p.pp_unit}">${p.pp_unit.toUpperCase()}</span>` : "",
-      p.line ? `<span class="tag">${p.line.startsWith("d") ? "Pair " + p.line[1] : "Line " + p.line[1]}</span>` : "",
-      p.gtd ? `<span class="tag warn">Game-time call</span>` : "",
-      p.gp_sample < 20 ? `<span class="tag warn">Small sample</span>` : ""].join(" ");
-    return `<tr class="${scored ? "scored" : ""} ${fresh ? "fresh" : ""}">
-      <td><div class="player">${p.headshot ? `<img src="${esc(p.headshot)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : ""}
-        <div><div class="nm">${esc(p.name)}</div><div class="sub">${p.team} ${p.home ? "vs" : "at"} ${p.opp}, facing ${esc(og)}</div></div></div></td>
-      <td class="num"><div class="prob"><div class="bar" aria-hidden="true"><i style="width:${(p.p_goal/max*100).toFixed(1)}%"></i></div><b>${pct(p.p_goal)}</b></div></td>
-      <td class="num">${fmtOdds(p.fair_odds)}</td>
-      <td class="num">${p.exp_shots.toFixed(1)}</td>
-      <td class="num">${pct(p.sh_pct_reg)}</td>
-      <td class="num">${p.proj_pp_min.toFixed(1)}</td>
-      <td class="num" title="Above 1.00 means the opposing goalie is easier to score on than average">${p.goalie_mult.toFixed(2)}</td>
-      <td>${tags}</td></tr>`;}).join("");
-  ps.filter(p => p.scored).forEach(p => scoredSeen.add(p.player_id));
-  $("#updated").textContent = slate.generated_utc ? "Updated " + localTime(slate.generated_utc) : "";
+/* ---------------- static pages ---------------- */
+function how() {
+  $("#view").innerHTML = `<div class="prose"><h1 class="page">How it works</h1>
+  <h2>What the numbers mean</h2><p>Each percentage is the model's chance that the player does it tonight: scores at least one goal (overtime counts), records at least one point, or puts at least three shots on goal. Fair odds turn that chance into the break-even American price. When a sportsbook offers a longer price than the fair odds, the model thinks the bet is worth more than it costs.</p>
+  <h2>What goes into it</h2><p>Every skater's shot quality (expected goals per 60 minutes, from MoneyPuck), shot volume and high-danger share, finishing skill pulled toward average so a hot week doesn't fool it, ice time and power-play time weighted toward recent games, his line's chance creation, the opposing starting goalie, how many chances the opponent gives up, home ice, and back-to-backs.</p>
+  <h2>Lineups and goalies</h2><p>Projected lines, power-play units and starting goalies come from DailyFaceoff. Players who aren't in tonight's projected lineup are removed, so the model never picks someone who isn't dressing. Picks post mid-afternoon Eastern, after most goalies are confirmed. Games that have already started are left out of that day's picks.</p>
+  <h2>It tests itself every day</h2><p>Each morning the model tries new ideas against the current version on games it has never seen. An idea is adopted only if it wins on two separate test periods. Every test, win or lose, is logged.</p>
+  <h2>Why you can trust the percentages</h2><p>Trained on 2024-25 and tested on all of 2025-26, the model's top goal pick each night scored about 42% of the time, matching what it predicted. Across every probability level, predicted and actual hit rates line up within a few points. The live record is on the Track Record page, graded nightly.</p>
+  <h2>Parlays</h2><p>Model parlays take one player per game so the legs are independent, and the parlay's chance is the product of its legs. Parlays compound uncertainty: a two-leg goal parlay hits about one night in five.</p></div>`;
+}
+function pricing() {
+  const me = ST.me || {};
+  const cta = me.pro ? `<a class="btn" href="/" data-link>You're on Pro. Go to tonight's board</a>`
+    : me.checkout_url ? `<a class="btn pri" href="${esc(me.checkout_url)}">Subscribe for $14.99/month</a>` : `<span class="note">Subscriptions open soon.</span>`;
+  $("#view").innerHTML = `<div class="prose"><h1 class="page">GoalIQ Pro</h1><p class="sub">Everything the model sees, every night of the NHL season.</p></div>
+  <div class="price-card"><div class="p">$14.99<small> / month</small></div>
+    <ul><li>Full boards for anytime goals, points and shots on goal</li><li>All 30 Best Bets each night, graded</li><li>Model parlays with fair odds</li><li>Live goal alerts on the board</li><li>Cancel anytime from your Whop account</li></ul>
+    ${cta}
+    ${!me.logged_in && me.signin_ready ? `<p class="note" style="margin-top:12px">Already subscribed? <a href="/auth/login?next=/">Sign in with Whop</a>.</p>` : ""}
+    <p class="note" style="margin-top:12px">Free without an account: tonight's top 3 goal picks, every past slate in full, and the complete track record.</p></div>`;
+}
+function terms() {
+  $("#view").innerHTML = `<div class="prose"><h1 class="page">Terms &amp; responsible play</h1>
+  <p>GoalIQ publishes statistical estimates for entertainment and research. It is not betting, financial or legal advice, and it does not take or place wagers. You must be 21 or older, and of legal betting age where you live, to use GoalIQ for wagering decisions.</p>
+  <h2>No guarantees</h2><p>Probabilities are estimates. Players get scratched, lines change and goalies are swapped late. Past results, including the published track record, don't guarantee future results. Never bet more than you can afford to lose.</p>
+  <h2>Subscriptions</h2><p>GoalIQ Pro is billed monthly through Whop and renews until you cancel. You can cancel anytime from your Whop account; access continues to the end of the paid period. Refunds follow Whop's policy unless required by law.</p>
+  <h2>Data</h2><p>Statistics come from public NHL.com data, MoneyPuck and DailyFaceoff. GoalIQ isn't affiliated with or endorsed by the NHL or any team. Player headshots are property of the NHL.</p>
+  <h2>Gambling problem?</h2><p>Call or text 1-800-GAMBLER, or visit <a href="https://www.ncpgambling.org" rel="noopener">ncpgambling.org</a>. Set deposit limits with your sportsbook, and take a break if betting stops being fun.</p></div>`;
 }
 
-async function pollLive(){
-  clearTimeout(liveTimer);
-  if (!slate || !slate.games.some(g => !PREGAME.includes(g.state) && !DONE.includes(g.state)) && slate.date !== etToday()) return;
-  try{
-    const d = await (await fetch(`${API}/api/live?date=${slate.date}`)).json();
-    const scorers = {}; d.games.forEach(g => Object.keys(g.scorers).forEach(pid => scorers[pid] = true));
-    let changed = false;
-    slate.players.forEach(p => { if (scorers[p.player_id] && !p.scored){ p.scored = true; changed = true; } });
-    if (changed) render();
-  }catch(e){}
-  liveTimer = setTimeout(pollLive, 60000);
-}
-
-async function loadRecord(){
-  let d;
-  try{ d = await (await fetch(`${API}/api/track-record`)).json(); }
-  catch(e){ $("#tr-stats").innerHTML = `<div class="stat"><span>Couldn't load the track record. Refresh in a minute.</span></div>`; return; }
-  if (!d.n){ $("#tr-stats").innerHTML = `<div class="stat"><b>0</b><span>graded predictions so far. Games grade once they go final.</span></div>`; $("#tr-calib").innerHTML = ""; return; }
-  $("#tr-stats").innerHTML = `
-    <div class="stat"><b>${d.n.toLocaleString()}</b><span>graded player-games</span></div>
-    <div class="stat"><b>${d.top_pick_hits} of ${d.top_pick_days}</b><span>nights the model's top pick scored (expected ${d.top_pick_expected})</span></div>
-    <div class="stat"><b>${d.brier}</b><span>Brier score (lower is better)</span></div>`;
-  $("#tr-calib").innerHTML = d.buckets.map(b => `<div class="calrow"><span>${b.range}</span>
-    <div class="pair"><i style="width:${Math.min(b.predicted/.5*100,100)}%"></i><em style="left:${Math.min(b.actual/.5*100,100)}%"></em></div>
-    <span class="num">${pct(b.actual)} of ${b.n}</span></div>`).join("");
-}
-
-document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => {
-  document.querySelectorAll("nav.tabs button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
-  ["slate","record","method"].forEach(t => $("#tab-" + t).hidden = t !== b.dataset.tab);
-  if (b.dataset.tab === "record") loadRecord();
-});
-document.querySelectorAll("th[data-k]").forEach(th => th.onclick = () => {
-  const k = th.dataset.k; sortDir = sortK === k ? -sortDir : (k === "name" ? 1 : -1); sortK = k;
-  document.querySelectorAll("th").forEach(x => x.removeAttribute("aria-sort"));
-  th.setAttribute("aria-sort", sortDir > 0 ? "ascending" : "descending"); render();
-});
-["#f-team","#f-pos","#f-pp","#f-best","#f-sample"].forEach(s => $(s).onchange = render);
-$("#date").onchange = e => load(e.target.value);
-document.querySelectorAll("#datebar button").forEach(b => b.onclick = () => {
-  const d = new Date($("#date").value + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + +b.dataset.shift);
-  const iso = d.toISOString().slice(0,10); $("#date").value = iso; load(iso);
-});
-$("#date").value = etToday(); load(etToday());
+/* ---------------- boot ---------------- */
+setDate(ST.date);
+loadMe().then(() => go(location.pathname, false));
 </script>
 </body>
 </html>

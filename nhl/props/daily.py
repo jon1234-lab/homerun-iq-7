@@ -448,12 +448,62 @@ def parlay_summary(parlays):
 def norm(s): return unicodedata.normalize('NFKD', str(s)).encode('ascii', 'ignore').decode().lower()
 def fair(p): return f"+{round(100 * (1 - p) / p)}" if p < 0.5 else f"-{round(100 * p / (1 - p))}"
 
+DFO_SLUG = {'ANA': 'anaheim-ducks', 'BOS': 'boston-bruins', 'BUF': 'buffalo-sabres', 'CGY': 'calgary-flames', 'CAR': 'carolina-hurricanes',
+            'CHI': 'chicago-blackhawks', 'COL': 'colorado-avalanche', 'CBJ': 'columbus-blue-jackets', 'DAL': 'dallas-stars',
+            'DET': 'detroit-red-wings', 'EDM': 'edmonton-oilers', 'FLA': 'florida-panthers', 'LAK': 'los-angeles-kings', 'MIN': 'minnesota-wild',
+            'MTL': 'montreal-canadiens', 'NSH': 'nashville-predators', 'NJD': 'new-jersey-devils', 'NYI': 'new-york-islanders',
+            'NYR': 'new-york-rangers', 'OTT': 'ottawa-senators', 'PHI': 'philadelphia-flyers', 'PIT': 'pittsburgh-penguins',
+            'SJS': 'san-jose-sharks', 'SEA': 'seattle-kraken', 'STL': 'st-louis-blues', 'TBL': 'tampa-bay-lightning',
+            'TOR': 'toronto-maple-leafs', 'UTA': 'utah-mammoth', 'VAN': 'vancouver-canucks', 'VGK': 'vegas-golden-knights',
+            'WSH': 'washington-capitals', 'WPG': 'winnipeg-jets'}
+
+def lineups(teams, W):
+    """{team: set(NHL player ids)} of skaters in tonight's projected lineup (DailyFaceoff), matched to NHL.com rosters.
+    Teams without a usable lineup are left out (the caller falls back to who played the last two games)."""
+    import re as _re
+    def nm(x): return ' '.join(_re.sub(r'[^a-z ]', '', norm(x).replace('-', ' ')).split())
+    out = {}
+    for t in teams:
+        try:
+            f = f'{W}/dfo_{t}.html'
+            r = subprocess.run(['curl', '-s', '-L', '-m', '30', '-A', 'Mozilla/5.0', '-o', f, '-w', '%{http_code}',
+                                f'https://www.dailyfaceoff.com/teams/{DFO_SLUG[t]}/line-combinations'], capture_output=True, text=True)
+            if r.stdout.strip() != '200': continue
+            m = _re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', open(f, encoding='utf-8').read(), _re.S)
+            players = json.loads(m.group(1))['props']['pageProps']['combinations']['players']
+            slots = {}
+            for p in players:
+                g = p.get('groupIdentifier') or ''
+                if p.get('categoryIdentifier') == 'ev' and _re.fullmatch(r'[fd]\d', g): slots[nm(p['name'])] = g[0]
+            ro = get_json(f'{NHL}/roster/{t}/{CUR}{CUR + 1}', f'{W}/roster_{t}.json')
+            byname = {}
+            for grp, kind in (('forwards', 'f'), ('defensemen', 'd')):
+                for p in ro.get(grp, []):
+                    byname.setdefault(nm(f"{p['firstName']['default']} {p['lastName']['default']}"), []).append((int(p['id']), kind))
+            ids = set()
+            for key, kind in slots.items():
+                c = byname.get(key) or [v for k, vs in byname.items() if k.split()[-1] == key.split()[-1] and k[0] == key[0] for v in vs]
+                c = [x for x in c if x[1] == kind] or c      # same-name players (e.g. two Elias Petterssons): pick by position
+                if len(c) == 1: ids.add(c[0][0])
+            if len(ids) >= 15: out[t] = ids
+        except Exception as e:
+            log('lineup', t, 'unavailable:', e)
+    log('lineups from DailyFaceoff for', len(out), 'of', len(teams), 'teams')
+    return out
+
 def project(champs, models, PG, tg, gg, lg, run_date, goalies, W, days_ahead=3):
     j = get_json(f'{NHL}/schedule/{(date.fromisoformat(run_date) - timedelta(days=1)).isoformat()}', f'{W}/sched.json')
     sched = [(wk['date'], g['awayTeam']['abbrev'], g['homeTeam']['abbrev'], g['id']) for wk in j['gameWeek'] for g in wk['games']
              if g.get('gameType') == 2]
+    # games already under way (or within 5 minutes of puck drop) are left out of today's picks
+    soon = pd.Timestamp.now(tz='UTC') + pd.Timedelta(minutes=5)
+    started = {g['id'] for wk in j['gameWeek'] for g in wk['games'] if wk['date'] == run_date and g.get('gameType') == 2
+               and pd.Timestamp(g['startTimeUTC']) <= soon}
+    if started: log('skipping started games', sorted(started))
+    sched_all, sched = sched, [x for x in sched if x[3] not in started]
+    dressed = lineups(sorted({t for d, aw, hm, _ in sched if d == run_date for t in (aw, hm)}), W)
     tdates = {}
-    for d, aw, hm, _ in sched: tdates.setdefault(aw, set()).add(d); tdates.setdefault(hm, set()).add(d)
+    for d, aw, hm, _ in sched_all: tdates.setdefault(aw, set()).add(d); tdates.setdefault(hm, set()).add(d)
     def rest(t, d):
         prev = [x for x in tdates.get(t, ()) if x < d]
         return min(7, (date.fromisoformat(d) - date.fromisoformat(max(prev))).days) if prev else 7
@@ -483,6 +533,7 @@ def project(champs, models, PG, tg, gg, lg, run_date, goalies, W, days_ahead=3):
     last2 = {t: sorted(g.date.unique())[-2:] for t, g in pc.groupby('playerTeam')}
     latest = pc.sort_values('date').groupby('playerId').tail(1)
     pool = latest[[r.date in last2.get(r.playerTeam, []) for r in latest.itertuples()]]
+    anyteam = PG.sort_values('date').groupby('playerId').tail(1)   # for lineup players (incl. trades / call-ups)
     out = []
     for d in slate:
         rows = []
@@ -490,7 +541,9 @@ def project(champs, models, PG, tg, gg, lg, run_date, goalies, W, days_ahead=3):
             if gd != d: continue
             for team, opp, ha in ((aw, hm, 'AWAY'), (hm, aw, 'HOME')):
                 sid, sname, conf = starter(opp, d)
-                for p in pool[pool.playerTeam == team].itertuples():
+                ids = dressed.get(team) if d == run_date else None
+                tpool = anyteam[anyteam.playerId.isin(ids)] if ids else pool[pool.playerTeam == team]
+                for p in tpool.itertuples():
                     rows.append(dict(playerId=p.playerId, season=CUR, name=p.name, gameId=-1 - len(rows), playerTeam=team, opposingTeam=opp,
                                      home_or_away=ha, gameDate=int(d.replace('-', '')), position=p.position, situation='all',
                                      date=pd.Timestamp(d), gname=sname, gconf=conf, gfacv=gfac.get(sid, 1.0)))
@@ -515,7 +568,7 @@ def board(f):
     """Every projected player for one date as plain dicts (all markets)."""
     rows = []
     for r in f.itertuples():
-        rows.append(dict(date=r.slate, player=r.name, playerId=int(r.playerId), team=r.playerTeam,
+        rows.append(dict(date=r.slate, player=r.name, playerId=int(r.playerId), team=r.playerTeam, pos='D' if r.position == 'D' else 'F',
                          opp=('vs ' if r.home == 1 else '@ ') + r.opposingTeam, p_goal=round(float(r.p_goal), 3),
                          p_point=round(float(r.p_point), 3), sog_proj=round(float(r.sog_mu), 2), p_sog2=round(float(r.p_sog2), 3),
                          p_sog3=round(float(r.p_sog3), 3), p_sog4=round(float(r.p_sog4), 3),
@@ -523,6 +576,14 @@ def board(f):
                          sog=round(float(r.sog_e10), 1), pts_pg=round(float(r.pts_e40), 2), finishing=round(float(r.fin25), 2),
                          due=round(float(r.due), 2), opp_goalie=r.gname + ('' if r.gconf else ' *')))
     return rows
+
+BOARD_KEYS = ('player', 'playerId', 'team', 'pos', 'opp', 'p_goal', 'p_point', 'sog_proj', 'p_sog2', 'p_sog3', 'p_sog4',
+              'toi', 'pp_toi', 'xg60', 'finishing', 'due', 'opp_goalie')
+
+def board_chunks(rows, size=120):
+    """Full-slate board for the GoalIQ site, split into snapshot keys board_0, board_1, ... (keeps each SQL statement small)."""
+    slim = [{k: r[k] for k in BOARD_KEYS} for r in rows]
+    return {f'board_{i // size}': slim[i:i + size] for i in range(0, len(slim), size)}
 
 def fix_names(rows, W):
     """MoneyPuck drops accented letters (e.g. 'Tim Sttzle'); use NHL.com roster names for display."""
@@ -809,6 +870,7 @@ def main():
     W('tracker.json', tracker); W('champion.json', champs); W('changelog.json', changelog); W('parlays.json', parlays)
     write_supabase_sql(A.out, RD, tracker, parlays, changelog, champs,
                        {'today': today, 'today_pts': today_pts, 'today_sog': today_sog, 'team_picks': team_picks(brd, PG) if brd else [],
+                        **board_chunks(brd),
                         'msum': msum, 'parlay_summary': psum,
                         'parlay_bt': parlay_bt, 'top': top, 'summary': {k: summary[k] for k in ('run_date', 'data_through', 'champions', 'notes')}})
     log('done', json.dumps(summary, indent=1))
