@@ -190,6 +190,23 @@ def api_record():
     return _json(out, private=False)
 
 
+REPLAY = os.path.join(HERE, "static", "replay")
+
+
+@app.get("/api/replay/summary")
+def replay_summary():
+    return FileResponse(os.path.join(REPLAY, "summary.json"), media_type="application/json",
+                        headers={"Cache-Control": "public, max-age=3600"})
+
+
+@app.get("/api/replay/{season}")
+def replay_season(season: int):
+    f = os.path.join(REPLAY, f"{season}.json")
+    if not os.path.exists(f):
+        raise HTTPException(404, "No replay for that season.")
+    return FileResponse(f, media_type="application/json", headers={"Cache-Control": "public, max-age=3600"})
+
+
 @app.get("/api/live")
 def api_live(date: str | None = None):
     date = _date(date)
@@ -213,6 +230,7 @@ def favicon():
 @app.get("/best-bets")
 @app.get("/parlays")
 @app.get("/track-record")
+@app.get("/replay")
 @app.get("/how-it-works")
 @app.get("/pricing")
 @app.get("/terms")

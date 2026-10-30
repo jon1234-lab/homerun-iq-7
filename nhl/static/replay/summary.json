@@ -1,0 +1,3049 @@
+{
+ "ship": "v3",
+ "labels": {
+  "v2": "Original formula (frozen)",
+  "evo": "Self-learning formula",
+  "evo_cal": "Self-learning + miss correction",
+  "v3": "Current live formula (fixed)",
+  "v3_cal": "Current live formula + miss correction"
+ },
+ "dev_end": "2018-19",
+ "markets": {
+  "goal": {
+   "label": "Anytime goal",
+   "variants": [
+    "v2",
+    "evo",
+    "evo_cal",
+    "v3",
+    "v3_cal"
+   ],
+   "periods": [
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v2",
+     "n": 333394,
+     "logloss": 0.37101,
+     "auc": 0.7002,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 41.8,
+       "pred": 38.2
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 38.1,
+       "pred": 35.9
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 36.1,
+       "pred": 34.6
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 33.3,
+       "pred": 32.5
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "evo",
+     "n": 333394,
+     "logloss": 0.37101,
+     "auc": 0.7002,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 41.8,
+       "pred": 38.2
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 38.1,
+       "pred": 35.9
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 36.1,
+       "pred": 34.6
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 33.3,
+       "pred": 32.5
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "evo_cal",
+     "n": 333394,
+     "logloss": 0.37111,
+     "auc": 0.6999,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 41.8,
+       "pred": 38.4
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 38.1,
+       "pred": 36.0
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 36.1,
+       "pred": 34.7
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 33.3,
+       "pred": 32.7
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v3",
+     "n": 333394,
+     "logloss": 0.37083,
+     "auc": 0.7007,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 41.9,
+       "pred": 38.8
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 37.8,
+       "pred": 36.2
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 36.3,
+       "pred": 34.9
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 33.4,
+       "pred": 32.7
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v3_cal",
+     "n": 333394,
+     "logloss": 0.37093,
+     "auc": 0.7004,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 41.9,
+       "pred": 39.0
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 37.8,
+       "pred": 36.4
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 36.3,
+       "pred": 35.0
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 33.4,
+       "pred": 32.9
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v2",
+     "n": 309470,
+     "logloss": 0.39058,
+     "auc": 0.7056,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 45.9,
+       "pred": 44.4
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 43.7,
+       "pred": 41.7
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 41.2,
+       "pred": 40.1
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 38.4,
+       "pred": 37.4
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "evo",
+     "n": 309470,
+     "logloss": 0.39057,
+     "auc": 0.7056,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 46.0,
+       "pred": 44.3
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 43.9,
+       "pred": 41.6
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 41.6,
+       "pred": 39.9
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 38.5,
+       "pred": 37.2
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "evo_cal",
+     "n": 309470,
+     "logloss": 0.39052,
+     "auc": 0.7057,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 46.0,
+       "pred": 44.4
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 43.9,
+       "pred": 41.7
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 41.6,
+       "pred": 40.0
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 38.5,
+       "pred": 37.3
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v3",
+     "n": 309470,
+     "logloss": 0.39035,
+     "auc": 0.7062,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 46.9,
+       "pred": 44.9
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 43.8,
+       "pred": 42.1
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 41.1,
+       "pred": 40.3
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 38.6,
+       "pred": 37.6
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v3_cal",
+     "n": 309470,
+     "logloss": 0.39034,
+     "auc": 0.7063,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 46.9,
+       "pred": 44.8
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 43.8,
+       "pred": 42.0
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 41.1,
+       "pred": 40.2
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 38.6,
+       "pred": 37.5
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v2",
+     "n": 642864,
+     "logloss": 0.38043,
+     "auc": 0.7033,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 43.7,
+       "pred": 41.2
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 40.8,
+       "pred": 38.6
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 38.5,
+       "pred": 37.2
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 35.7,
+       "pred": 34.8
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "evo",
+     "n": 642864,
+     "logloss": 0.38042,
+     "auc": 0.7033,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 43.8,
+       "pred": 41.1
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 40.9,
+       "pred": 38.6
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 38.7,
+       "pred": 37.1
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 35.8,
+       "pred": 34.8
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "evo_cal",
+     "n": 642864,
+     "logloss": 0.38045,
+     "auc": 0.7033,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 43.8,
+       "pred": 41.2
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 40.9,
+       "pred": 38.7
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 38.7,
+       "pred": 37.2
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 35.8,
+       "pred": 34.9
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v3",
+     "n": 642864,
+     "logloss": 0.38023,
+     "auc": 0.7039,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 44.3,
+       "pred": 41.7
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 40.7,
+       "pred": 39.0
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 38.6,
+       "pred": 37.4
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 35.9,
+       "pred": 35.0
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v3_cal",
+     "n": 642864,
+     "logloss": 0.38027,
+     "auc": 0.7038,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 44.3,
+       "pred": 41.8
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 40.7,
+       "pred": 39.1
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 38.6,
+       "pred": 37.5
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 35.9,
+       "pred": 35.1
+      }
+     }
+    }
+   ],
+   "by_season": [
+    {
+     "season": "2011-12",
+     "nights": 177,
+     "v2": {
+      "logloss": 0.35943,
+      "top1": 39.0,
+      "top10": 34.2,
+      "top10_pred": 31.7
+     },
+     "evo": {
+      "logloss": 0.35943,
+      "top1": 39.0,
+      "top10": 34.2,
+      "top10_pred": 31.7
+     },
+     "evo_cal": {
+      "logloss": 0.3595,
+      "top1": 39.0,
+      "top10": 34.2,
+      "top10_pred": 32.5
+     },
+     "v3": {
+      "logloss": 0.35923,
+      "top1": 42.4,
+      "top10": 35.1,
+      "top10_pred": 31.8
+     },
+     "v3_cal": {
+      "logloss": 0.35929,
+      "top1": 42.4,
+      "top10": 35.1,
+      "top10_pred": 32.8
+     }
+    },
+    {
+     "season": "2012-13",
+     "nights": 100,
+     "v2": {
+      "logloss": 0.36204,
+      "top1": 44.0,
+      "top10": 32.6,
+      "top10_pred": 31.9
+     },
+     "evo": {
+      "logloss": 0.36204,
+      "top1": 44.0,
+      "top10": 32.6,
+      "top10_pred": 31.9
+     },
+     "evo_cal": {
+      "logloss": 0.3621,
+      "top1": 44.0,
+      "top10": 32.6,
+      "top10_pred": 31.9
+     },
+     "v3": {
+      "logloss": 0.36196,
+      "top1": 46.0,
+      "top10": 33.7,
+      "top10_pred": 32.0
+     },
+     "v3_cal": {
+      "logloss": 0.36201,
+      "top1": 46.0,
+      "top10": 33.7,
+      "top10_pred": 32.2
+     }
+    },
+    {
+     "season": "2013-14",
+     "nights": 176,
+     "v2": {
+      "logloss": 0.36405,
+      "top1": 40.3,
+      "top10": 32.0,
+      "top10_pred": 31.8
+     },
+     "evo": {
+      "logloss": 0.36405,
+      "top1": 40.3,
+      "top10": 32.0,
+      "top10_pred": 31.8
+     },
+     "evo_cal": {
+      "logloss": 0.36407,
+      "top1": 40.3,
+      "top10": 32.0,
+      "top10_pred": 32.4
+     },
+     "v3": {
+      "logloss": 0.36387,
+      "top1": 40.9,
+      "top10": 31.9,
+      "top10_pred": 32.1
+     },
+     "v3_cal": {
+      "logloss": 0.36389,
+      "top1": 40.9,
+      "top10": 31.9,
+      "top10_pred": 32.6
+     }
+    },
+    {
+     "season": "2014-15",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.36703,
+      "top1": 42.7,
+      "top10": 32.9,
+      "top10_pred": 31.9
+     },
+     "evo": {
+      "logloss": 0.36703,
+      "top1": 42.7,
+      "top10": 32.9,
+      "top10_pred": 31.9
+     },
+     "evo_cal": {
+      "logloss": 0.3672,
+      "top1": 42.7,
+      "top10": 32.9,
+      "top10_pred": 31.8
+     },
+     "v3": {
+      "logloss": 0.36688,
+      "top1": 38.2,
+      "top10": 32.1,
+      "top10_pred": 32.1
+     },
+     "v3_cal": {
+      "logloss": 0.36705,
+      "top1": 38.2,
+      "top10": 32.1,
+      "top10_pred": 32.0
+     }
+    },
+    {
+     "season": "2015-16",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.36649,
+      "top1": 42.7,
+      "top10": 32.9,
+      "top10_pred": 31.7
+     },
+     "evo": {
+      "logloss": 0.36649,
+      "top1": 42.7,
+      "top10": 32.9,
+      "top10_pred": 31.7
+     },
+     "evo_cal": {
+      "logloss": 0.36663,
+      "top1": 42.7,
+      "top10": 32.9,
+      "top10_pred": 31.3
+     },
+     "v3": {
+      "logloss": 0.36629,
+      "top1": 42.1,
+      "top10": 32.4,
+      "top10_pred": 31.7
+     },
+     "v3_cal": {
+      "logloss": 0.36643,
+      "top1": 42.1,
+      "top10": 32.4,
+      "top10_pred": 31.4
+     }
+    },
+    {
+     "season": "2016-17",
+     "nights": 172,
+     "v2": {
+      "logloss": 0.37225,
+      "top1": 39.0,
+      "top10": 31.0,
+      "top10_pred": 32.2
+     },
+     "evo": {
+      "logloss": 0.37225,
+      "top1": 39.0,
+      "top10": 31.0,
+      "top10_pred": 32.2
+     },
+     "evo_cal": {
+      "logloss": 0.37234,
+      "top1": 39.0,
+      "top10": 31.0,
+      "top10_pred": 31.7
+     },
+     "v3": {
+      "logloss": 0.37198,
+      "top1": 42.4,
+      "top10": 31.6,
+      "top10_pred": 32.3
+     },
+     "v3_cal": {
+      "logloss": 0.37207,
+      "top1": 42.4,
+      "top10": 31.6,
+      "top10_pred": 31.9
+     }
+    },
+    {
+     "season": "2017-18",
+     "nights": 179,
+     "v2": {
+      "logloss": 0.38673,
+      "top1": 41.3,
+      "top10": 34.9,
+      "top10_pred": 33.6
+     },
+     "evo": {
+      "logloss": 0.38673,
+      "top1": 41.3,
+      "top10": 34.9,
+      "top10_pred": 33.6
+     },
+     "evo_cal": {
+      "logloss": 0.38685,
+      "top1": 41.3,
+      "top10": 34.9,
+      "top10_pred": 33.7
+     },
+     "v3": {
+      "logloss": 0.38652,
+      "top1": 41.3,
+      "top10": 34.8,
+      "top10_pred": 33.9
+     },
+     "v3_cal": {
+      "logloss": 0.38663,
+      "top1": 41.3,
+      "top10": 34.8,
+      "top10_pred": 34.0
+     }
+    },
+    {
+     "season": "2018-19",
+     "nights": 177,
+     "v2": {
+      "logloss": 0.38524,
+      "top1": 46.3,
+      "top10": 35.5,
+      "top10_pred": 35.3
+     },
+     "evo": {
+      "logloss": 0.38524,
+      "top1": 46.3,
+      "top10": 35.5,
+      "top10_pred": 35.3
+     },
+     "evo_cal": {
+      "logloss": 0.38535,
+      "top1": 46.3,
+      "top10": 35.5,
+      "top10_pred": 35.8
+     },
+     "v3": {
+      "logloss": 0.38516,
+      "top1": 43.5,
+      "top10": 35.8,
+      "top10_pred": 35.6
+     },
+     "v3_cal": {
+      "logloss": 0.38528,
+      "top1": 43.5,
+      "top10": 35.8,
+      "top10_pred": 35.9
+     }
+    },
+    {
+     "season": "2019-20",
+     "nights": 155,
+     "v2": {
+      "logloss": 0.39059,
+      "top1": 49.7,
+      "top10": 36.3,
+      "top10_pred": 34.7
+     },
+     "evo": {
+      "logloss": 0.39059,
+      "top1": 49.7,
+      "top10": 36.3,
+      "top10_pred": 34.7
+     },
+     "evo_cal": {
+      "logloss": 0.39066,
+      "top1": 49.7,
+      "top10": 36.3,
+      "top10_pred": 35.1
+     },
+     "v3": {
+      "logloss": 0.39043,
+      "top1": 51.0,
+      "top10": 36.5,
+      "top10_pred": 34.7
+     },
+     "v3_cal": {
+      "logloss": 0.39049,
+      "top1": 51.0,
+      "top10": 36.5,
+      "top10_pred": 35.2
+     }
+    },
+    {
+     "season": "2020-21",
+     "nights": 126,
+     "v2": {
+      "logloss": 0.3845,
+      "top1": 44.4,
+      "top10": 35.3,
+      "top10_pred": 34.2
+     },
+     "evo": {
+      "logloss": 0.3845,
+      "top1": 44.4,
+      "top10": 35.3,
+      "top10_pred": 34.2
+     },
+     "evo_cal": {
+      "logloss": 0.38457,
+      "top1": 44.4,
+      "top10": 35.3,
+      "top10_pred": 35.0
+     },
+     "v3": {
+      "logloss": 0.38435,
+      "top1": 50.8,
+      "top10": 34.9,
+      "top10_pred": 34.2
+     },
+     "v3_cal": {
+      "logloss": 0.38442,
+      "top1": 50.8,
+      "top10": 34.9,
+      "top10_pred": 35.0
+     }
+    },
+    {
+     "season": "2021-22",
+     "nights": 189,
+     "v2": {
+      "logloss": 0.39124,
+      "top1": 43.9,
+      "top10": 41.1,
+      "top10_pred": 37.5
+     },
+     "evo": {
+      "logloss": 0.39124,
+      "top1": 43.9,
+      "top10": 41.1,
+      "top10_pred": 37.5
+     },
+     "evo_cal": {
+      "logloss": 0.39135,
+      "top1": 43.9,
+      "top10": 41.1,
+      "top10_pred": 38.7
+     },
+     "v3": {
+      "logloss": 0.39111,
+      "top1": 42.9,
+      "top10": 41.0,
+      "top10_pred": 37.5
+     },
+     "v3_cal": {
+      "logloss": 0.39122,
+      "top1": 42.9,
+      "top10": 41.0,
+      "top10_pred": 38.7
+     }
+    },
+    {
+     "season": "2022-23",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.39584,
+      "top1": 51.7,
+      "top10": 40.8,
+      "top10_pred": 41.5
+     },
+     "evo": {
+      "logloss": 0.39584,
+      "top1": 51.7,
+      "top10": 40.8,
+      "top10_pred": 41.5
+     },
+     "evo_cal": {
+      "logloss": 0.39567,
+      "top1": 51.7,
+      "top10": 40.8,
+      "top10_pred": 39.8
+     },
+     "v3": {
+      "logloss": 0.39575,
+      "top1": 50.0,
+      "top10": 41.2,
+      "top10_pred": 41.8
+     },
+     "v3_cal": {
+      "logloss": 0.39556,
+      "top1": 50.0,
+      "top10": 41.2,
+      "top10_pred": 40.0
+     }
+    },
+    {
+     "season": "2023-24",
+     "nights": 183,
+     "v2": {
+      "logloss": 0.39009,
+      "top1": 48.1,
+      "top10": 38.8,
+      "top10_pred": 39.4
+     },
+     "evo": {
+      "logloss": 0.38996,
+      "top1": 49.2,
+      "top10": 38.6,
+      "top10_pred": 39.1
+     },
+     "evo_cal": {
+      "logloss": 0.38982,
+      "top1": 49.2,
+      "top10": 38.6,
+      "top10_pred": 37.1
+     },
+     "v3": {
+      "logloss": 0.39,
+      "top1": 50.3,
+      "top10": 39.2,
+      "top10_pred": 39.5
+     },
+     "v3_cal": {
+      "logloss": 0.38985,
+      "top1": 50.3,
+      "top10": 39.2,
+      "top10_pred": 37.3
+     }
+    },
+    {
+     "season": "2024-25",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.38657,
+      "top1": 42.7,
+      "top10": 37.1,
+      "top10_pred": 36.9
+     },
+     "evo": {
+      "logloss": 0.38683,
+      "top1": 41.6,
+      "top10": 37.9,
+      "top10_pred": 35.6
+     },
+     "evo_cal": {
+      "logloss": 0.38662,
+      "top1": 41.6,
+      "top10": 37.9,
+      "top10_pred": 36.9
+     },
+     "v3": {
+      "logloss": 0.38618,
+      "top1": 42.1,
+      "top10": 37.8,
+      "top10_pred": 37.0
+     },
+     "v3_cal": {
+      "logloss": 0.3862,
+      "top1": 42.1,
+      "top10": 37.8,
+      "top10_pred": 37.3
+     }
+    },
+    {
+     "season": "2025-26",
+     "nights": 167,
+     "v2": {
+      "logloss": 0.39269,
+      "top1": 39.5,
+      "top10": 38.5,
+      "top10_pred": 36.2
+     },
+     "evo": {
+      "logloss": 0.39256,
+      "top1": 40.1,
+      "top10": 38.4,
+      "top10_pred": 36.4
+     },
+     "evo_cal": {
+      "logloss": 0.39254,
+      "top1": 40.1,
+      "top10": 38.4,
+      "top10_pred": 37.6
+     },
+     "v3": {
+      "logloss": 0.39225,
+      "top1": 41.3,
+      "top10": 38.3,
+      "top10_pred": 36.9
+     },
+     "v3_cal": {
+      "logloss": 0.39228,
+      "top1": 41.3,
+      "top10": 38.3,
+      "top10_pred": 37.8
+     }
+    },
+    {
+     "season": "2026-27",
+     "nights": 30,
+     "v2": {
+      "logloss": 0.3937,
+      "top1": 50.0,
+      "top10": 37.0,
+      "top10_pred": 36.5
+     },
+     "evo": {
+      "logloss": 0.39311,
+      "top1": 53.3,
+      "top10": 36.3,
+      "top10_pred": 37.7
+     },
+     "evo_cal": {
+      "logloss": 0.39317,
+      "top1": 53.3,
+      "top10": 36.3,
+      "top10_pred": 37.3
+     },
+     "v3": {
+      "logloss": 0.39264,
+      "top1": 56.7,
+      "top10": 38.0,
+      "top10_pred": 37.7
+     },
+     "v3_cal": {
+      "logloss": 0.39271,
+      "top1": 56.7,
+      "top10": 38.0,
+      "top10_pred": 37.4
+     }
+    }
+   ],
+   "calibration_test": [
+    {
+     "band": "0\u20135%",
+     "pred": 3.8,
+     "actual": 3.8,
+     "n": 40365
+    },
+    {
+     "band": "5\u201310%",
+     "pred": 7.4,
+     "actual": 7.3,
+     "n": 73179
+    },
+    {
+     "band": "10\u201315%",
+     "pred": 12.4,
+     "actual": 12.5,
+     "n": 63389
+    },
+    {
+     "band": "15\u201320%",
+     "pred": 17.4,
+     "actual": 16.7,
+     "n": 43235
+    },
+    {
+     "band": "20\u201325%",
+     "pred": 22.4,
+     "actual": 22.1,
+     "n": 34947
+    },
+    {
+     "band": "25\u201330%",
+     "pred": 27.3,
+     "actual": 27.2,
+     "n": 26017
+    },
+    {
+     "band": "30\u201335%",
+     "pred": 32.3,
+     "actual": 32.6,
+     "n": 16676
+    },
+    {
+     "band": "35\u201340%",
+     "pred": 37.1,
+     "actual": 36.9,
+     "n": 7573
+    },
+    {
+     "band": "40\u201350%",
+     "pred": 43.3,
+     "actual": 44.0,
+     "n": 3867
+    },
+    {
+     "band": "50\u201360%",
+     "pred": 52.4,
+     "actual": 52.8,
+     "n": 218
+    }
+   ],
+   "player_games": 642864,
+   "nights": 2543
+  },
+  "point": {
+   "label": "1+ point",
+   "variants": [
+    "v2",
+    "v3",
+    "v3_cal"
+   ],
+   "periods": [
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v2",
+     "n": 333394,
+     "logloss": 0.58184,
+     "auc": 0.6854,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 68.4,
+       "pred": 66.1
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 64.9,
+       "pred": 63.8
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 63.7,
+       "pred": 62.4
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 61.4,
+       "pred": 60.1
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v3",
+     "n": 333394,
+     "logloss": 0.58156,
+     "auc": 0.6856,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 68.2,
+       "pred": 67.4
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 65.2,
+       "pred": 64.9
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 63.8,
+       "pred": 63.4
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 61.5,
+       "pred": 60.8
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v3_cal",
+     "n": 333394,
+     "logloss": 0.58177,
+     "auc": 0.6853,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 68.2,
+       "pred": 67.7
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 65.2,
+       "pred": 65.2
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 63.8,
+       "pred": 63.7
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 61.5,
+       "pred": 61.1
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v2",
+     "n": 309470,
+     "logloss": 0.59245,
+     "auc": 0.6921,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 77.0,
+       "pred": 74.5
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 75.3,
+       "pred": 72.0
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 72.7,
+       "pred": 70.1
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 68.7,
+       "pred": 67.0
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v3",
+     "n": 309470,
+     "logloss": 0.59202,
+     "auc": 0.6923,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 77.2,
+       "pred": 76.2
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 74.9,
+       "pred": 73.4
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 72.8,
+       "pred": 71.4
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 68.9,
+       "pred": 68.0
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v3_cal",
+     "n": 309470,
+     "logloss": 0.59197,
+     "auc": 0.6924,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 77.2,
+       "pred": 76.3
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 74.9,
+       "pred": 73.5
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 72.8,
+       "pred": 71.4
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 68.9,
+       "pred": 68.0
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v2",
+     "n": 642864,
+     "logloss": 0.58695,
+     "auc": 0.6891,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 72.5,
+       "pred": 70.1
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 69.9,
+       "pred": 67.7
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 67.9,
+       "pred": 66.1
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 64.8,
+       "pred": 63.3
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v3",
+     "n": 642864,
+     "logloss": 0.5866,
+     "auc": 0.6893,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 72.5,
+       "pred": 71.6
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 69.8,
+       "pred": 69.0
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 68.0,
+       "pred": 67.2
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 65.0,
+       "pred": 64.2
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v3_cal",
+     "n": 642864,
+     "logloss": 0.58668,
+     "auc": 0.6892,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 72.5,
+       "pred": 71.8
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 69.8,
+       "pred": 69.2
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 68.0,
+       "pred": 67.4
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 65.0,
+       "pred": 64.4
+      }
+     }
+    }
+   ],
+   "by_season": [
+    {
+     "season": "2011-12",
+     "nights": 177,
+     "v2": {
+      "logloss": 0.57221,
+      "top1": 65.0,
+      "top10": 61.3,
+      "top10_pred": 59.4
+     },
+     "v3": {
+      "logloss": 0.5721,
+      "top1": 63.8,
+      "top10": 60.7,
+      "top10_pred": 59.9
+     },
+     "v3_cal": {
+      "logloss": 0.57236,
+      "top1": 63.8,
+      "top10": 60.7,
+      "top10_pred": 60.3
+     }
+    },
+    {
+     "season": "2012-13",
+     "nights": 100,
+     "v2": {
+      "logloss": 0.57336,
+      "top1": 73.0,
+      "top10": 63.5,
+      "top10_pred": 59.2
+     },
+     "v3": {
+      "logloss": 0.57312,
+      "top1": 72.0,
+      "top10": 63.3,
+      "top10_pred": 59.8
+     },
+     "v3_cal": {
+      "logloss": 0.5735,
+      "top1": 72.0,
+      "top10": 63.3,
+      "top10_pred": 61.1
+     }
+    },
+    {
+     "season": "2013-14",
+     "nights": 176,
+     "v2": {
+      "logloss": 0.57841,
+      "top1": 69.9,
+      "top10": 59.0,
+      "top10_pred": 59.0
+     },
+     "v3": {
+      "logloss": 0.57826,
+      "top1": 69.9,
+      "top10": 59.3,
+      "top10_pred": 59.6
+     },
+     "v3_cal": {
+      "logloss": 0.57836,
+      "top1": 69.9,
+      "top10": 59.3,
+      "top10_pred": 60.8
+     }
+    },
+    {
+     "season": "2014-15",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.58218,
+      "top1": 61.2,
+      "top10": 60.1,
+      "top10_pred": 58.8
+     },
+     "v3": {
+      "logloss": 0.58192,
+      "top1": 61.2,
+      "top10": 60.4,
+      "top10_pred": 59.4
+     },
+     "v3_cal": {
+      "logloss": 0.58226,
+      "top1": 61.2,
+      "top10": 60.4,
+      "top10_pred": 59.9
+     }
+    },
+    {
+     "season": "2015-16",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.57492,
+      "top1": 63.5,
+      "top10": 59.6,
+      "top10_pred": 58.5
+     },
+     "v3": {
+      "logloss": 0.57459,
+      "top1": 62.4,
+      "top10": 59.7,
+      "top10_pred": 59.2
+     },
+     "v3_cal": {
+      "logloss": 0.57471,
+      "top1": 62.4,
+      "top10": 59.7,
+      "top10_pred": 59.3
+     }
+    },
+    {
+     "season": "2016-17",
+     "nights": 172,
+     "v2": {
+      "logloss": 0.58501,
+      "top1": 67.4,
+      "top10": 58.8,
+      "top10_pred": 59.2
+     },
+     "v3": {
+      "logloss": 0.58469,
+      "top1": 68.6,
+      "top10": 59.1,
+      "top10_pred": 59.9
+     },
+     "v3_cal": {
+      "logloss": 0.58492,
+      "top1": 68.6,
+      "top10": 59.1,
+      "top10_pred": 59.2
+     }
+    },
+    {
+     "season": "2017-18",
+     "nights": 179,
+     "v2": {
+      "logloss": 0.5932,
+      "top1": 70.9,
+      "top10": 62.5,
+      "top10_pred": 61.5
+     },
+     "v3": {
+      "logloss": 0.59275,
+      "top1": 71.5,
+      "top10": 62.8,
+      "top10_pred": 62.5
+     },
+     "v3_cal": {
+      "logloss": 0.59298,
+      "top1": 71.5,
+      "top10": 62.8,
+      "top10_pred": 62.2
+     }
+    },
+    {
+     "season": "2018-19",
+     "nights": 177,
+     "v2": {
+      "logloss": 0.59119,
+      "top1": 78.5,
+      "top10": 67.2,
+      "top10_pred": 64.5
+     },
+     "v3": {
+      "logloss": 0.59081,
+      "top1": 78.0,
+      "top10": 67.6,
+      "top10_pred": 66.0
+     },
+     "v3_cal": {
+      "logloss": 0.59094,
+      "top1": 78.0,
+      "top10": 67.6,
+      "top10_pred": 66.1
+     }
+    },
+    {
+     "season": "2019-20",
+     "nights": 155,
+     "v2": {
+      "logloss": 0.59631,
+      "top1": 67.7,
+      "top10": 67.1,
+      "top10_pred": 63.6
+     },
+     "v3": {
+      "logloss": 0.59576,
+      "top1": 66.5,
+      "top10": 67.4,
+      "top10_pred": 64.9
+     },
+     "v3_cal": {
+      "logloss": 0.59588,
+      "top1": 66.5,
+      "top10": 67.4,
+      "top10_pred": 65.5
+     }
+    },
+    {
+     "season": "2020-21",
+     "nights": 126,
+     "v2": {
+      "logloss": 0.59317,
+      "top1": 74.6,
+      "top10": 65.2,
+      "top10_pred": 63.5
+     },
+     "v3": {
+      "logloss": 0.5927,
+      "top1": 73.8,
+      "top10": 65.8,
+      "top10_pred": 64.7
+     },
+     "v3_cal": {
+      "logloss": 0.59284,
+      "top1": 73.8,
+      "top10": 65.8,
+      "top10_pred": 65.3
+     }
+    },
+    {
+     "season": "2021-22",
+     "nights": 189,
+     "v2": {
+      "logloss": 0.59292,
+      "top1": 77.8,
+      "top10": 70.7,
+      "top10_pred": 66.7
+     },
+     "v3": {
+      "logloss": 0.59244,
+      "top1": 78.3,
+      "top10": 70.9,
+      "top10_pred": 67.8
+     },
+     "v3_cal": {
+      "logloss": 0.5926,
+      "top1": 78.3,
+      "top10": 70.9,
+      "top10_pred": 69.5
+     }
+    },
+    {
+     "season": "2022-23",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.59385,
+      "top1": 79.2,
+      "top10": 70.8,
+      "top10_pred": 71.2
+     },
+     "v3": {
+      "logloss": 0.59358,
+      "top1": 79.8,
+      "top10": 70.9,
+      "top10_pred": 72.2
+     },
+     "v3_cal": {
+      "logloss": 0.59308,
+      "top1": 79.8,
+      "top10": 70.9,
+      "top10_pred": 70.2
+     }
+    },
+    {
+     "season": "2023-24",
+     "nights": 183,
+     "v2": {
+      "logloss": 0.5917,
+      "top1": 78.7,
+      "top10": 69.1,
+      "top10_pred": 68.8
+     },
+     "v3": {
+      "logloss": 0.59124,
+      "top1": 77.6,
+      "top10": 69.2,
+      "top10_pred": 69.7
+     },
+     "v3_cal": {
+      "logloss": 0.5909,
+      "top1": 77.6,
+      "top10": 69.2,
+      "top10_pred": 67.7
+     }
+    },
+    {
+     "season": "2024-25",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.58812,
+      "top1": 79.8,
+      "top10": 68.7,
+      "top10_pred": 67.1
+     },
+     "v3": {
+      "logloss": 0.5879,
+      "top1": 82.0,
+      "top10": 69.2,
+      "top10_pred": 67.9
+     },
+     "v3_cal": {
+      "logloss": 0.58788,
+      "top1": 82.0,
+      "top10": 69.2,
+      "top10_pred": 67.8
+     }
+    },
+    {
+     "season": "2025-26",
+     "nights": 167,
+     "v2": {
+      "logloss": 0.59198,
+      "top1": 76.6,
+      "top10": 67.8,
+      "top10_pred": 66.5
+     },
+     "v3": {
+      "logloss": 0.5914,
+      "top1": 77.2,
+      "top10": 67.6,
+      "top10_pred": 67.3
+     },
+     "v3_cal": {
+      "logloss": 0.59149,
+      "top1": 77.2,
+      "top10": 67.6,
+      "top10_pred": 68.9
+     }
+    },
+    {
+     "season": "2026-27",
+     "nights": 30,
+     "v2": {
+      "logloss": 0.59275,
+      "top1": 93.3,
+      "top10": 69.3,
+      "top10_pred": 67.0
+     },
+     "v3": {
+      "logloss": 0.59248,
+      "top1": 93.3,
+      "top10": 69.0,
+      "top10_pred": 67.9
+     },
+     "v3_cal": {
+      "logloss": 0.59283,
+      "top1": 93.3,
+      "top10": 69.0,
+      "top10_pred": 68.0
+     }
+    }
+   ],
+   "calibration_test": [
+    {
+     "band": "5\u201310%",
+     "pred": 8.8,
+     "actual": 9.0,
+     "n": 803
+    },
+    {
+     "band": "10\u201315%",
+     "pred": 13.4,
+     "actual": 13.0,
+     "n": 14726
+    },
+    {
+     "band": "15\u201320%",
+     "pred": 17.7,
+     "actual": 17.7,
+     "n": 41998
+    },
+    {
+     "band": "20\u201325%",
+     "pred": 22.4,
+     "actual": 22.1,
+     "n": 45091
+    },
+    {
+     "band": "25\u201330%",
+     "pred": 27.4,
+     "actual": 26.9,
+     "n": 37028
+    },
+    {
+     "band": "30\u201335%",
+     "pred": 32.4,
+     "actual": 31.7,
+     "n": 31599
+    },
+    {
+     "band": "35\u201340%",
+     "pred": 37.5,
+     "actual": 36.5,
+     "n": 28308
+    },
+    {
+     "band": "40\u201350%",
+     "pred": 44.8,
+     "actual": 44.0,
+     "n": 49844
+    },
+    {
+     "band": "50\u201360%",
+     "pred": 54.6,
+     "actual": 55.0,
+     "n": 36887
+    },
+    {
+     "band": "60\u201370%",
+     "pred": 64.1,
+     "actual": 63.8,
+     "n": 18202
+    },
+    {
+     "band": "70\u201380%",
+     "pred": 73.7,
+     "actual": 74.3,
+     "n": 4532
+    },
+    {
+     "band": "80\u2013100%",
+     "pred": 82.2,
+     "actual": 82.8,
+     "n": 447
+    }
+   ],
+   "player_games": 642864,
+   "nights": 2543
+  },
+  "sog": {
+   "label": "3+ shots on goal",
+   "variants": [
+    "v2",
+    "evo",
+    "evo_cal",
+    "v3",
+    "v3_cal"
+   ],
+   "periods": [
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v2",
+     "n": 333394,
+     "logloss": 0.49294,
+     "auc": 0.7423,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 75.4,
+       "pred": 73.7
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 69.5,
+       "pred": 69.1
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 67.5,
+       "pred": 66.5
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 63.4,
+       "pred": 62.3
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "evo",
+     "n": 333394,
+     "logloss": 0.49294,
+     "auc": 0.7423,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 75.4,
+       "pred": 73.7
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 69.5,
+       "pred": 69.1
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 67.5,
+       "pred": 66.5
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 63.4,
+       "pred": 62.3
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "evo_cal",
+     "n": 333394,
+     "logloss": 0.49297,
+     "auc": 0.7422,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 75.4,
+       "pred": 74.3
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 69.5,
+       "pred": 69.7
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 67.5,
+       "pred": 67.1
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 63.4,
+       "pred": 62.8
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v3",
+     "n": 333394,
+     "logloss": 0.49294,
+     "auc": 0.7423,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 75.4,
+       "pred": 73.7
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 69.5,
+       "pred": 69.1
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 67.5,
+       "pred": 66.5
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 63.4,
+       "pred": 62.3
+      }
+     }
+    },
+    {
+     "period": "Design seasons 2011-19",
+     "variant": "v3_cal",
+     "n": 333394,
+     "logloss": 0.49297,
+     "auc": 0.7422,
+     "tiers": {
+      "top1": {
+       "n": 1337,
+       "hit": 75.4,
+       "pred": 74.3
+      },
+      "top3": {
+       "n": 4011,
+       "hit": 69.5,
+       "pred": 69.7
+      },
+      "top5": {
+       "n": 6685,
+       "hit": 67.5,
+       "pred": 67.1
+      },
+      "top10": {
+       "n": 13370,
+       "hit": 63.4,
+       "pred": 62.8
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v2",
+     "n": 309470,
+     "logloss": 0.48402,
+     "auc": 0.7463,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 76.4,
+       "pred": 74.9
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 72.0,
+       "pred": 70.7
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 69.5,
+       "pred": 67.9
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 64.6,
+       "pred": 63.3
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "evo",
+     "n": 309470,
+     "logloss": 0.48402,
+     "auc": 0.7463,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 76.4,
+       "pred": 74.9
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 72.0,
+       "pred": 70.7
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 69.5,
+       "pred": 67.9
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 64.6,
+       "pred": 63.3
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "evo_cal",
+     "n": 309470,
+     "logloss": 0.48393,
+     "auc": 0.7464,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 76.4,
+       "pred": 75.5
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 72.0,
+       "pred": 71.3
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 69.5,
+       "pred": 68.5
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 64.6,
+       "pred": 63.8
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v3",
+     "n": 309470,
+     "logloss": 0.48402,
+     "auc": 0.7463,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 76.4,
+       "pred": 74.9
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 72.0,
+       "pred": 70.7
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 69.5,
+       "pred": 67.9
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 64.6,
+       "pred": 63.3
+      }
+     }
+    },
+    {
+     "period": "Test seasons 2019-27",
+     "variant": "v3_cal",
+     "n": 309470,
+     "logloss": 0.48393,
+     "auc": 0.7464,
+     "tiers": {
+      "top1": {
+       "n": 1206,
+       "hit": 76.4,
+       "pred": 75.5
+      },
+      "top3": {
+       "n": 3618,
+       "hit": 72.0,
+       "pred": 71.3
+      },
+      "top5": {
+       "n": 6030,
+       "hit": 69.5,
+       "pred": 68.5
+      },
+      "top10": {
+       "n": 12060,
+       "hit": 64.6,
+       "pred": 63.8
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v2",
+     "n": 642864,
+     "logloss": 0.48865,
+     "auc": 0.7443,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 75.9,
+       "pred": 74.2
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 70.7,
+       "pred": 69.9
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 68.4,
+       "pred": 67.2
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 64.0,
+       "pred": 62.8
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "evo",
+     "n": 642864,
+     "logloss": 0.48865,
+     "auc": 0.7443,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 75.9,
+       "pred": 74.2
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 70.7,
+       "pred": 69.9
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 68.4,
+       "pred": 67.2
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 64.0,
+       "pred": 62.8
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "evo_cal",
+     "n": 642864,
+     "logloss": 0.48862,
+     "auc": 0.7443,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 75.9,
+       "pred": 74.9
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 70.7,
+       "pred": 70.5
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 68.4,
+       "pred": 67.8
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 64.0,
+       "pred": 63.3
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v3",
+     "n": 642864,
+     "logloss": 0.48865,
+     "auc": 0.7443,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 75.9,
+       "pred": 74.2
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 70.7,
+       "pred": 69.9
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 68.4,
+       "pred": 67.2
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 64.0,
+       "pred": 62.8
+      }
+     }
+    },
+    {
+     "period": "All 15+ seasons",
+     "variant": "v3_cal",
+     "n": 642864,
+     "logloss": 0.48862,
+     "auc": 0.7443,
+     "tiers": {
+      "top1": {
+       "n": 2543,
+       "hit": 75.9,
+       "pred": 74.9
+      },
+      "top3": {
+       "n": 7629,
+       "hit": 70.7,
+       "pred": 70.5
+      },
+      "top5": {
+       "n": 12715,
+       "hit": 68.4,
+       "pred": 67.8
+      },
+      "top10": {
+       "n": 25430,
+       "hit": 64.0,
+       "pred": 63.3
+      }
+     }
+    }
+   ],
+   "by_season": [
+    {
+     "season": "2011-12",
+     "nights": 177,
+     "v2": {
+      "logloss": 0.47661,
+      "top1": 79.7,
+      "top10": 62.8,
+      "top10_pred": 61.7
+     },
+     "evo": {
+      "logloss": 0.47661,
+      "top1": 79.7,
+      "top10": 62.8,
+      "top10_pred": 61.7
+     },
+     "evo_cal": {
+      "logloss": 0.4766,
+      "top1": 79.7,
+      "top10": 62.8,
+      "top10_pred": 63.6
+     },
+     "v3": {
+      "logloss": 0.47661,
+      "top1": 79.7,
+      "top10": 62.8,
+      "top10_pred": 61.7
+     },
+     "v3_cal": {
+      "logloss": 0.4766,
+      "top1": 79.7,
+      "top10": 62.8,
+      "top10_pred": 63.6
+     }
+    },
+    {
+     "season": "2012-13",
+     "nights": 100,
+     "v2": {
+      "logloss": 0.47347,
+      "top1": 78.0,
+      "top10": 66.0,
+      "top10_pred": 60.9
+     },
+     "evo": {
+      "logloss": 0.47347,
+      "top1": 78.0,
+      "top10": 66.0,
+      "top10_pred": 60.9
+     },
+     "evo_cal": {
+      "logloss": 0.4735,
+      "top1": 78.0,
+      "top10": 66.0,
+      "top10_pred": 62.5
+     },
+     "v3": {
+      "logloss": 0.47347,
+      "top1": 78.0,
+      "top10": 66.0,
+      "top10_pred": 60.9
+     },
+     "v3_cal": {
+      "logloss": 0.4735,
+      "top1": 78.0,
+      "top10": 66.0,
+      "top10_pred": 62.5
+     }
+    },
+    {
+     "season": "2013-14",
+     "nights": 176,
+     "v2": {
+      "logloss": 0.48702,
+      "top1": 75.0,
+      "top10": 65.5,
+      "top10_pred": 62.2
+     },
+     "evo": {
+      "logloss": 0.48702,
+      "top1": 75.0,
+      "top10": 65.5,
+      "top10_pred": 62.2
+     },
+     "evo_cal": {
+      "logloss": 0.48694,
+      "top1": 75.0,
+      "top10": 65.5,
+      "top10_pred": 64.4
+     },
+     "v3": {
+      "logloss": 0.48702,
+      "top1": 75.0,
+      "top10": 65.5,
+      "top10_pred": 62.2
+     },
+     "v3_cal": {
+      "logloss": 0.48694,
+      "top1": 75.0,
+      "top10": 65.5,
+      "top10_pred": 64.4
+     }
+    },
+    {
+     "season": "2014-15",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.48701,
+      "top1": 78.1,
+      "top10": 62.1,
+      "top10_pred": 61.6
+     },
+     "evo": {
+      "logloss": 0.48701,
+      "top1": 78.1,
+      "top10": 62.1,
+      "top10_pred": 61.6
+     },
+     "evo_cal": {
+      "logloss": 0.48709,
+      "top1": 78.1,
+      "top10": 62.1,
+      "top10_pred": 61.4
+     },
+     "v3": {
+      "logloss": 0.48701,
+      "top1": 78.1,
+      "top10": 62.1,
+      "top10_pred": 61.6
+     },
+     "v3_cal": {
+      "logloss": 0.48709,
+      "top1": 78.1,
+      "top10": 62.1,
+      "top10_pred": 61.4
+     }
+    },
+    {
+     "season": "2015-16",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.48497,
+      "top1": 74.7,
+      "top10": 61.2,
+      "top10_pred": 61.4
+     },
+     "evo": {
+      "logloss": 0.48497,
+      "top1": 74.7,
+      "top10": 61.2,
+      "top10_pred": 61.4
+     },
+     "evo_cal": {
+      "logloss": 0.4851,
+      "top1": 74.7,
+      "top10": 61.2,
+      "top10_pred": 61.4
+     },
+     "v3": {
+      "logloss": 0.48497,
+      "top1": 74.7,
+      "top10": 61.2,
+      "top10_pred": 61.4
+     },
+     "v3_cal": {
+      "logloss": 0.4851,
+      "top1": 74.7,
+      "top10": 61.2,
+      "top10_pred": 61.4
+     }
+    },
+    {
+     "season": "2016-17",
+     "nights": 172,
+     "v2": {
+      "logloss": 0.49577,
+      "top1": 68.0,
+      "top10": 63.0,
+      "top10_pred": 61.3
+     },
+     "evo": {
+      "logloss": 0.49577,
+      "top1": 68.0,
+      "top10": 63.0,
+      "top10_pred": 61.3
+     },
+     "evo_cal": {
+      "logloss": 0.49589,
+      "top1": 68.0,
+      "top10": 63.0,
+      "top10_pred": 61.1
+     },
+     "v3": {
+      "logloss": 0.49577,
+      "top1": 68.0,
+      "top10": 63.0,
+      "top10_pred": 61.3
+     },
+     "v3_cal": {
+      "logloss": 0.49589,
+      "top1": 68.0,
+      "top10": 63.0,
+      "top10_pred": 61.1
+     }
+    },
+    {
+     "season": "2017-18",
+     "nights": 179,
+     "v2": {
+      "logloss": 0.51778,
+      "top1": 74.3,
+      "top10": 63.8,
+      "top10_pred": 63.7
+     },
+     "evo": {
+      "logloss": 0.51778,
+      "top1": 74.3,
+      "top10": 63.8,
+      "top10_pred": 63.7
+     },
+     "evo_cal": {
+      "logloss": 0.51782,
+      "top1": 74.3,
+      "top10": 63.8,
+      "top10_pred": 63.7
+     },
+     "v3": {
+      "logloss": 0.51778,
+      "top1": 74.3,
+      "top10": 63.8,
+      "top10_pred": 63.7
+     },
+     "v3_cal": {
+      "logloss": 0.51782,
+      "top1": 74.3,
+      "top10": 63.8,
+      "top10_pred": 63.7
+     }
+    },
+    {
+     "season": "2018-19",
+     "nights": 177,
+     "v2": {
+      "logloss": 0.51126,
+      "top1": 76.3,
+      "top10": 64.1,
+      "top10_pred": 64.8
+     },
+     "evo": {
+      "logloss": 0.51126,
+      "top1": 76.3,
+      "top10": 64.1,
+      "top10_pred": 64.8
+     },
+     "evo_cal": {
+      "logloss": 0.51121,
+      "top1": 76.3,
+      "top10": 64.1,
+      "top10_pred": 64.3
+     },
+     "v3": {
+      "logloss": 0.51126,
+      "top1": 76.3,
+      "top10": 64.1,
+      "top10_pred": 64.8
+     },
+     "v3_cal": {
+      "logloss": 0.51121,
+      "top1": 76.3,
+      "top10": 64.1,
+      "top10_pred": 64.3
+     }
+    },
+    {
+     "season": "2019-20",
+     "nights": 155,
+     "v2": {
+      "logloss": 0.5111,
+      "top1": 78.7,
+      "top10": 66.1,
+      "top10_pred": 63.1
+     },
+     "evo": {
+      "logloss": 0.5111,
+      "top1": 78.7,
+      "top10": 66.1,
+      "top10_pred": 63.1
+     },
+     "evo_cal": {
+      "logloss": 0.5111,
+      "top1": 78.7,
+      "top10": 66.1,
+      "top10_pred": 62.8
+     },
+     "v3": {
+      "logloss": 0.5111,
+      "top1": 78.7,
+      "top10": 66.1,
+      "top10_pred": 63.1
+     },
+     "v3_cal": {
+      "logloss": 0.5111,
+      "top1": 78.7,
+      "top10": 66.1,
+      "top10_pred": 62.8
+     }
+    },
+    {
+     "season": "2020-21",
+     "nights": 126,
+     "v2": {
+      "logloss": 0.49431,
+      "top1": 75.4,
+      "top10": 59.7,
+      "top10_pred": 60.6
+     },
+     "evo": {
+      "logloss": 0.49431,
+      "top1": 75.4,
+      "top10": 59.7,
+      "top10_pred": 60.6
+     },
+     "evo_cal": {
+      "logloss": 0.49442,
+      "top1": 75.4,
+      "top10": 59.7,
+      "top10_pred": 59.6
+     },
+     "v3": {
+      "logloss": 0.49431,
+      "top1": 75.4,
+      "top10": 59.7,
+      "top10_pred": 60.6
+     },
+     "v3_cal": {
+      "logloss": 0.49442,
+      "top1": 75.4,
+      "top10": 59.7,
+      "top10_pred": 59.6
+     }
+    },
+    {
+     "season": "2021-22",
+     "nights": 189,
+     "v2": {
+      "logloss": 0.50616,
+      "top1": 81.5,
+      "top10": 66.7,
+      "top10_pred": 62.7
+     },
+     "evo": {
+      "logloss": 0.50616,
+      "top1": 81.5,
+      "top10": 66.7,
+      "top10_pred": 62.7
+     },
+     "evo_cal": {
+      "logloss": 0.50565,
+      "top1": 81.5,
+      "top10": 66.7,
+      "top10_pred": 66.6
+     },
+     "v3": {
+      "logloss": 0.50616,
+      "top1": 81.5,
+      "top10": 66.7,
+      "top10_pred": 62.7
+     },
+     "v3_cal": {
+      "logloss": 0.50565,
+      "top1": 81.5,
+      "top10": 66.7,
+      "top10_pred": 66.6
+     }
+    },
+    {
+     "season": "2022-23",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.49335,
+      "top1": 82.0,
+      "top10": 69.3,
+      "top10_pred": 68.5
+     },
+     "evo": {
+      "logloss": 0.49335,
+      "top1": 82.0,
+      "top10": 69.3,
+      "top10_pred": 68.5
+     },
+     "evo_cal": {
+      "logloss": 0.4932,
+      "top1": 82.0,
+      "top10": 69.3,
+      "top10_pred": 68.8
+     },
+     "v3": {
+      "logloss": 0.49335,
+      "top1": 82.0,
+      "top10": 69.3,
+      "top10_pred": 68.5
+     },
+     "v3_cal": {
+      "logloss": 0.4932,
+      "top1": 82.0,
+      "top10": 69.3,
+      "top10_pred": 68.8
+     }
+    },
+    {
+     "season": "2023-24",
+     "nights": 183,
+     "v2": {
+      "logloss": 0.48293,
+      "top1": 77.6,
+      "top10": 67.9,
+      "top10_pred": 67.4
+     },
+     "evo": {
+      "logloss": 0.48293,
+      "top1": 77.6,
+      "top10": 67.9,
+      "top10_pred": 67.4
+     },
+     "evo_cal": {
+      "logloss": 0.48278,
+      "top1": 77.6,
+      "top10": 67.9,
+      "top10_pred": 66.6
+     },
+     "v3": {
+      "logloss": 0.48293,
+      "top1": 77.6,
+      "top10": 67.9,
+      "top10_pred": 67.4
+     },
+     "v3_cal": {
+      "logloss": 0.48278,
+      "top1": 77.6,
+      "top10": 67.9,
+      "top10_pred": 66.6
+     }
+    },
+    {
+     "season": "2024-25",
+     "nights": 178,
+     "v2": {
+      "logloss": 0.46039,
+      "top1": 68.0,
+      "top10": 60.2,
+      "top10_pred": 61.7
+     },
+     "evo": {
+      "logloss": 0.46039,
+      "top1": 68.0,
+      "top10": 60.2,
+      "top10_pred": 61.7
+     },
+     "evo_cal": {
+      "logloss": 0.4605,
+      "top1": 68.0,
+      "top10": 60.2,
+      "top10_pred": 60.8
+     },
+     "v3": {
+      "logloss": 0.46039,
+      "top1": 68.0,
+      "top10": 60.2,
+      "top10_pred": 61.7
+     },
+     "v3_cal": {
+      "logloss": 0.4605,
+      "top1": 68.0,
+      "top10": 60.2,
+      "top10_pred": 60.8
+     }
+    },
+    {
+     "season": "2025-26",
+     "nights": 167,
+     "v2": {
+      "logloss": 0.45299,
+      "top1": 73.1,
+      "top10": 61.6,
+      "top10_pred": 59.1
+     },
+     "evo": {
+      "logloss": 0.45299,
+      "top1": 73.1,
+      "top10": 61.6,
+      "top10_pred": 59.1
+     },
+     "evo_cal": {
+      "logloss": 0.45298,
+      "top1": 73.1,
+      "top10": 61.6,
+      "top10_pred": 60.8
+     },
+     "v3": {
+      "logloss": 0.45299,
+      "top1": 73.1,
+      "top10": 61.6,
+      "top10_pred": 59.1
+     },
+     "v3_cal": {
+      "logloss": 0.45298,
+      "top1": 73.1,
+      "top10": 61.6,
+      "top10_pred": 60.8
+     }
+    },
+    {
+     "season": "2026-27",
+     "nights": 30,
+     "v2": {
+      "logloss": 0.45358,
+      "top1": 63.3,
+      "top10": 60.0,
+      "top10_pred": 57.1
+     },
+     "evo": {
+      "logloss": 0.45358,
+      "top1": 63.3,
+      "top10": 60.0,
+      "top10_pred": 57.1
+     },
+     "evo_cal": {
+      "logloss": 0.45372,
+      "top1": 63.3,
+      "top10": 60.0,
+      "top10_pred": 57.8
+     },
+     "v3": {
+      "logloss": 0.45358,
+      "top1": 63.3,
+      "top10": 60.0,
+      "top10_pred": 57.1
+     },
+     "v3_cal": {
+      "logloss": 0.45372,
+      "top1": 63.3,
+      "top10": 60.0,
+      "top10_pred": 57.8
+     }
+    }
+   ],
+   "calibration_test": [
+    {
+     "band": "0\u20135%",
+     "pred": 3.5,
+     "actual": 4.0,
+     "n": 14927
+    },
+    {
+     "band": "5\u201310%",
+     "pred": 7.7,
+     "actual": 7.7,
+     "n": 47151
+    },
+    {
+     "band": "10\u201315%",
+     "pred": 12.4,
+     "actual": 11.8,
+     "n": 49171
+    },
+    {
+     "band": "15\u201320%",
+     "pred": 17.4,
+     "actual": 16.9,
+     "n": 38417
+    },
+    {
+     "band": "20\u201325%",
+     "pred": 22.4,
+     "actual": 22.2,
+     "n": 31201
+    },
+    {
+     "band": "25\u201330%",
+     "pred": 27.4,
+     "actual": 26.7,
+     "n": 26733
+    },
+    {
+     "band": "30\u201335%",
+     "pred": 32.4,
+     "actual": 32.1,
+     "n": 23321
+    },
+    {
+     "band": "35\u201340%",
+     "pred": 37.4,
+     "actual": 37.6,
+     "n": 20146
+    },
+    {
+     "band": "40\u201350%",
+     "pred": 44.6,
+     "actual": 44.6,
+     "n": 30160
+    },
+    {
+     "band": "50\u201360%",
+     "pred": 54.5,
+     "actual": 55.6,
+     "n": 17751
+    },
+    {
+     "band": "60\u201370%",
+     "pred": 64.1,
+     "actual": 64.7,
+     "n": 7784
+    },
+    {
+     "band": "70\u201380%",
+     "pred": 73.9,
+     "actual": 75.6,
+     "n": 2295
+    },
+    {
+     "band": "80\u2013100%",
+     "pred": 82.8,
+     "actual": 84.3,
+     "n": 413
+    }
+   ],
+   "player_games": 642864,
+   "nights": 2543
+  }
+ },
+ "parlays": [
+  {
+   "parlay": "Goals 2-leg",
+   "period": "Test seasons 2019-27",
+   "nights": 1160,
+   "won": 230,
+   "win_pct": 19.8,
+   "pred_pct": 18.8,
+   "avg_fair_odds": "+432"
+  },
+  {
+   "parlay": "Goals 2-leg",
+   "period": "All 15+ seasons",
+   "nights": 2460,
+   "won": 436,
+   "win_pct": 17.7,
+   "pred_pct": 16.2,
+   "avg_fair_odds": "+516"
+  },
+  {
+   "parlay": "Goals 3-leg",
+   "period": "Test seasons 2019-27",
+   "nights": 1065,
+   "won": 88,
+   "win_pct": 8.3,
+   "pred_pct": 7.6,
+   "avg_fair_odds": "+1211"
+  },
+  {
+   "parlay": "Goals 3-leg",
+   "period": "All 15+ seasons",
+   "nights": 2292,
+   "won": 158,
+   "win_pct": 6.9,
+   "pred_pct": 6.1,
+   "avg_fair_odds": "+1533"
+  },
+  {
+   "parlay": "Points 2-leg",
+   "period": "Test seasons 2019-27",
+   "nights": 1160,
+   "won": 677,
+   "win_pct": 58.4,
+   "pred_pct": 55.2,
+   "avg_fair_odds": "-123"
+  },
+  {
+   "parlay": "Points 2-leg",
+   "period": "All 15+ seasons",
+   "nights": 2460,
+   "won": 1239,
+   "win_pct": 50.4,
+   "pred_pct": 48.9,
+   "avg_fair_odds": "+104"
+  },
+  {
+   "parlay": "Points 3-leg",
+   "period": "Test seasons 2019-27",
+   "nights": 1065,
+   "won": 458,
+   "win_pct": 43.0,
+   "pred_pct": 39.2,
+   "avg_fair_odds": "+155"
+  },
+  {
+   "parlay": "Points 3-leg",
+   "period": "All 15+ seasons",
+   "nights": 2292,
+   "won": 779,
+   "win_pct": 34.0,
+   "pred_pct": 32.8,
+   "avg_fair_odds": "+205"
+  },
+  {
+   "parlay": "3+ SOG 2-leg",
+   "period": "Test seasons 2019-27",
+   "nights": 1160,
+   "won": 649,
+   "win_pct": 55.9,
+   "pred_pct": 53.1,
+   "avg_fair_odds": "-113"
+  },
+  {
+   "parlay": "3+ SOG 2-leg",
+   "period": "All 15+ seasons",
+   "nights": 2460,
+   "won": 1312,
+   "win_pct": 53.3,
+   "pred_pct": 51.8,
+   "avg_fair_odds": "-107"
+  }
+ ],
+ "evolution": {
+  "goal": {
+   "adopted": [
+    {
+     "date": "2024-01-30",
+     "idea": "Add opponent shots allowed",
+     "version": "v2.1",
+     "gain_A": null,
+     "gain_B": null,
+     "result": "Adopted as v2.1",
+     "terms": [
+      "l_toi10",
+      "l_toi40",
+      "l_xg60_10",
+      "l_xg60_40",
+      "l_ppx40",
+      "l_pptoi10",
+      "l_fin25",
+      "l_opp20",
+      "l_gk",
+      "l_oixgf10",
+      "l_sog10",
+      "home",
+      "b2b",
+      "opp_b2b",
+      "isD",
+      "due_pg",
+      "l_osa20"
+     ]
+    },
+    {
+     "date": "2025-11-04",
+     "idea": "Add high-danger shot share",
+     "version": "v2.2",
+     "gain_A": null,
+     "gain_B": null,
+     "result": "Adopted as v2.2",
+     "terms": [
+      "l_toi10",
+      "l_toi40",
+      "l_xg60_10",
+      "l_xg60_40",
+      "l_ppx40",
+      "l_pptoi10",
+      "l_fin25",
+      "l_opp20",
+      "l_gk",
+      "l_oixgf10",
+      "l_sog10",
+      "home",
+      "b2b",
+      "opp_b2b",
+      "isD",
+      "due_pg",
+      "l_osa20",
+      "hd_share"
+     ]
+    }
+   ],
+   "tested": 380,
+   "final": {
+    "version": "v2.2",
+    "terms": [
+     "l_toi10",
+     "l_toi40",
+     "l_xg60_10",
+     "l_xg60_40",
+     "l_ppx40",
+     "l_pptoi10",
+     "l_fin25",
+     "l_opp20",
+     "l_gk",
+     "l_oixgf10",
+     "l_sog10",
+     "home",
+     "b2b",
+     "opp_b2b",
+     "isD",
+     "due_pg",
+     "l_osa20",
+     "hd_share"
+    ],
+    "alpha": 0.0001,
+    "gb_weight": 0.0
+   }
+  },
+  "sog": {
+   "adopted": [],
+   "tested": 285,
+   "final": {
+    "version": "s1",
+    "terms": [
+     "l_toi10",
+     "l_toi40",
+     "l_toi5",
+     "l_pptoi10",
+     "l_sog10",
+     "l_sog40",
+     "l_sog60_40",
+     "l_ush10",
+     "l_osa20",
+     "home",
+     "b2b",
+     "opp_b2b",
+     "isD"
+    ],
+    "alpha": 0.0001,
+    "gb_weight": 0.0
+   }
+  }
+ }
+}

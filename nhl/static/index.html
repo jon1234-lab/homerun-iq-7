@@ -305,7 +305,7 @@ function lockCard(n, what) {
 }
 
 /* ---------------- routing ---------------- */
-const ROUTES = { "/": tonight, "/best-bets": bestBets, "/parlays": parlays, "/track-record": record, "/how-it-works": how, "/pricing": pricing, "/terms": terms };
+const ROUTES = { "/": tonight, "/best-bets": bestBets, "/parlays": parlays, "/track-record": record, "/replay": replay, "/how-it-works": how, "/pricing": pricing, "/terms": terms };
 function go(path, push = true) {
   if (push) history.pushState({}, "", path);
   const p = location.pathname in ROUTES ? location.pathname : "/";
@@ -494,9 +494,83 @@ async function record() {
     <div class="kpis">${d.markets.map(kpi).join("")}</div>
     ${g.days.length ? `<div class="panel chart"><h2>Goal picks by night</h2><p class="note">Bars are how many of the night's top 10 scored; the dashed line is how many the model expected.</p>${chart(g.days)}</div>` : ""}
     <div class="panel"><h2>Parlays</h2>${d.parlays.length ? `<table class="simple"><tr><th>Type</th><th>Graded</th><th>Won</th><th>Expected wins</th></tr>${d.parlays.map(p => `<tr><td>${esc(p.type)}</td><td class="num">${p.graded}</td><td class="num">${p.won}</td><td class="num">${p.expected}</td></tr>`).join("")}</table>` : `<p class="note">No parlays graded yet.</p>`}</div>
-    <div class="panel"><h2>How the model did on last season</h2><p class="note">Trained only on 2024-25, then tested on every 2025-26 game it had never seen. Predicted and actual hit rates should match, and they do.</p>
-      <table class="simple"><tr><th>Picks</th><th>Market</th><th>Predicted</th><th>Actual</th><th>Picks tested</th></tr>${d.backtest.top.map(t => `<tr><td>${esc(t.picks)}</td><td>${esc(t.market)}</td><td class="num">${t.predicted_pct}%</td><td class="num">${t.actual_pct}%</td><td class="num">${t.picks_n.toLocaleString()}</td></tr>`).join("")}</table></div>
+    <div id="replay15">${skel(3)}</div>
     <p class="note">Current models: goals ${esc(d.champions.goal || "–")}, points ${esc(d.champions.point || "–")}, shots ${esc(d.champions.sog || "–")}. ${graded ? "" : "The live record starts with the first graded slate."}</p>`;
+  replaySummary();
+}
+
+/* ---------------- 15-season replay ---------------- */
+let RS = null;
+async function replaySummary() {
+  const box = $("#replay15"); if (!box) return;
+  try { RS = RS || await api("/api/replay/summary"); } catch (e) { box.innerHTML = ""; return; }
+  const ship = RS.ship, mks = ["goal", "point", "sog"];
+  const test = mk => RS.markets[mk].periods.find(p => p.period.startsWith("Test") && p.variant === ship);
+  const card = mk => { const t = test(mk), m = RS.markets[mk];
+    return `<div class="kpi"><h3>${esc(m.label)}<span class="meta">${t.tiers.top1.n.toLocaleString()} nights</span></h3>
+      <div class="big num">${t.tiers.top1.hit}% <small>top pick hit · model said ${t.tiers.top1.pred}%</small></div>
+      <table class="tiers"><tr><th>Picks per night</th><th>Hit</th><th>Model said</th></tr>${["top1", "top3", "top5", "top10"].map(k => `<tr><td>${k === "top1" ? "Top pick" : "Top " + k.slice(3)}</td><td class="num">${t.tiers[k].hit}%</td><td class="num">${t.tiers[k].pred}%</td></tr>`).join("")}</table></div>`; };
+  const seasons = RS.markets.goal.by_season.map((s, i) => ({ s: s.season, n: s.nights, g: s[ship], p: RS.markets.point.by_season[i][ship], o: RS.markets.sog.by_season[i][ship] }));
+  const cal = RS.markets.goal.calibration_test;
+  const calChart = () => { const W = 640, H = 220, pad = 34, n = cal.length, bw = (W - pad * 2) / n;
+    const y = v => H - pad - v / 70 * (H - pad * 2);
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted versus actual goal rate by probability band">
+      ${[0, 20, 40, 60].map(t => `<line x1="${pad}" x2="${W - pad}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${pad - 6}" y="${y(t) + 4}" fill="var(--dim)" font-size="11" text-anchor="end">${t}%</text>`).join("")}
+      ${cal.map((c, i) => `<rect x="${pad + i * bw + bw * .18}" y="${y(c.actual)}" width="${bw * .64}" height="${H - pad - y(c.actual)}" rx="2" fill="var(--ice)" opacity=".85"><title>${c.band}: model ${c.pred}%, actual ${c.actual}% (${c.n.toLocaleString()} player-games)</title></rect>
+        <line x1="${pad + i * bw + bw * .1}" x2="${pad + i * bw + bw * .9}" y1="${y(c.pred)}" y2="${y(c.pred)}" stroke="var(--ink)" stroke-width="2.5"/>
+        <text x="${pad + i * bw + bw / 2}" y="${H - 12}" fill="var(--dim)" font-size="10" text-anchor="middle">${c.band.split("–")[0]}</text>`).join("")}</svg>
+      <div class="legend"><span><i style="background:var(--ice)"></i>How often players actually scored</span><span><i style="background:var(--ink)"></i>What the model said</span></div>`; };
+  const par = RS.parlays.filter(p => p.period.startsWith("Test"));
+  const cmp = RS.markets.goal.periods.filter(p => p.period.startsWith("Test"));
+  box.innerHTML = `<div class="panel" style="margin-top:6px"><h2>15 seasons, replayed night by night</h2>
+      <p class="note">Every NHL night from 2011-12 to today, the model made its picks using only games played before that night, then was graded on the box score. The method was designed on 2011-19; the numbers below are from 2019-20 onward, seasons it never influenced.</p></div>
+    <div class="kpis">${mks.map(card).join("")}</div>
+    <div class="panel chart"><h2>When it says 30%, it means 30%</h2><p class="note">Anytime-goal predictions since 2019-20, grouped by the chance the model gave.</p>${calChart()}</div>
+    <div class="panel"><h2>Season by season</h2><p class="note">How often the top pick and the top 10 hit, every season.</p>
+      <div style="overflow-x:auto"><table class="simple"><tr><th>Season</th><th>Goal: top pick</th><th>Goal: top 10</th><th>Point: top 10</th><th>3+ SOG: top 10</th></tr>
+      ${seasons.map(r => `<tr><td>${r.s}${r.s.startsWith("2026") ? " (so far)" : ""}</td><td class="num">${r.g.top1}%</td><td class="num">${r.g.top10}%</td><td class="num">${r.p.top10}%</td><td class="num">${r.o.top10}%</td></tr>`).join("")}</table></div></div>
+    <div class="panel"><h2>Parlays since 2019-20</h2><p class="note">One leg per game, the model's strongest legs each night.</p>
+      <div style="overflow-x:auto"><table class="simple"><tr><th>Ticket</th><th>Nights</th><th>Won</th><th>Model said</th><th>Fair odds</th></tr>
+      ${par.map(p => `<tr><td>${esc(p.parlay)}</td><td class="num">${p.nights.toLocaleString()}</td><td class="num">${p.win_pct}%</td><td class="num">${p.pred_pct}%</td><td class="num">${esc(p.avg_fair_odds)}</td></tr>`).join("")}</table></div></div>
+    <div class="panel"><h2>What we tested</h2><p class="note">Accuracy on goals since 2019-20 (log loss, lower is better), across the versions we replayed.</p>
+      <div style="overflow-x:auto"><table class="simple"><tr><th>Model</th><th>Log loss</th><th>Top-10 hit</th></tr>
+      ${cmp.map(c => `<tr><td>${esc(RS.labels[c.variant] || c.variant)}${c.variant === ship ? " · live" : ""}</td><td class="num">${c.logloss.toFixed(4)}</td><td class="num">${c.tiers.top10.hit}%</td></tr>`).join("")}</table></div></div>
+    <p><a class="btn" href="/replay" data-link>Browse every night since 2011</a></p>`;
+}
+
+async function replay() {
+  const v = $("#view");
+  v.innerHTML = `<h1 class="page">Every night since 2011</h1><p class="sub">The replayed top 10 per market for any night, picked using only games before it.</p>${skel(4)}`;
+  try { RS = RS || await api("/api/replay/summary"); } catch (e) { v.innerHTML += errBox(e.message, "go('/replay',false)"); return; }
+  const seasons = RS.markets.goal.by_season.map(s => s.season);
+  const q = new URLSearchParams(location.search);
+  let season = q.get("season") || seasons[seasons.length - 2], data = null, night = q.get("night");
+  const load = async () => {
+    $("#rp").innerHTML = skel(4);
+    try { data = await api(`/api/replay/${season.slice(0, 4)}`); } catch (e) { $("#rp").innerHTML = errBox(e.message, "go('/replay',false)"); return; }
+    const nights = Object.keys(data).sort();
+    if (!night || !data[night]) night = nights[nights.length - 1];
+    draw(nights);
+  };
+  const col = (mk, label) => { const rows = (data[night] || {})[mk] || [];
+    const hits = rows.filter(r => r[5]).length, exp = rows.reduce((s, r) => s + r[3], 0);
+    return `<div class="panel"><h2>${label}</h2><p class="note">${hits} of ${rows.length} hit · model expected ${exp.toFixed(1)}</p>
+      ${rows.map((r, i) => `<div class="leg"><span class="rank" style="width:20px">${i + 1}</span><div><div class="nm">${esc(r[0])}</div><div class="meta">${esc(r[1])} ${esc(r[2])} · ${pct(r[3], 0)}</div></div>
+        <span class="ic" style="color:${r[5] ? "var(--hit)" : "var(--miss)"}">${r[5] ? "✓" : "✗"} <span class="meta">${r[4]}</span></span></div>`).join("")}</div>`; };
+  const draw = nights => {
+    const i = nights.indexOf(night);
+    $("#rp").innerHTML = `<div class="controls"><button class="iconbtn" id="rprev" aria-label="Previous night" ${i <= 0 ? "disabled" : ""}>‹</button>
+      <select class="sel" id="rnight" aria-label="Night">${nights.map(n => `<option ${n === night ? "selected" : ""} value="${n}">${niceDate(n)}, ${n.slice(0, 4)}</option>`).join("")}</select>
+      <button class="iconbtn" id="rnext" aria-label="Next night" ${i >= nights.length - 1 ? "disabled" : ""}>›</button></div>
+      <div class="pgrid">${col("goal", "Anytime goal")}${col("point", "1+ point")}${col("sog", "3+ shots on goal")}</div>`;
+    $("#rnight").onchange = e => { night = e.target.value; draw(nights); };
+    $("#rprev").onclick = () => { night = nights[i - 1]; draw(nights); };
+    $("#rnext").onclick = () => { night = nights[i + 1]; draw(nights); };
+  };
+  v.innerHTML = `<h1 class="page">Every night since 2011</h1><p class="sub">The replayed top 10 per market for any night, picked using only games before it, then graded on the box score.</p>
+    <div class="controls"><select class="sel" id="rseason" aria-label="Season">${seasons.map(s => `<option ${s === season ? "selected" : ""}>${s}</option>`).join("")}</select></div><div id="rp"></div>`;
+  $("#rseason").onchange = e => { season = e.target.value; night = null; load(); };
+  load();
 }
 
 /* ---------------- static pages ---------------- */
@@ -506,7 +580,7 @@ function how() {
   <h2>What goes into it</h2><p>Every skater's shot quality (expected goals per 60 minutes, from MoneyPuck), shot volume and high-danger share, finishing skill pulled toward average so a hot week doesn't fool it, ice time and power-play time weighted toward recent games, his line's chance creation, the opposing starting goalie, how many chances the opponent gives up, home ice, and back-to-backs.</p>
   <h2>Lineups and goalies</h2><p>Projected lines, power-play units and starting goalies come from DailyFaceoff. Players who aren't in tonight's projected lineup are removed, so the model never picks someone who isn't dressing. Picks post mid-afternoon Eastern, after most goalies are confirmed. Games that have already started are left out of that day's picks.</p>
   <h2>It tests itself every day</h2><p>Each morning the model tries new ideas against the current version on games it has never seen. An idea is adopted only if it wins on two separate test periods. Every test, win or lose, is logged.</p>
-  <h2>Why you can trust the percentages</h2><p>Trained on 2024-25 and tested on all of 2025-26, the model's top goal pick each night scored about 42% of the time, matching what it predicted. Across every probability level, predicted and actual hit rates line up within a few points. The live record is on the Track Record page, graded nightly.</p>
+  <h2>Why you can trust the percentages</h2><p>We replayed every NHL night since 2011-12, 2,543 of them, with the model making its picks using only games played before each night. Since 2019-20, its top anytime-goal pick scored on 46.9% of nights, its top 10 on 38.6%, and across every probability level predicted and actual scoring rates match within a point. You can browse every replayed night on the Track Record page, next to the live record that's graded each morning.</p>
   <h2>Parlays</h2><p>Model parlays take one player per game so the legs are independent, and the parlay's chance is the product of its legs. Parlays compound uncertainty: a two-leg goal parlay hits about one night in five.</p></div>`;
 }
 function pricing() {
