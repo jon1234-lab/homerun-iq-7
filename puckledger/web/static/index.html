@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PuckLedger — NHL betting models, graded in public</title>
+<meta name="description" content="Every NHL betting model's record in units and ROI, graded at real sportsbook prices. Player vs every team, prop trends, streaks and team betting trends.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#0b0f14;--bg2:#111821;--card:#141d27;--line:#223040;--tx:#e8eef5;--mut:#8a9bb0;--dim:#5d6f84;
+--win:#2fd18b;--loss:#ff5f5f;--push:#9aa7b6;--acc:#f5b942;--acc2:#4fb3ff;--r:12px}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--acc2);text-decoration:none}a:hover{text-decoration:underline}
+.num,td.n,th.n{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+header{position:sticky;top:0;z-index:20;background:rgba(11,15,20,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:-.3px;font-size:19px;color:var(--tx)}
+.logo:hover{text-decoration:none}.logo b{color:var(--acc)}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}nav::-webkit-scrollbar{display:none}
+nav a{color:var(--mut);padding:7px 10px;border-radius:8px;white-space:nowrap;font-size:14px}
+nav a:hover{color:var(--tx);background:var(--bg2);text-decoration:none}nav a.on{color:var(--tx);background:var(--card)}
+.acct{white-space:nowrap}
+.btn{display:inline-block;border:0;border-radius:9px;padding:8px 14px;font-weight:700;font-size:14px;cursor:pointer;background:var(--acc);color:#1a1200}
+.btn:hover{filter:brightness(1.08);text-decoration:none}.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--line)}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:26px;margin:6px 0 4px;letter-spacing:-.4px}h2{font-size:19px;margin:30px 0 10px;letter-spacing:-.2px}h3{font-size:16px;margin:0 0 6px}
+.sub{color:var(--mut);margin:0 0 16px}.muted{color:var(--mut)}.dim{color:var(--dim)}.small{font-size:13px}
+.grid{display:grid;gap:12px}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:860px){.g3,.g4{grid-template-columns:1fr 1fr}}@media(max-width:560px){.g3,.g4,.g2{grid-template-columns:1fr}nav{display:none}.mnav{display:flex!important}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:6px}
+.big{font-size:24px;font-weight:800;letter-spacing:-.3px}
+.w{color:var(--win)}.l{color:var(--loss)}.p{color:var(--push)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;background:#1d2a38;color:var(--mut);vertical-align:middle}
+.tag.hot{background:#3a1d12;color:#ff9a5c}.tag.pro{background:#3a2c0d;color:var(--acc)}.tag.bf{background:#1b2533;color:#9fb3c8}
+.badge{display:inline-block;min-width:44px;text-align:center;font-size:12px;font-weight:800;padding:3px 8px;border-radius:7px}
+.badge.win{background:rgba(47,209,139,.14);color:var(--win)}.badge.loss{background:rgba(255,95,95,.13);color:var(--loss)}
+.badge.push,.badge.void{background:#1d2732;color:var(--push)}.badge.pending{background:#1d2732;color:var(--mut)}
+.model{display:flex;flex-direction:column;gap:8px}
+.model .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.rank{font-size:12px;color:var(--dim);font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:2px}
+.stats div{background:var(--bg2);border-radius:8px;padding:6px 8px}.stats .k{font-size:11px;color:var(--mut)}.stats .v{font-weight:800;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:12px;color:var(--mut);font-weight:700;position:sticky;top:0;background:var(--card);cursor:pointer;user-select:none;white-space:nowrap}
+th.sorted{color:var(--tx)}tr:last-child td{border-bottom:0}tbody tr:hover{background:#17212d}
+td.sticky,th.sticky{position:sticky;left:0;background:var(--card);z-index:1}
+.pl{display:flex;align-items:center;gap:8px;white-space:nowrap}.pl img{width:28px;height:28px;border-radius:50%;background:#1c2733;object-fit:cover}
+details.grp{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px}
+details.grp summary{cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;list-style:none;font-weight:700}
+details.grp summary::-webkit-details-marker{display:none}
+details.grp .rows{padding:0 6px 6px}
+.betrow{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:8px;border-top:1px solid var(--line);font-size:14px}
+.betrow .who{min-width:0}.betrow .who div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{background:none;border:0;color:var(--mut);padding:6px 11px;border-radius:7px;font-weight:700;cursor:pointer;font-size:13px}
+.seg button.on{background:var(--card);color:var(--tx)}
+.datebar{display:flex;align-items:center;gap:8px;margin:0 0 14px}
+.datebar button{background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:8px;width:34px;height:34px;cursor:pointer}
+.datebar input{background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:6px 8px;font:inherit;color-scheme:dark}
+input.search{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:10px 12px;font:inherit}
+.sugg{position:absolute;z-index:30;background:var(--bg2);border:1px solid var(--line);border-radius:10px;margin-top:4px;width:100%;max-width:420px;max-height:320px;overflow:auto}
+.sugg div{padding:8px 12px;cursor:pointer}.sugg div:hover,.sugg div.on{background:var(--card)}
+.lock{border:1px dashed #5a4a20;background:linear-gradient(180deg,#191509,#141d27);border-radius:var(--r);padding:18px;text-align:center}
+.game{display:flex;flex-direction:column;gap:10px}.teams{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.team{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px}.team img{width:34px;height:34px}
+.prob{height:8px;border-radius:99px;background:#263446;overflow:hidden;display:flex}.prob i{display:block;height:100%;background:var(--acc2)}.prob i+i{background:#6b7d92}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px}.kv span:nth-child(odd){color:var(--mut)}
+.empty{padding:28px;text-align:center;color:var(--mut)}.err{color:var(--loss)}
+.skel{background:linear-gradient(90deg,#141d27,#1a2532,#141d27);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:10px;height:70px;margin-bottom:10px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+footer{border-top:1px solid var(--line);color:var(--dim);font-size:12.5px;padding:22px 16px 40px;text-align:center}
+.mnav{display:none;gap:4px;overflow-x:auto;padding:0 12px 8px;scrollbar-width:none}.mnav::-webkit-scrollbar{display:none}
+.mnav a{color:var(--mut);padding:6px 10px;border-radius:8px;white-space:nowrap;font-size:13.5px;background:var(--bg2)}.mnav a.on{color:var(--tx);background:var(--card)}
+.pill{display:inline-block;padding:1px 6px;border-radius:6px;background:var(--bg2);font-size:12px;color:var(--mut);margin-left:4px}
+.hi{background:rgba(245,185,66,.07)}
+ul.ticks{padding-left:18px;margin:8px 0}ul.ticks li{margin:4px 0}
+.notice{background:#121a24;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--mut);margin:10px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="logo" href="/" data-link><svg width="24" height="24" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3" fill="#141d27" stroke="#f5b942" stroke-width="1.6"/><path d="M6 9h8M6 12h12M6 15h6" stroke="#e8eef5" stroke-width="1.6" stroke-linecap="round"/></svg>Puck<b>Ledger</b></a>
+    <nav id="nav"></nav>
+    <div class="acct" id="acct"></div>
+  </div>
+  <div class="mnav" id="mnav"></div>
+</header>
+<main id="app"></main>
+<footer>
+  PuckLedger is for entertainment and information only — not betting advice, and past results don't guarantee future ones.
+  21+ (18+ where legal). Gambling problem? Call 1-800-GAMBLER. · <a href="/terms" data-link>Terms</a> · <a href="/how" data-link>How we grade</a>
+</footer>
+<script>
+const PAGES=[["/","Models"],["/tonight","Tonight's Bets"],["/games","Games"],["/players","Player vs Every Team"],["/props","Prop Trends"],["/streaks","Streaks"],["/teams","Team Trends"],["/pricing","Pricing"]];
+const $=s=>document.querySelector(s), app=$("#app");
+let ME={pro:false,logged_in:false,price:"$19.99/mo",checkout_url:"",signin_ready:false};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const odds=a=>a==null?"—":(a>0?"+"+a:""+a);
+const pct=(x,d=0)=>x==null?"—":(100*x).toFixed(d)+"%";
+const u=(x)=>x==null?"—":`<span class="${x>0?"w":x<0?"l":"p"}">${x>0?"+":""}${(+x).toFixed(1)}u</span>`;
+const roi=x=>x==null?"—":`<span class="${x>0?"w":x<0?"l":"p"}">${x>0?"+":""}${(100*x).toFixed(0)}%</span>`;
+const badge=r=>`<span class="badge ${r}">${{win:"WIN",loss:"LOSS",push:"PUSH",void:"VOID",pending:"PENDING"}[r]||r}</span>`;
+const head=(pid,team)=>`https://assets.nhle.com/mugs/nhl/20262027/${team}/${pid}.png`;
+const logo=t=>`https://assets.nhle.com/logos/nhl/svg/${t}_dark.svg`;
+const etToday=()=>new Date().toLocaleDateString("en-CA",{timeZone:"America/New_York"});
+const shift=(d,n)=>{const x=new Date(d+"T12:00:00Z");x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+const fmtDate=d=>new Date(d+"T12:00:00Z").toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric",timeZone:"UTC"});
+const fmtTime=t=>t?new Date(t).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}):"";
+const BOOK={draftkings:"DK",fanduel:"FD",betmgm:"MGM",williamhill_us:"CZR",best:"Best"};
+async function api(p){const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),45000);
+  try{const r=await fetch(p,{signal:ctl.signal,credentials:"same-origin"});if(!r.ok){let m="";try{m=(await r.json()).detail}catch(e){}throw new Error(m||("Error "+r.status))}return await r.json()}finally{clearTimeout(t)}}
+const skel=n=>Array(n).fill('<div class="skel"></div>').join("");
+const errBox=(e,retry)=>`<div class="card empty"><div class="err">${esc(e.message||e)}</div><div style="margin-top:10px"><button class="btn ghost" onclick="${retry}">Retry</button></div></div>`;
+
+function navHTML(path){return PAGES.map(([h,t])=>`<a href="${h}" data-link class="${path===h?"on":""}">${t}</a>`).join("")}
+function renderNav(){const p=location.pathname;$("#nav").innerHTML=navHTML(p);$("#mnav").innerHTML=navHTML(p)}
+function renderAcct(){
+  const a=$("#acct");
+  if(ME.pro) a.innerHTML=`<span class="tag pro">PRO</span> <a class="btn ghost" href="/auth/logout">Sign out</a>`;
+  else if(ME.logged_in) a.innerHTML=`<a class="btn" href="${esc(ME.checkout_url||"/pricing")}">Go Pro</a> <a class="btn ghost" href="/auth/logout">Sign out</a>`;
+  else a.innerHTML=`<a class="btn ghost" href="/auth/login?next=${encodeURIComponent(location.pathname)}">Sign in</a> <a class="btn" href="/pricing" data-link>Go Pro</a>`;
+}
+function proCTA(msg){return `<div class="lock"><div class="kicker">PuckLedger Pro · ${esc(ME.price)}</div><h3>${esc(msg)}</h3>
+ <p class="muted small" style="margin:6px 0 12px">Every model's bets before puck drop, with prices, model probabilities and edges.</p>
+ ${ME.logged_in?`<a class="btn" href="${esc(ME.checkout_url||"/pricing")}">Subscribe</a>`:`<a class="btn" href="${esc(ME.checkout_url||"/pricing")}">Subscribe</a> <a class="btn ghost" href="/auth/login?next=${encodeURIComponent(location.pathname)}">I'm a member — sign in</a>`}</div>`}
+
+// sortable tables -------------------------------------------------
+function table(id,cols,rows,sort){
+  window.__t=window.__t||{};window.__t[id]={cols,rows,sort};
+  const s=sort||{};const r=[...rows];
+  if(s.k){const c=cols.find(c=>c.k===s.k);const val=c&&c.sv?c.sv:(x=>x[s.k]);r.sort((a,b)=>{const A=val(a),B=val(b);if(A==null)return 1;if(B==null)return -1;return (A<B?-1:A>B?1:0)*(s.d||-1)})}
+  return `<div class="tw"><table id="${id}"><thead><tr>${cols.map(c=>`<th class="${c.n?"n":""} ${c.st?"sticky":""} ${s.k===c.k?"sorted":""}" onclick="resort('${id}','${c.k}')">${c.t}${s.k===c.k?(s.d>0?" ▲":" ▼"):""}</th>`).join("")}</tr></thead>
+  <tbody>${r.map(x=>`<tr class="${x.__hi?"hi":""}">${cols.map(c=>`<td class="${c.n?"n":""} ${c.st?"sticky":""}">${c.f?c.f(x):esc(x[c.k])}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${cols.length}" class="empty">Nothing to show yet.</td></tr>`}</tbody></table></div>`}
+function resort(id,k){const t=window.__t[id];const d=t.sort&&t.sort.k===k?-t.sort.d:-1;document.getElementById(id).closest(".tw").outerHTML=table(id,t.cols,t.rows,{k,d})}
+
+// date bar --------------------------------------------------------
+function dateBar(d,cb){return `<div class="datebar"><button onclick="${cb}('${shift(d,-1)}')">‹</button><input type="date" value="${d}" onchange="${cb}(this.value)"><button onclick="${cb}('${shift(d,1)}')">›</button><span class="muted small">${fmtDate(d)}</span></div>`}
+
+// ===================================================== MODELS (home)
+async function pageModels(){
+  app.innerHTML=`<h1>NHL betting models, graded in public</h1><p class="sub">Every bet every model makes, priced at real sportsbook odds and graded the next morning. 1 unit per bet.</p>${skel(4)}`;
+  let d;try{d=await api("/api/models")}catch(e){app.innerHTML=errBox(e,"route()");return}
+  const R=d.records||{models:[],parlays:[]};const M=R.models||[];
+  const top=M.filter(m=>m.bets>=30).sort((a,b)=>b.units-a.units).slice(0,8);
+  const ln=(d.last_night||[]).filter(n=>!n.parlay);const best=ln[0];
+  const t=d.tonight||{};
+  const tonightTxt=t.posted?`${t.posted} bets posted`:(t.games?(t.next_post_utc?`Posting ${fmtTime(t.next_post_utc)}`:"Posting soon"):"No games");
+  const bfNote=R.n_backfill?`<div class="notice">Records include a <b>season replay</b>: before launch, every model was run on each past night of 2026-27 using only data available that morning and the real sportsbook prices from that afternoon, with the rules frozen before the replay. Replay bets are tagged <span class="tag bf">REPLAY</span>; bets posted live are tagged <span class="tag">LIVE</span>. ${R.n_live} live bets so far.</div>`:"";
+  app.innerHTML=`<h1>NHL betting models, graded in public</h1><p class="sub">Every bet every model makes, priced at real sportsbook odds and graded the next morning. 1 unit per bet.</p>
+  <div class="grid g3">
+   <div class="card"><div class="kicker">Last night's best</div>${best?`<div class="big">${esc(best.model)}</div><div class="muted">${best.w}-${best.l}, ${u(best.units)}</div>`:`<div class="big">—</div><div class="muted">No graded bets yet</div>`}</div>
+   <div class="card"><div class="kicker">Tonight · ${t.games||0} games</div><div class="big">${esc(tonightTxt)}</div><div class="muted small">Bets post about 3½ hours before each game.</div></div>
+   <div class="card"><div class="kicker">Members</div><div class="big">${ME.pro?"You're Pro":"Tonight's bets"}</div><div class="muted small">${ME.pro?`<a href="/tonight" data-link>Open tonight's card →</a>`:`Every model's picks before puck drop. <a href="/pricing" data-link>Go Pro →</a>`}</div></div>
+  </div>
+  ${bfNote}
+  <h2>Top models this season</h2><p class="sub small">Models with 30+ graded bets, ranked by units won. Updated every morning.</p>
+  <div class="grid g2">${top.map((m,i)=>modelCard(m,i+1,d.meta)).join("")||`<div class="card empty">Models need 30 graded bets to rank. Check back soon.</div>`}</div>
+  <h2>${d.last_date?fmtDate(d.last_date):"Last night"}</h2><p class="sub small">Every bet from every model, graded.</p>
+  ${ln.map(n=>nightGroup(n)).join("")||`<div class="card empty">No graded bets yet.</div>`}
+  <h2>Parlays <span class="tag">IN TESTING</span></h2><p class="sub small">Shown separately and never counted in a model's record. A parlay type joins the models after 30 graded nights if it's profitable.</p>
+  <div class="grid g3">${(R.parlays||[]).map(p=>`<div class="card"><div class="kicker">${esc(p.model)}</div><div class="big">${p.w}-${p.l}</div><div>${u(p.units)} · ROI ${roi(p.roi)}</div><div class="muted small" style="margin-top:4px">${esc(d.parlay_meta[p.model]||"")}</div></div>`).join("")}</div>
+  ${(d.last_night||[]).filter(n=>n.parlay).map(n=>nightGroup(n)).join("")}
+  <h2>What members get</h2>
+  <div class="grid g2"><div class="card"><h3>Tonight's card, before puck drop</h3><p class="muted">Every bet from all ${Object.keys(d.meta||{}).length} models, posted about 3½ hours before each game: the price, the book, the model's probability and the edge.</p></div>
+  <div class="card"><h3>The model behind every number</h3><p class="muted">Win probabilities, puck lines and totals for every game, and goal / point / shot probabilities for every skater on Prop Trends.</p></div></div>
+  <h2>How we grade</h2>
+  <div class="card"><ul class="ticks muted"><li>Every bet is 1 unit at the best price among DraftKings, FanDuel, BetMGM and Caesars when it posts.</li><li>Wins pay the posted price; losses cost 1u. A player who doesn't play is void (0u), like at the books. Pushes are 0u.</li><li>ROI = units ÷ bets graded. Nothing is deleted or re-priced after the fact.</li><li>A model ranks once it has 30 graded bets.</li></ul></div>
+  <h2>Every model's record</h2>
+  ${table("allm",[{k:"model",t:"Model",st:1,f:m=>`<b>${esc(m.model)}</b><div class="muted small">${esc(m.desc||"")}</div>`},{k:"bets",t:"Bets",n:1},{k:"wl",t:"W-L",n:1,f:m=>`${m.w}-${m.l}${m.p?"-"+m.p:""}`,sv:m=>m.w/(m.w+m.l||1)},{k:"units",t:"Units",n:1,f:m=>u(m.units)},{k:"roi",t:"ROI",n:1,f:m=>roi(m.roi)},{k:"l14",t:"Last 14d",n:1,f:m=>u(m.l14)},{k:"live",t:"Live",n:1,f:m=>`${m.live_w}-${m.live_l} ${u(m.live_units)}`,sv:m=>m.live_units}],M,{k:"units",d:-1})}
+  <p class="muted small" style="margin-top:8px">Updated ${R.updated?new Date(R.updated).toLocaleString():"—"}.</p>`;
+}
+function modelCard(m,i,meta){const hot=m.l14!=null&&m.l14>=5;return `<div class="card model"><div class="top"><div><div class="rank">#${i}</div><h3>${esc(m.model)} ${hot?'<span class="tag hot">HOT</span>':""} <span class="tag">${esc(m.tag)}</span></h3><div class="muted small">${esc(m.desc||"")}</div></div><div class="num big">${u(m.units)}</div></div>
+ <div class="stats"><div><div class="k">Record</div><div class="v">${m.w}-${m.l}</div></div><div><div class="k">ROI</div><div class="v">${roi(m.roi)}</div></div><div><div class="k">Last 14d</div><div class="v">${u(m.l14)}</div></div><div><div class="k">Live</div><div class="v">${m.live_w}-${m.live_l}</div></div></div></div>`}
+function betLine(b){
+  const who=b.kind==="parlay"?(b.legs||[]).map(l=>`${esc(l.player)} <span class="dim">${l.market==="goal"?"goal":l.market==="points"?(l.side==="over"?"o":"u")+l.line+" pts":(l.side==="over"?"o":"u")+l.line+" SOG"}</span> ${l.result&&l.result!=="pending"?`<span class="${l.result==="win"?"w":l.result==="loss"?"l":"p"}">●</span>`:""}`).join(" + ")
+    :`${b.player_id?`<span class="pl"><img loading="lazy" src="${head(b.player_id,b.team)}" onerror="this.style.visibility='hidden'">`:""}<span><b>${esc(b.selection)}</b> <span class="muted">${esc(b.bet)}</span>${b.team&&b.player_id?` <span class="dim small">${esc(b.team)} vs ${esc(b.opp)}</span>`:""}${b.note?`<div class="dim small">${esc(b.note)}</div>`:""}</span>${b.player_id?"</span>":""}`;
+  return `<div class="betrow"><div class="who"><div>${who}</div></div><div class="num">${odds(b.price)} <span class="dim small">${BOOK[b.book]||esc(b.book||"")}</span></div><div>${b.source==="backfill"?'<span class="tag bf">REPLAY</span>':""}${badge(b.result)}</div><div class="num" style="min-width:52px">${b.units==null?"":u(b.units)}</div></div>`}
+function nightGroup(n){return `<details class="grp"><summary><span>${esc(n.model)}</span><span class="num">${n.w}-${n.l} &nbsp;${u(n.units)} <span class="dim small">▾</span></span></summary><div class="rows">${n.bets.map(betLine).join("")}</div></details>`}
+
+// ===================================================== TONIGHT
+async function pageTonight(date){
+  date=date||etToday();
+  app.innerHTML=`<h1>Tonight's bets</h1>${dateBar(date,"pageTonight")}${skel(4)}`;
+  let d;try{d=await api("/api/bets?date="+date)}catch(e){app.innerHTML=errBox(e,"route()");return}
+  const by={};d.bets.forEach(b=>(by[b.model]=by[b.model]||[]).push(b));
+  const order=Object.keys(by).sort((a,b)=>a==="Best Card"?-1:b==="Best Card"?1:a.localeCompare(b));
+  let body="";
+  if(d.pro||d.past){
+    body=order.map(m=>`<details class="grp" open><summary><span>${esc(m)}</span><span class="muted small">${by[m].length} bet${by[m].length>1?"s":""}</span></summary><div class="rows">${by[m].map(b=>betLine(b)+`<div class="dim small" style="padding:0 8px 8px">Model ${pct(b.p_model,1)} · edge ${b.ev>0?"+":""}${(100*b.ev).toFixed(1)}%</div>`).join("")}</div></details>`).join("")||`<div class="card empty">No bets for this date yet. Bets post about 3½ hours before each game.</div>`;
+  }else{
+    const s=d.summary||{};const cnt=Object.entries(d.counts||{});
+    body=(d.bets.length?`<h2>Free pick</h2>${d.bets.map(betLine).join("")}`:"")+
+    `<h2>Locked tonight</h2>${cnt.length?`<div class="grid g3" style="margin-bottom:12px">${cnt.map(([m,n])=>`<div class="card"><div class="kicker">${esc(m)}</div><div class="big">${n} bet${n>1?"s":""}</div><div class="dim small">🔒 Pro</div></div>`).join("")}</div>`:`<div class="card empty">${s.next_post_utc?"First bets post at "+fmtTime(s.next_post_utc):"Bets post about 3½ hours before each game."}</div>`}`+proCTA(d.locked?`${d.locked} bets are posted for tonight`:"Get tonight's bets the moment they post");
+  }
+  app.innerHTML=`<h1>Tonight's bets</h1><p class="sub">${d.past?"Graded results for this date.":"Every model's bets for the selected date, priced when they posted."}</p>${dateBar(date,"pageTonight")}${body}`;
+}
+
+// ===================================================== GAMES
+async function pageGames(date){
+  date=date||etToday();
+  app.innerHTML=`<h1>Games</h1>${dateBar(date,"pageGames")}${skel(3)}`;
+  let d;try{d=await api("/api/games?date="+date)}catch(e){app.innerHTML=`<h1>Games</h1>${dateBar(date,"pageGames")}`+errBox(e,`pageGames('${date}')`);return}
+  const g=d.games.map(x=>{const L=x.lines||{};const ml=L.ml||[],pl=L.pl||[],tot=L.total||[];
+    const mlp=t=>{const o=ml.filter(o=>o.side===t).sort((a,b)=>b.price-a.price)[0];return o?odds(o.price):"—"};
+    const tl=tot.length?tot[0].line:null;
+    const fair=p=>p==null?"—":odds(p>=.5?Math.round(-100*p/(1-p)):Math.round(100*(1-p)/p));
+    return `<div class="card game"><div class="teams"><div class="team"><img src="${logo(x.away)}" onerror="this.remove()">${x.away}</div><div class="muted small">${x.state&&!["FUT","PRE"].includes(x.state)?esc(x.state):fmtTime(x.start_utc)}</div><div class="team">${x.home}<img src="${logo(x.home)}" onerror="this.remove()"></div></div>
+    <div class="prob"><i style="width:${(100*x.away_win).toFixed(1)}%"></i><i style="width:${(100*x.home_win).toFixed(1)}%"></i></div>
+    <div class="teams small"><span><b>${pct(x.away_win)}</b> <span class="dim">fair ${fair(x.away_win)}</span></span><span class="muted">model win %</span><span><span class="dim">fair ${fair(x.home_win)}</span> <b>${pct(x.home_win)}</b></span></div>
+    <div class="kv"><span>Goalies</span><span>${esc(x.away_goalie||"TBD")} · ${esc(x.home_goalie||"TBD")}</span><span>Projected total</span><span class="num" style="text-align:left">${x.exp_total.toFixed(2)}</span>
+    <span>Moneyline (best)</span><span>${x.away} ${mlp(x.away)} · ${x.home} ${mlp(x.home)}</span>
+    ${tl!=null?`<span>Total ${tl}</span><span>${d.pro&&x.over&&x.over[String(tl)]!=null?`model over ${pct(x.over[String(tl)])}`:(d.pro?"":'<span class="tag pro">PRO</span> model over/under')}</span>`:""}
+    <span>Puck line</span><span>${d.pro?`${x.away} -1.5 ${pct(x.away_m15)} · ${x.home} -1.5 ${pct(x.home_m15)}`:'<span class="tag pro">PRO</span> cover chances'}</span></div></div>`}).join("");
+  app.innerHTML=`<h1>Games</h1><p class="sub">Team-model win probabilities, fair prices and projected totals. Starting goalies from DailyFaceoff.</p>${dateBar(date,"pageGames")}<div class="grid g3">${g||'<div class="card empty">No NHL games on this date.</div>'}</div>`;
+}
+
+// ===================================================== PLAYERS (vs every team)
+let PLAYERS=null;
+async function pagePlayers(){
+  const q=new URLSearchParams(location.search);const pid=q.get("id");
+  app.innerHTML=`<h1>Player vs every team</h1><p class="sub">Career (since 2015-16) goals, points and shots against every opponent.</p>
+  <div style="position:relative"><input class="search" id="ps" placeholder="Search any player…" autocomplete="off"><div class="sugg" id="sg" hidden></div></div><div id="pv" style="margin-top:16px">${skel(3)}</div>`;
+  try{PLAYERS=PLAYERS||await api("/api/players")}catch(e){$("#pv").innerHTML=errBox(e,"route()");return}
+  const inp=$("#ps"),sg=$("#sg");let sel=0,list=[];
+  const show=()=>{const v=inp.value.trim().toLowerCase();if(!v){sg.hidden=true;return}
+    list=PLAYERS.filter(p=>p.name.toLowerCase().includes(v)).slice(0,12);sel=0;
+    sg.innerHTML=list.map((p,i)=>`<div class="${i===sel?"on":""}" data-id="${p.id}">${esc(p.name)} <span class="dim small">${p.team} · ${p.pos}</span></div>`).join("");sg.hidden=!list.length};
+  inp.oninput=show;inp.onkeydown=e=>{if(e.key==="Enter"&&list[sel]){go(list[sel].id)}};
+  sg.onclick=e=>{const id=e.target.closest("[data-id]")?.dataset.id;if(id)go(id)};
+  const go=id=>{history.pushState({},"","/players?id="+id);sg.hidden=true;inp.value="";loadVs(id)};
+  if(pid)loadVs(pid);else loadKings();
+}
+async function loadKings(){
+  const el=$("#pv");el.innerHTML=skel(3);
+  let d;try{d=await api("/api/matchups?date="+etToday())}catch(e){el.innerHTML=errBox(e,"loadKings()");return}
+  el.innerHTML=`<h2>Tonight's matchup kings</h2><p class="sub small">Players in tonight's games with the best career scoring against tonight's opponent (5+ games).</p>`+
+  table("kings",[{k:"name",t:"Player",st:1,f:r=>`<a href="/players?id=${r.id}" data-link class="pl"><img loading="lazy" src="${head(r.id,r.team)}" onerror="this.style.visibility='hidden'">${esc(r.name)}</a>`},{k:"m",t:"Matchup",f:r=>`${r.team} vs ${r.opp}`},{k:"gp",t:"GP",n:1},{k:"pts",t:"PTS",n:1},{k:"ppg",t:"P/GP",n:1},{k:"pt_pct",t:"Point in",n:1,f:r=>pct(r.pt_pct)}],d.rows,{k:"ppg",d:-1});
+}
+async function loadVs(id){
+  const el=$("#pv");el.innerHTML=skel(3);
+  let d;try{d=await api("/api/vs/"+id)}catch(e){el.innerHTML=errBox(e,`loadVs(${id})`);return}
+  const p=d.player;const tot=d.rows.reduce((a,r)=>{["gp","g","a","pts","sog","ppp"].forEach(k=>a[k]=(a[k]||0)+r[k]);return a},{});
+  el.innerHTML=`<div class="card" style="display:flex;gap:14px;align-items:center;margin-bottom:12px"><img src="${head(p.id,p.team)}" style="width:64px;height:64px;border-radius:50%;background:#1c2733" onerror="this.style.visibility='hidden'"><div><div class="big">${esc(p.name)}</div><div class="muted">${p.team} · ${p.pos==="D"?"Defense":"Forward"} · ${tot.gp||0} GP since 2015-16 · ${tot.pts||0} PTS</div></div></div>`+
+  table("vs",[{k:"opp",t:"Opponent",st:1,f:r=>`<span class="pl"><img src="${logo(r.opp)}" style="border-radius:0;background:none" onerror="this.remove()"><b>${r.opp}</b></span>`},{k:"gp",t:"GP",n:1},{k:"g",t:"G",n:1},{k:"a",t:"A",n:1},{k:"pts",t:"PTS",n:1},{k:"ppg",t:"P/GP",n:1},{k:"pt_pct",t:"Point in",n:1,f:r=>pct(r.pt_pct)},{k:"gpg",t:"G/GP",n:1},{k:"g_pct",t:"Goal in",n:1,f:r=>pct(r.g_pct)},{k:"sogpg",t:"SOG/GP",n:1},{k:"ppp",t:"PPP",n:1},{k:"s",t:"This season",n:1,f:r=>r.s_gp?`${r.s_pts} in ${r.s_gp}`:"—",sv:r=>r.s_gp?r.s_pts/r.s_gp:null},{k:"last",t:"Last met",n:1}],d.rows,{k:"ppg",d:-1});
+}
+
+// ===================================================== PROPS
+let PROPS={date:null,mk:"pt"};
+async function pageProps(date){
+  date=date||etToday();PROPS.date=date;
+  app.innerHTML=`<h1>Prop trends</h1>${dateBar(date,"pageProps")}${skel(4)}`;
+  let d;try{d=await api("/api/props?date="+date)}catch(e){app.innerHTML=`<h1>Prop trends</h1>${dateBar(date,"pageProps")}`+errBox(e,`pageProps('${date}')`);return}
+  PROPS.d=d;drawProps();
+}
+function drawProps(){
+  const d=PROPS.d,mk=PROPS.mk;
+  const off=(r,m,s,l)=>{const o=(r.offers||[]).filter(o=>o.m===m&&o.s===s&&(l==null||o.l===l)).sort((a,b)=>b.pr-a.pr)[0];return o?`${odds(o.pr)} <span class="dim small">${BOOK[o.b]||""}</span>`:"—"};
+  const sogLine=r=>{const o=(r.offers||[]).filter(o=>o.m==="sog"&&o.s==="over");if(!o.length)return "—";const l=o[0].l;return `o${l} ${off(r,"sog","over",l)}`};
+  const base=[{k:"name",t:"Player",st:1,f:r=>`<a href="/players?id=${r.id}" data-link class="pl"><img loading="lazy" src="${head(r.id,r.team)}" onerror="this.style.visibility='hidden'"><span>${esc(r.name)}<div class="dim small">${r.team} ${r.home?"vs":"@"} ${r.opp}${r.pp?` · ${r.pp.toUpperCase()}`:""}${r.pt_streak>=3?` · 🔥${r.pt_streak}`:""}</div></span></a>`}];
+  const P=d.pro;let cols;
+  if(mk==="pt")cols=base.concat([{k:"l5_pt",t:"L5",n:1,f:r=>pct(r.l5_pt)},{k:"l10_pt",t:"L10",n:1,f:r=>pct(r.l10_pt)},{k:"s_pt",t:"Season",n:1,f:r=>pct(r.s_pt)},{k:"vs_pt_pct",t:"vs Opp",n:1,f:r=>r.vs_gp?`${pct(r.vs_pt_pct)} <span class="dim small">(${r.vs_gp})</span>`:"—"},{k:"o",t:"Over 0.5",n:1,f:r=>off(r,"points","over",0.5),sv:r=>null},{k:"p_point",t:"Model",n:1,f:r=>P?pct(r.p_point):'<span class="tag pro">PRO</span>'}]);
+  if(mk==="g")cols=base.concat([{k:"l5_g",t:"L5",n:1,f:r=>pct(r.l5_g)},{k:"l10_g",t:"L10",n:1,f:r=>pct(r.l10_g)},{k:"s_g",t:"Season",n:1,f:r=>pct(r.s_g)},{k:"goalie",t:"Facing"},{k:"o",t:"Anytime",n:1,f:r=>off(r,"goal","yes",0.5),sv:r=>null},{k:"p_goal",t:"Model",n:1,f:r=>P?pct(r.p_goal):'<span class="tag pro">PRO</span>'}]);
+  if(mk==="sog")cols=base.concat([{k:"l10_sog3",t:"3+ L10",n:1,f:r=>pct(r.l10_sog3)},{k:"s_sog3",t:"3+ Season",n:1,f:r=>pct(r.s_sog3)},{k:"o",t:"Book line",n:1,f:sogLine,sv:r=>null},{k:"exp_sog",t:"Model SOG",n:1,f:r=>P?r.exp_sog:'<span class="tag pro">PRO</span>'},{k:"p_sog3",t:"Model 3+",n:1,f:r=>P?pct(r.p_sog3):'<span class="tag pro">PRO</span>'}]);
+  const sk={pt:"l10_pt",g:"l10_g",sog:"l10_sog3"}[mk];
+  app.innerHTML=`<h1>Prop trends</h1><p class="sub">Hit rates for every skater in tonight's games, next to the best price when bets post.</p>${dateBar(PROPS.date,"pageProps")}
+  <div class="seg" style="margin-bottom:12px">${[["pt","1+ Point"],["g","Anytime goal"],["sog","Shots on goal"]].map(([k,t])=>`<button class="${mk===k?"on":""}" onclick="PROPS.mk='${k}';drawProps()">${t}</button>`).join("")}</div>
+  ${d.players.length?table("props",cols,d.players,{k:sk,d:-1}):'<div class="card empty">No NHL games on this date.</div>'}${P?"":`<div style="margin-top:14px">${proCTA("See the model's probability for every prop")}</div>`}`;
+}
+
+// ===================================================== STREAKS
+let STK={tab:"points"};
+async function pageStreaks(){
+  app.innerHTML=`<h1>Streaks</h1>${skel(4)}`;
+  try{STK.d=await api("/api/streaks")}catch(e){app.innerHTML=errBox(e,"route()");return}drawStreaks()}
+function drawStreaks(){
+  const t=STK.tab,d=STK.d;const tabs=[["points","Point streaks"],["goals","Goal streaks"],["sog3","3+ SOG streaks"],["multi","Multi-point"],["cold","Cold (pointless)"]];
+  const cols=[{k:"name",t:"Player",st:1,f:r=>`<a href="/players?id=${r.id}" data-link class="pl"><img loading="lazy" src="${head(r.id,r.team)}" onerror="this.style.visibility='hidden'">${esc(r.name)} <span class="dim small">${r.team}</span></a>`},{k:"streak",t:t==="cold"?"Games without a point":"Active streak",n:1,f:r=>`<b>${r.streak}</b>`}];
+  if(t==="points")cols.push({k:"streak_pts",t:"Pts in streak",n:1});
+  cols.push({k:"ppg",t:"Season P/GP",n:1,f:r=>(+r.ppg).toFixed(2)},{k:"gp",t:"GP",n:1});
+  app.innerHTML=`<h1>Streaks</h1><p class="sub">Active streaks through last night's games.</p><div class="seg" style="margin-bottom:12px">${tabs.map(([k,x])=>`<button class="${t===k?"on":""}" onclick="STK.tab='${k}';drawStreaks()">${x}</button>`).join("")}</div>${table("stk",cols,d[t]||[],{k:"streak",d:-1})}`}
+
+// ===================================================== TEAMS
+async function pageTeams(){
+  app.innerHTML=`<h1>Team betting trends</h1>${skel(4)}`;
+  let d;try{d=await api("/api/teams")}catch(e){app.innerHTML=errBox(e,"route()");return}
+  app.innerHTML=`<h1>Team betting trends</h1><p class="sub">This season. Final scores as books grade them (a shootout win counts as one goal). Puck line = winning by 2+ (−1.5) or not losing by 2+ (+1.5).</p>`+
+  table("teams",[{k:"team",t:"Team",st:1,f:r=>`<span class="pl"><img src="${logo(r.team)}" style="border-radius:0;background:none" onerror="this.remove()"><b>${r.team}</b></span>`},{k:"record",t:"Record",n:1,sv:r=>r.win_pct},{k:"win_pct",t:"Win %",n:1,f:r=>pct(r.win_pct)},{k:"home",t:"Home",n:1,sv:r=>null},{k:"away",t:"Away",n:1,sv:r=>null},{k:"l10",t:"L10",n:1,sv:r=>null},{k:"pl_minus",t:"−1.5 cover",n:1,f:r=>pct(r.pl_minus)},{k:"pl_plus",t:"+1.5 cover",n:1,f:r=>pct(r.pl_plus)},{k:"gf",t:"GF/G",n:1},{k:"ga",t:"GA/G",n:1},{k:"total",t:"Avg total",n:1},{k:"o55",t:"Over 5.5",n:1,f:r=>pct(r.o55)},{k:"o65",t:"Over 6.5",n:1,f:r=>pct(r.o65)},{k:"ou",t:"O/U vs posted",n:1,f:r=>r.ou_n?`${r.over}-${r.under}`:"—",sv:r=>r.ou_n?r.over/r.ou_n:null},{k:"ot_pct",t:"OT %",n:1,f:r=>pct(r.ot_pct)}],d,{k:"win_pct",d:-1});
+}
+
+// ===================================================== STATIC PAGES
+function pagePricing(){app.innerHTML=`<h1>PuckLedger Pro</h1><p class="sub">The research is free. The bets are for members.</p>
+ <div class="grid g2"><div class="card"><div class="kicker">Free</div><div class="big">$0</div><ul class="ticks muted"><li>Every model's full record: units, ROI, last 14 days</li><li>Last night's graded bets from every model</li><li>One free pick a night</li><li>Player vs every team, prop trends, streaks, team trends, games</li></ul></div>
+ <div class="card" style="border-color:#5a4a20"><div class="kicker">Pro</div><div class="big">${esc(ME.price)}</div><ul class="ticks"><li>Tonight's bets from every model, about 3½ hours before each game</li><li>Price, book, model probability and edge on every bet</li><li>Model probabilities for every skater prop and every game line</li><li>Cancel anytime from Whop</li></ul>
+ ${ME.pro?'<span class="tag pro">YOU\'RE PRO</span>':`<a class="btn" href="${esc(ME.checkout_url||"#")}">${ME.checkout_url?"Subscribe":"Checkout opens soon"}</a> ${ME.logged_in?"":`<a class="btn ghost" href="/auth/login?next=/tonight">Member sign in</a>`}`}</div></div>
+ <p class="muted small" style="margin-top:14px">Payments and sign-in run through Whop. Records are published win or lose; nothing on this site guarantees a profit.</p>`}
+function pageHow(){app.innerHTML=`<h1>How it works</h1>
+ <div class="card"><h3>The models</h3><p class="muted">For every skater we estimate expected shots (recent shot rate × projected ice time, adjusted for the opponent's shots allowed and home ice), expected goals (shots × a regressed shooting %, adjusted for the opposing starting goalie) and expected points (regressed points rate, team offense, opponent defense, power-play time). Goals and points use Poisson probabilities; shots use a negative binomial. The team model turns each side's regulation scoring into win, puck-line and total probabilities, with a correction for late empty-net and extra-attacker goals, then overtime. Every number uses only games played before that night.</p>
+ <p class="muted">Tested on 2026-27 games the models never saw: predicted and actual hit rates stay within a few points across every probability band for goals, points and shots.</p></div>
+ <div class="card" style="margin-top:12px"><h3>From probabilities to bets</h3><p class="muted">Each betting model is a fixed rule. Value models bet when the model's chance beats the best price by a set edge (e.g. 5% for points and shots, 12% for goals). Trend models (Matchup History, Hot Hand) need a strong history and a price the model doesn't hate. Consensus takes props two models agree on. Best Card is the night's five biggest edges.</p></div>
+ <div class="card" style="margin-top:12px"><h3>How we grade</h3><ul class="ticks muted"><li>1 unit per bet at the best price among DraftKings, FanDuel, BetMGM and Caesars at posting time.</li><li>Players who don't dress are void. Totals and puck lines use the final score including overtime and the shootout goal.</li><li>The season replay ran every model on each past night with only that morning's data and that afternoon's real prices; replay bets are labeled.</li></ul></div>`}
+function pageTerms(){app.innerHTML=`<h1>Terms</h1><div class="card muted"><p>PuckLedger publishes statistical models and research for entertainment and information. Nothing here is betting, financial or legal advice, and no outcome is guaranteed. You are responsible for following the laws where you live; you must be 21+ (18+ where legal) to bet.</p><p>Pro memberships are sold and managed through Whop and renew until cancelled. Past results, including replayed results, do not guarantee future ones.</p><p>If gambling stops being fun, call 1-800-GAMBLER.</p></div>`}
+
+// ===================================================== router
+const ROUTES={"/":pageModels,"/tonight":()=>pageTonight(),"/games":()=>pageGames(),"/players":pagePlayers,"/props":()=>pageProps(),"/streaks":pageStreaks,"/teams":pageTeams,"/pricing":pagePricing,"/how":pageHow,"/terms":pageTerms};
+function route(){renderNav();(ROUTES[location.pathname]||pageModels)();window.scrollTo(0,0)}
+document.addEventListener("click",e=>{const a=e.target.closest("a[data-link]");if(a&&a.origin===location.origin&&!e.metaKey&&!e.ctrlKey){e.preventDefault();history.pushState({},"",a.getAttribute("href"));route()}});
+window.onpopstate=route;
+(async()=>{try{ME=await api("/api/me")}catch(e){}renderAcct();route()})();
+</script>
+</body>
+</html>
