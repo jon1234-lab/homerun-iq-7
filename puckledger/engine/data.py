@@ -89,7 +89,8 @@ def pull_season(season=CUR_SEASON):
     raw = {}
     for rep, frame in res:
         raw.setdefault(rep, []).append(frame)
-    df = {k: pd.concat(v, ignore_index=True).assign(seasonId=season) for k, v in raw.items()}
+    df = {k: pd.concat([f for f in v if len(f)], ignore_index=True).assign(seasonId=season).infer_objects()
+          for k, v in raw.items()}
     if df["skater/summary"].empty:
         return None
     return (tables.skater_table(df["skater/summary"], df["skater/timeonice"]),
@@ -102,14 +103,25 @@ FIRST_SEASON = int(os.environ.get("HIST_FIRST_SEASON", "20232024"))
 STR_COLS = ("name", "team", "opp", "pos", "teamFullName")
 
 
+FLOAT32 = ("goals", "assists", "points", "shots", "ppp", "ppg", "toi", "pptoi", "shtoi")
+
+
 def _hist(name):
-    df = pd.read_pickle(os.path.join(DATA, f"{name}.pkl.gz"), compression="gzip")
+    df = pd.read_csv(os.path.join(DATA, f"{name}.csv.gz"), compression="gzip",
+                     dtype={c: "category" for c in STR_COLS} | {c: "float32" for c in FLOAT32},
+                     parse_dates=[c for c in ("date", "last") if c in _cols(name)])
     if "season" in df.columns:
         df = df[df.season >= FIRST_SEASON]
+    if "home" in df.columns:
+        df["home"] = df.home.astype("int8")
     for c in STR_COLS:
         if c in df.columns:
             df[c] = df[c].astype(object)   # shares the category strings: cheap
     return df.reset_index(drop=True)
+
+
+def _cols(name):
+    return pd.read_csv(os.path.join(DATA, f"{name}.csv.gz"), compression="gzip", nrows=0).columns
 
 
 def load_all():
