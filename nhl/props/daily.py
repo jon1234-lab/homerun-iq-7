@@ -574,11 +574,15 @@ def board(f):
                          p_sog3=round(float(r.p_sog3), 3), p_sog4=round(float(r.p_sog4), 3),
                          toi=round(float(r.toi_e10), 1), pp_toi=round(float(r.pp_toi_e10), 1), xg60=round(float(r.xg60_e40), 2),
                          sog=round(float(r.sog_e10), 1), pts_pg=round(float(r.pts_e40), 2), finishing=round(float(r.fin25), 2),
-                         due=round(float(r.due), 2), opp_goalie=r.gname + ('' if r.gconf else ' *')))
+                         due=round(float(r.due), 2), opp_goalie=r.gname + ('' if r.gconf else ' *'),
+                         opp_def=round(float(r.opp_xga_rel20), 3), opp_sa=round(float(r.opp_sa_rel20), 3),
+                         gk=round(float(r.gk_fac), 3), b2b=int(r.b2b), opp_b2b=int(r.opp_b2b)))
     return rows
 
 BOARD_KEYS = ('player', 'playerId', 'team', 'pos', 'opp', 'p_goal', 'p_point', 'sog_proj', 'p_sog2', 'p_sog3', 'p_sog4',
-              'toi', 'pp_toi', 'xg60', 'finishing', 'due', 'opp_goalie')
+              'toi', 'pp_toi', 'xg60', 'finishing', 'due', 'opp_goalie',
+              # the "why" behind each pick on the site: recent shots and points, opponent defense, goalie, rest
+              'sog', 'pts_pg', 'opp_def', 'opp_sa', 'gk', 'b2b', 'opp_b2b')
 
 def board_chunks(rows, size=120):
     """Full-slate board for the GoalIQ site, split into snapshot keys board_0, board_1, ... (keeps each SQL statement small)."""
