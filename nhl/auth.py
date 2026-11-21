@@ -3,7 +3,7 @@
 Env:
   WHOP_CLIENT_ID     app_xxx  (Whop developer dashboard -> your app -> OAuth)
   WHOP_API_KEY       company API key, used server-side to check access (secret)
-  WHOP_PRODUCT_ID    prod_xxx of the GoalIQ Pro product
+  WHOP_PRODUCT_ID    prod_xxx of the Lamplighter Pro product
   WHOP_CHECKOUT_URL  the product's checkout link shown on "Subscribe"
   PUBLIC_URL         e.g. https://goal-iq-gaqn.onrender.com  (redirect URI = PUBLIC_URL + /auth/callback)
   SESSION_SECRET     random string for signing cookies

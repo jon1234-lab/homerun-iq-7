@@ -1,4 +1,4 @@
-"""GoalIQ web app: pages, Whop sign-in, and paywalled data APIs.
+"""Lamplighter web app: pages, Whop sign-in, and paywalled data APIs.
 
 Free: today's top 3 anytime-goal picks, the full track record, and every past date in full.
 Pro ($14.99/mo on Whop): full boards for goals, points and shots, all Best Bets, and parlays.
@@ -20,7 +20,7 @@ import board as B
 import nhl_data as D
 import store
 
-app = FastAPI(title="GoalIQ")
+app = FastAPI(title="Lamplighter")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 HERE = os.path.dirname(os.path.abspath(__file__))
 ET = ZoneInfo("America/New_York")

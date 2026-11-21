@@ -18,7 +18,7 @@ import requests
 WEB = "https://api-web.nhle.com/v1"
 STATS = "https://api.nhle.com/stats/rest/en"
 DFO = "https://www.dailyfaceoff.com"
-UA = {"User-Agent": "Mozilla/5.0 (GoalIQ data fetch)"}
+UA = {"User-Agent": "Mozilla/5.0 (Lamplighter data fetch)"}
 
 _session = requests.Session()
 _session.headers.update(UA)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GoalIQ — NHL goalscorer, points and shots model</title>
+<title>Lamplighter — NHL goals, points and shots model</title>
 <meta name="description" content="Model probabilities for every NHL skater, every night: anytime goals, points and shots on goal, with a public, graded track record.">
 <meta name="theme-color" content="#070b14">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -223,7 +223,7 @@ nav.bottom{display:none}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="logo" href="/" data-link><span>Goal<b>IQ</b></span><small>NHL PROPS MODEL</small></a>
+  <a class="logo" href="/" data-link><span>Lamp<b>lighter</b></span><small>NHL PROPS MODEL</small></a>
   <nav class="main" aria-label="Main">
     <a href="/" data-link>Tonight</a><a href="/best-bets" data-link>Best Bets</a><a href="/parlays" data-link>Parlays</a>
     <a href="/track-record" data-link>Track Record</a><a href="/how-it-works" data-link>How it works</a>
@@ -297,9 +297,9 @@ async function loadMe() {
 function lockCard(n, what) {
   const me = ST.me || {};
   const cta = me.logged_in
-    ? `<a class="btn pri" href="${esc(me.checkout_url || "/pricing")}">Get GoalIQ Pro</a><small>$14.99/month or $4.99 for 3 days</small>`
-    : `<a class="btn pri" href="/pricing" data-link>Get GoalIQ Pro</a><small>$14.99/month · ${me.signin_ready ? `<a href="/auth/login?next=${encodeURIComponent(location.pathname)}">already a member? Sign in</a>` : "cancel anytime"}</small>`;
-  return `<div class="lockcard"><div><h3>${esc(what)}</h3><p>${n ? `${n} more ${n === 1 ? "row is" : "rows are"} locked for this date.` : "This is part of GoalIQ Pro."} Free accounts see the top 3 goal picks every night.</p>
+    ? `<a class="btn pri" href="${esc(me.checkout_url || "/pricing")}">Get Lamplighter Pro</a><small>$14.99/month or $4.99 for 3 days</small>`
+    : `<a class="btn pri" href="/pricing" data-link>Get Lamplighter Pro</a><small>$14.99/month · ${me.signin_ready ? `<a href="/auth/login?next=${encodeURIComponent(location.pathname)}">already a member? Sign in</a>` : "cancel anytime"}</small>`;
+  return `<div class="lockcard"><div><h3>${esc(what)}</h3><p>${n ? `${n} more ${n === 1 ? "row is" : "rows are"} locked for this date.` : "This is part of Lamplighter Pro."} Free accounts see the top 3 goal picks every night.</p>
     <ul><li>Every skater, every game</li><li>Points and shots-on-goal boards</li><li>All 30 Best Bets each night</li><li>Model parlays with fair odds</li></ul></div>
     <div class="cta">${cta}</div></div>`;
 }
@@ -342,7 +342,7 @@ async function tonight() {
   const teams = [...new Set(b.games.flatMap(g => [g.away, g.home]))].sort();
   v.innerHTML = `
     <div class="games" id="games">${b.games.map(gameCard).join("")}</div>
-    ${b.source === "early" ? `<div class="banner">Early look from the original GoalIQ goal model. Tonight's full model run, with points and shots, lands mid-afternoon Eastern once goalies are confirmed.</div>` : ""}
+    ${b.source === "early" ? `<div class="banner">Early look from the original goal model. Tonight's full model run, with points and shots, lands mid-afternoon Eastern once goalies are confirmed.</div>` : ""}
     <div class="seg markets" role="group" aria-label="Market">${Object.entries(MK).map(([k, m]) => `<button data-mk="${k}" aria-pressed="${ST.market === k}">${m.label}</button>`).join("")}</div>
     <div class="controls">
       <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -587,7 +587,7 @@ function pricing() {
   const me = ST.me || {};
   const cta = me.pro ? `<a class="btn" href="/" data-link>You're on Pro. Go to tonight's board</a>`
     : me.checkout_url ? `<a class="btn pri" href="${esc(me.checkout_url)}">Choose monthly or a 3-day pass</a>` : `<span class="note">Subscriptions open soon.</span>`;
-  $("#view").innerHTML = `<div class="prose"><h1 class="page">GoalIQ Pro</h1><p class="sub">Everything the model sees, every night of the NHL season.</p></div>
+  $("#view").innerHTML = `<div class="prose"><h1 class="page">Lamplighter Pro</h1><p class="sub">Everything the model sees, every night of the NHL season.</p></div>
   <div class="price-card"><div class="p">$14.99<small> / month</small></div><p class="note" style="margin:6px 0 0">Or try everything for 3 days for $4.99, one time.</p>
     <ul><li>Full boards for anytime goals, points and shots on goal</li><li>All 30 Best Bets each night, graded</li><li>Model parlays with fair odds</li><li>Live goal alerts on the board</li><li>Cancel anytime from your Whop account</li></ul>
     ${cta}
@@ -596,10 +596,10 @@ function pricing() {
 }
 function terms() {
   $("#view").innerHTML = `<div class="prose"><h1 class="page">Terms &amp; responsible play</h1>
-  <p>GoalIQ publishes statistical estimates for entertainment and research. It is not betting, financial or legal advice, and it does not take or place wagers. You must be 21 or older, and of legal betting age where you live, to use GoalIQ for wagering decisions.</p>
+  <p>Lamplighter publishes statistical estimates for entertainment and research. It is not betting, financial or legal advice, and it does not take or place wagers. You must be 21 or older, and of legal betting age where you live, to use Lamplighter for wagering decisions.</p>
   <h2>No guarantees</h2><p>Probabilities are estimates. Players get scratched, lines change and goalies are swapped late. Past results, including the published track record, don't guarantee future results. Never bet more than you can afford to lose.</p>
-  <h2>Subscriptions</h2><p>GoalIQ Pro is billed monthly through Whop and renews until you cancel. You can cancel anytime from your Whop account; access continues to the end of the paid period. Refunds follow Whop's policy unless required by law.</p>
-  <h2>Data</h2><p>Statistics come from public NHL.com data, MoneyPuck and DailyFaceoff. GoalIQ isn't affiliated with or endorsed by the NHL or any team. Player headshots are property of the NHL.</p>
+  <h2>Subscriptions</h2><p>Lamplighter Pro is billed monthly through Whop and renews until you cancel. You can cancel anytime from your Whop account; access continues to the end of the paid period. Refunds follow Whop's policy unless required by law.</p>
+  <h2>Data</h2><p>Statistics come from public NHL.com data, MoneyPuck and DailyFaceoff. Lamplighter isn't affiliated with or endorsed by the NHL or any team. Player headshots are property of the NHL.</p>
   <h2>Gambling problem?</h2><p>Call or text 1-800-GAMBLER, or visit <a href="https://www.ncpgambling.org" rel="noopener">ncpgambling.org</a>. Set deposit limits with your sportsbook, and take a break if betting stops being fun.</p></div>`;
 }
 
