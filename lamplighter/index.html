@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lamplighter: NHL player props, priced by a model</title>
+<meta name="description" content="Anytime goal, point and shot picks for every NHL slate, priced by a model and graded in public every morning. Top 3 goal picks free daily.">
+<meta name="theme-color" content="#0F2A47">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lamplighter: NHL player props, priced by a model">
+<meta property="og:description" content="Tonight's likeliest goal scorers, free. Every pick graded in public.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ice:#EEF3F7; --sheet:#FFFFFF; --navy:#0F2A47; --navy-2:#16365A; --ink-2:#3C5573; --ink-3:#5A6E86;
+  --blue:#2456C9; --red:#E0262F; --red-dark:#B81C24; --crease:#DCEAF7; --hair:#D3DDE7;
+  --lamp-off:#2A4566; --lamp-on:#FF3D3D;
+  --display:"Big Shoulders Display", "Arial Narrow", sans-serif;
+  --body:"Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --wrap:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ice);color:var(--navy);font:400 17px/1.5 var(--body);font-variant-numeric:tabular-nums}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:.95;margin:0;letter-spacing:-.005em}
+h1{font-size:clamp(42px,5.4vw,70px)}
+h2{font-size:clamp(34px,4.6vw,52px)}
+h3{font-size:26px}
+p{margin:0}
+.muted{color:var(--ink-3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border-radius:6px;border:2px solid transparent;
+  font:600 16px/1 var(--body);text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover{background:var(--red-dark)}
+.btn-line{background:transparent;color:var(--navy);border-color:var(--navy)}
+.btn-line:hover{background:var(--navy);color:#fff}
+.btn[aria-disabled="true"]{opacity:.55;pointer-events:none}
+.btn-sm{min-height:38px;padding:0 14px;font-size:15px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;background:rgba(238,243,247,.92);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--hair)}
+.top .wrap{display:flex;align-items:center;gap:24px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--navy)}
+.brand svg{width:30px;height:30px}
+.brand b{font:900 27px/1 var(--display);letter-spacing:.01em}
+nav.links{display:flex;gap:22px;margin-left:12px}
+nav.links a{color:var(--ink-2);text-decoration:none;font-weight:600}
+nav.links a:hover{color:var(--navy)}
+.acct{margin-left:auto;display:flex;align-items:center;gap:10px}
+.acct .who{font-weight:600;color:var(--ink-2);font-size:15px}
+.acct a.plain{color:var(--ink-2);font-weight:600;text-decoration:none}
+@media (max-width:760px){nav.links{display:none}.acct .who{display:none}}
+
+/* hero */
+.hero{padding:56px 0 48px}
+.hero .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;align-items:start}
+@media (max-width:900px){.hero{padding-top:30px}.hero .grid{display:flex;flex-direction:column;gap:0}.hero .copy{display:contents}
+  .when{order:1}.hero h1{order:2}.hero .lineup{order:3;margin-top:24px}.hero p.lede{order:4;margin:26px 0 20px}.hero .ctas{order:5}}
+section[id]{scroll-margin-top:72px}
+.when{font-weight:600;color:var(--ink-2);margin-bottom:14px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.when span+span::before{content:"";display:inline-block;width:6px;height:6px;border:1.5px solid var(--blue);border-radius:50%;margin-right:14px;vertical-align:2px}
+.hero p.lede{font-size:19px;color:var(--ink-2);margin:20px 0 26px;max-width:34em}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px}
+
+.lineup{background:var(--sheet);border-top:4px solid var(--navy);border-radius:2px 2px 10px 10px;box-shadow:0 1px 0 var(--hair)}
+.lineup header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:16px 22px 10px}
+.lineup header h2{font-size:28px}
+.lineup header .muted{font-size:15px}
+.pick{display:grid;grid-template-columns:30px 112px minmax(0,1fr);align-items:center;gap:6px 14px;padding:18px 22px;border-top:1px solid var(--hair)}
+.pick .rk{font:800 22px/1 var(--display);color:var(--blue)}
+.pick .pct{font:900 60px/.85 var(--display);letter-spacing:-.02em}
+.pick .pct small{display:block;font:500 13px/1.2 var(--body);letter-spacing:0;color:var(--ink-3);margin-top:6px}
+.pick .nm{font:800 clamp(26px,3.4vw,38px)/.95 var(--display);text-transform:uppercase;letter-spacing:.01em;overflow-wrap:anywhere}
+.pick .meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:8px;color:var(--ink-2);font-size:15px}
+.pick .meta b{font-weight:600;color:var(--navy)}
+.tm{display:inline-block;min-width:38px;padding:1px 6px;border-radius:4px;background:var(--navy);color:#fff;font:700 13px/1.5 var(--body);text-align:center;letter-spacing:.03em}
+@media (max-width:520px){.pick{grid-template-columns:22px 84px minmax(0,1fr);padding:16px}.pick .pct{font-size:46px}}
+.lock-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:16px 22px;background:var(--crease);border-radius:0 0 10px 10px}
+.lock-strip p{font-weight:600;max-width:30em}
+.lock-strip .ctas{display:flex;gap:10px;flex-wrap:wrap}
+.empty{padding:28px 22px;color:var(--ink-2)}
+
+/* center ice */
+.centerline{position:relative;height:40px}
+.centerline::before{content:"";position:absolute;left:0;right:0;top:19px;height:3px;background:var(--red);opacity:.85}
+.centerline span{position:absolute;left:50%;top:0;width:40px;height:40px;margin-left:-20px;border-radius:50%;border:3px solid var(--blue);background:var(--ice)}
+.centerline span::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--blue)}
+
+/* record (the boards at night) */
+.record{background:var(--navy);color:#fff;padding:64px 0 56px;margin-top:8px}
+.record a{color:#9CC3FF}
+.record .head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+@media (max-width:760px){.record .head{grid-template-columns:1fr}}
+.record p.lede{color:#C4D3E4;max-width:38em;margin-top:16px;font-size:18px}
+.tally{font:800 clamp(30px,4vw,44px)/1 var(--display);text-align:right}
+.tally small{display:block;font:500 15px/1.3 var(--body);color:#C4D3E4;margin-top:8px}
+@media (max-width:760px){.tally{text-align:left}}
+.lastnight{margin-top:28px;font-weight:600;color:#fff}
+.wall-wrap{margin-top:18px;overflow-x:auto;padding:18px 0 6px;scrollbar-color:#3C5A80 transparent}
+.wall{display:flex;gap:16px;min-width:max-content}
+.night{display:flex;flex-direction:column;align-items:center;gap:9px}
+.night .d{margin-top:auto;padding-top:6px;font-size:13px;color:#A9BCD2;white-space:nowrap}
+.lamp{appearance:none;border:0;padding:0;cursor:pointer;width:30px;height:21px;border-radius:15px 15px 3px 3px;background:var(--lamp-off);position:relative}
+.lamp::after{content:"";position:absolute;left:-2px;right:-2px;bottom:-3px;height:3px;border-radius:2px;background:#0A1E35}
+.lamp.on{background:var(--lamp-on);box-shadow:0 0 12px 2px rgba(255,61,61,.55),0 0 2px rgba(255,200,200,.9) inset}
+.lamp:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.lamp.dim{opacity:.35}
+.wall.prep .lamp.on{background:var(--lamp-off);box-shadow:none}
+.wall .lamp.on{transition:background .25s ease, box-shadow .35s ease}
+@media (prefers-reduced-motion: reduce){.wall .lamp.on{transition:none}}
+.lampinfo{min-height:48px;margin-top:12px;color:#DCE6F2;font-size:16px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;color:#A9BCD2;font-size:14px;align-items:center}
+.legend i{display:inline-block;width:16px;height:12px;border-radius:8px 8px 2px 2px;vertical-align:-1px;margin-right:7px;background:var(--lamp-off)}
+.legend i.on{background:var(--lamp-on);box-shadow:0 0 8px rgba(255,61,61,.6)}
+.mkts{width:100%;border-collapse:collapse;margin-top:36px;font-size:16px}
+.mkts caption{text-align:left;font:800 26px/1 var(--display);margin-bottom:12px}
+.mkts th,.mkts td{padding:12px 10px;border-top:1px solid #2B4A70;text-align:right}
+.mkts th:first-child,.mkts td:first-child{text-align:left;padding-left:0}
+.mkts thead th{color:#A9BCD2;font-weight:500;font-size:14px;border-top:0}
+.mkts td.big{font-weight:700}
+.beat{color:#8FE3B5}
+details.more{margin-top:22px;border-top:1px solid #2B4A70;padding-top:14px}
+details.more summary{cursor:pointer;font-weight:600}
+details.more .mkts{margin-top:10px}
+
+/* member board */
+.boardsec{padding:64px 0 40px}
+.boardsec .intro{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:end;justify-content:space-between}
+.boardsec .intro p{color:var(--ink-2);max-width:36em;margin-top:12px}
+.tabs{display:flex;gap:4px;margin-top:28px;border-bottom:3px solid var(--blue);overflow-x:auto}
+.tabs button{appearance:none;border:0;background:transparent;padding:12px 16px 10px;font:600 16px/1 var(--body);color:var(--ink-2);cursor:pointer;border-radius:6px 6px 0 0;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--blue);color:#fff}
+.panel{background:var(--sheet);border-radius:0 0 10px 10px;min-height:200px}
+table.t{width:100%;border-collapse:collapse;font-size:16px}
+table.t th,table.t td{padding:12px 14px;border-top:1px solid var(--hair);text-align:right;white-space:nowrap}
+table.t thead th{border-top:0;font-size:14px;font-weight:600;color:var(--ink-3)}
+table.t .l{text-align:left}
+table.t td.nm{font-weight:600;white-space:normal}
+table.t td.p{font-weight:700}
+.tscroll{overflow-x:auto}
+.res-hit{color:#137A4B;font-weight:700}.res-miss{color:var(--ink-3)}
+.locked{padding:34px 22px;display:grid;gap:16px;justify-items:start}
+.locked h3{font-size:30px}
+.locked p{color:var(--ink-2);max-width:34em}
+.ghost{width:100%;display:grid;gap:8px}
+.ghost div{height:40px;border-radius:6px;background:#E9EFF5}.ghost div:nth-child(2){width:86%}.ghost div:nth-child(3){width:72%}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px}
+.tools input,.tools select{min-height:40px;border:1.5px solid var(--hair);border-radius:6px;padding:0 12px;font:500 16px var(--body);color:var(--navy);background:#fff}
+.parlay{padding:18px 22px;border-top:1px solid var(--hair);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 20px}
+.parlay:first-child{border-top:0}
+.parlay h4{margin:0;font:800 22px/1 var(--display)}
+.parlay ul{margin:6px 0 0;padding:0;list-style:none;color:var(--ink-2)}
+.parlay ul li{padding:2px 0}
+.parlay .px{text-align:right}
+.parlay .px b{display:block;font:900 34px/1 var(--display)}
+.note{font-size:15px;color:var(--ink-3);margin-top:14px;max-width:52em}
+
+/* how it works: a real sequence */
+.how{padding:40px 0 56px}
+.steps{list-style:none;padding:0;margin:28px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;counter-reset:s}
+.steps li{padding:0 22px 0 0;border-top:3px solid var(--blue);padding-top:16px;counter-increment:s}
+.steps li::before{content:counter(s);display:block;font:900 34px/1 var(--display);color:var(--blue);margin-bottom:10px}
+.steps h3{font-size:24px;margin-bottom:8px}
+.steps p{color:var(--ink-2);font-size:16px}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr;gap:28px 0}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+
+/* pricing: tickets */
+.pricing{padding:56px 0 64px;background:linear-gradient(var(--ice),#E4ECF3)}
+.tickets{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:22px;margin-top:30px}
+@media (max-width:800px){.tickets{grid-template-columns:1fr}}
+.ticket{--n:14px;position:relative;background:var(--sheet);border-radius:10px;padding:26px 26px 24px 40px;
+  -webkit-mask:radial-gradient(circle var(--n) at 0 50%,#0000 98%,#000) ;mask:radial-gradient(circle var(--n) at 0 50%,#0000 98%,#000)}
+.ticket::before{content:"";position:absolute;left:22px;top:18px;bottom:18px;border-left:2px dashed var(--hair)}
+.ticket.season{background:var(--navy);color:#fff}
+.ticket.season::before{border-color:#35547A}
+.ticket .k{font-weight:600;color:var(--ink-3)}
+.ticket.season .k{color:#A9BCD2}
+.ticket .price{font:900 64px/.9 var(--display);margin:10px 0 4px}
+.ticket .price small{font:600 20px var(--body)}
+.ticket ul{margin:14px 0 22px;padding-left:20px;color:var(--ink-2)}
+.ticket.season ul{color:#DCE6F2}
+.ticket ul li{margin:4px 0}
+.ticket.season .btn-line{color:#fff;border-color:#fff}
+.after{margin-top:20px;color:var(--ink-2)}
+
+/* faq */
+.faq{padding:56px 0}
+.faq .cols{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:40px}
+@media (max-width:860px){.faq .cols{grid-template-columns:1fr;gap:20px}}
+.faq details{border-top:1px solid var(--hair);padding:16px 0}
+.faq details:last-child{border-bottom:1px solid var(--hair)}
+.faq summary{cursor:pointer;font-weight:700;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:800 26px/1 var(--display);color:var(--blue)}
+.faq details[open] summary::after{content:"\2212"}
+.faq details p{margin-top:10px;color:var(--ink-2);max-width:40em}
+
+footer.foot{background:var(--navy);color:#C4D3E4;padding:40px 0 48px;font-size:15px}
+footer.foot .wrap{display:grid;gap:16px}
+footer.foot b{color:#fff}
+footer.foot a{color:#9CC3FF}
+#terms h3{color:#fff;font-size:22px;margin-top:8px}
+#terms p{max-width:60em;margin-top:6px}
+
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:8px;font-weight:600;box-shadow:0 8px 24px rgba(15,42,71,.25);z-index:50;max-width:92vw}
+.err{padding:22px;color:var(--red-dark);font-weight:600}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Lamplighter home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#E0262F" stroke-width="4.5" stroke-linecap="round"><path d="M32 3v8"/><path d="M11.5 11.5l5.5 5.5"/><path d="M52.5 11.5L47 17"/></g><path d="M15 45V37a17 17 0 0 1 34 0v8z" fill="#E0262F"/><path d="M23 35a10 10 0 0 1 7.5-8.6" stroke="#fff" stroke-opacity=".7" stroke-width="3.2" fill="none" stroke-linecap="round"/><rect x="10" y="45" width="44" height="8" rx="2" fill="#0F2A47"/><rect x="18" y="53" width="28" height="7" rx="1.6" fill="#0F2A47"/></svg>
+      <b>Lamplighter</b>
+    </a>
+    <nav class="links" aria-label="Sections">
+      <a href="#tonight">Tonight</a><a href="#record">Record</a><a href="#board">Board</a><a href="#pricing">Pricing</a>
+    </nav>
+    <div class="acct" id="acct"></div>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="tonight">
+  <div class="wrap grid">
+    <div class="copy">
+      <p class="when" id="when"><span>Tonight's NHL slate</span></p>
+      <h1>Tonight's likeliest goal scorers, priced by a model.</h1>
+      <p class="lede">Every skater on the slate gets a chance to score, record a point and put three shots on goal, built from MoneyPuck data and the starting goalies. The top three goal picks are free every day, and every pick is graded in public the next morning.</p>
+      <div class="ctas" id="heroCtas">
+        <a class="btn btn-red" href="#pricing">Unlock tonight's board</a>
+        <a class="btn btn-line" href="#record">See every graded pick</a>
+      </div>
+    </div>
+    <div class="lineup" aria-live="polite">
+      <header><h2>Free three</h2><span class="muted" id="lineupNote">Chance to score at least once</span></header>
+      <div id="free3"><div class="empty">Loading tonight's picks…</div></div>
+      <div id="lockStrip"></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap centerline" aria-hidden="true"><span></span></div>
+
+<section class="record" id="record">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <h2>Every goal pick, graded in public</h2>
+        <p class="lede">Before puck drop we log the model's ten likeliest goal scorers. The next morning they're graded from NHL box scores. A lit lamp means he scored.</p>
+      </div>
+      <div class="tally" id="tally"></div>
+    </div>
+    <p class="lastnight" id="lastnight"></p>
+    <div class="wall-wrap"><div class="wall prep" id="wall" role="group" aria-label="Goal picks by night, top pick at the top"></div></div>
+    <p class="lampinfo" id="lampinfo">Hover or tap a lamp to see the pick.</p>
+    <div class="legend"><span><i class="on"></i>Scored</span><span><i></i>Didn't score</span><span>Each column is one night, best pick on top</span></div>
+
+    <table class="mkts" id="mkts"><caption>All three markets</caption></table>
+    <details class="more"><summary>Parlay record</summary><table class="mkts" id="parlayRec"></table>
+      <p class="note" style="color:#A9BCD2">Parlays multiply risk. A 3-leg ticket of 45% legs hits about 9% of the time even when every number is right.</p>
+    </details>
+  </div>
+</section>
+
+<section class="boardsec" id="board">
+  <div class="wrap">
+    <div class="intro">
+      <div>
+        <h2>Tonight's member board</h2>
+        <p>Top ten picks in each market, the model's nightly parlays, and every dressed skater with his chance and fair odds.</p>
+      </div>
+      <p class="muted" id="boardStamp"></p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Board markets">
+      <button role="tab" aria-selected="true" data-tab="Goal">Goals</button>
+      <button role="tab" aria-selected="false" data-tab="1+ point">Points</button>
+      <button role="tab" aria-selected="false" data-tab="3+ SOG">Shots</button>
+      <button role="tab" aria-selected="false" data-tab="parlays">Parlays</button>
+      <button role="tab" aria-selected="false" data-tab="all">Every skater</button>
+    </div>
+    <div class="panel" id="panel" role="tabpanel"></div>
+    <p class="note"><b>How to read fair odds:</b> it's the break-even price for the model's chance. If your sportsbook pays more (a bigger plus number, or a smaller minus), the price is in your favor. If it pays less, pass.</p>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <h2>What happens every morning</h2>
+    <ol class="steps">
+      <li><h3>Pull the data</h3><p>MoneyPuck game logs and shot data for every skater, NHL box scores, and Daily Faceoff lines and starting goalies.</p></li>
+      <li><h3>Grade last night</h3><p>Every logged pick and parlay is checked against the official box score. Misses stay on the record.</p></li>
+      <li><h3>Try to beat the model</h3><p>New ideas are tested on games the model never saw. One is adopted only if it predicts better on two separate test windows.</p></li>
+      <li><h3>Price tonight</h3><p>Every skater gets a chance and fair odds for goals, points and shots. The top ten in each market are logged before puck drop.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <h2>Get on the board</h2>
+    <p class="muted" style="margin-top:12px;max-width:40em">Checkout runs on Whop. After you pay, come back here and sign in with the same Whop account to unlock the board.</p>
+    <div class="tickets">
+      <div class="ticket">
+        <div class="k">Tonight only</div>
+        <div class="price" id="dpPrice">$4.99</div>
+        <ul><li>Tonight's full board in all three markets</li><li>The model's parlays for the night</li><li>Access ends after 24 hours, no renewal</li></ul>
+        <a class="btn btn-line" id="dpBtn" href="#">Buy a day pass</a>
+      </div>
+      <div class="ticket season">
+        <div class="k">Every slate</div>
+        <div class="price"><span id="moPrice">$14.99</span><small> / month</small></div>
+        <ul><li>Every slate's full board, posted each morning</li><li>Goals, points, shots, parlays and every skater</li><li>Cancel anytime in your Whop account</li></ul>
+        <a class="btn btn-red" id="moBtn" href="#">Join monthly</a>
+      </div>
+    </div>
+    <p class="after" id="after">Already a member? <a href="/auth/login?next=/%23board">Sign in with Whop</a>.</p>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap cols">
+    <h2>Questions</h2>
+    <div>
+      <details><summary>Is this betting advice?</summary><p>No. These are model estimates for research and entertainment. They'll be wrong plenty of nights, and past results don't predict future ones. Only bet where it's legal, only if you're 21 or older, and only what you can afford to lose.</p></details>
+      <details><summary>What does the percentage mean?</summary><p>It's the model's chance that the player does it at least once tonight: scores a goal, records a point, or reaches three shots on goal. Over the season those percentages have matched what actually happened within a couple of points.</p></details>
+      <details><summary>When are picks posted?</summary><p>Before the first puck drop of each slate, after starting goalies are checked. If a goalie changes late, the board can shift, so check it again near game time.</p></details>
+      <details><summary>How do I get access after paying?</summary><p>Click Sign in, approve Lamplighter on Whop with the same account you paid with, and the full board unlocks on this site. Access is checked with Whop every few minutes.</p></details>
+      <details><summary>Can I cancel?</summary><p>Yes. Monthly plans are managed in your Whop account, and you keep access through the end of the period you paid for. Day passes don't renew.</p></details>
+      <details><summary>Why do you show the misses?</summary><p>Because a record that only shows wins isn't a record. Every logged pick stays on this page, hit or miss.</p></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><b>Lamplighter</b> <span id="xlink"></span></p>
+    <p>Model estimates for research and entertainment, not betting advice. 21+ and only where sports betting is legal. If gambling stops being fun, call or text 1-800-GAMBLER. Not affiliated with the NHL or any team. Data from MoneyPuck, NHL.com and Daily Faceoff.</p>
+    <div id="terms">
+      <h3>Terms</h3>
+      <p>Access is digital and starts as soon as Whop confirms your payment. Day passes end 24 hours after purchase. Monthly plans renew until you cancel in Whop. Picks are estimates and outcomes are never guaranteed. Payments, receipts and refunds are handled through Whop.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = p => Math.round(p * 100) + "%";
+const ST = { me: null, picks: null, parlays: null, games: null, hist: null, rec: null, tab: "Goal", board: null, boardMkt: "goal", q: "" };
+const MK = { "Goal": "Goal", "1+ point": "1+ point", "3+ SOG": "3+ shots" };
+
+async function api(path) {
+  const r = await fetch(path, { credentials: "same-origin" });
+  if (!r.ok) { let m = "Something went wrong loading this. Refresh to try again."; try { m = (await r.json()).detail || m; } catch (e) {} throw new Error(m); }
+  return r.json();
+}
+function fmtDate(iso, opts) { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", opts); }
+function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 6000); }
+function matchup(r) { return `<span class="tm">${esc(r.team)}</span> ${esc(r.opp)}`; }
+
+function plans() {
+  const me = ST.me || {};
+  const set = (id, url, label) => { const a = $(id); if (url) { a.href = url; a.target = "_blank"; a.rel = "noopener"; a.removeAttribute("aria-disabled"); } else { a.removeAttribute("href"); a.setAttribute("aria-disabled", "true"); a.textContent = label; } };
+  set("#dpBtn", me.daypass_url, "Day passes open soon");
+  set("#moBtn", me.monthly_url, "Memberships open soon");
+  if (me.daypass_price) $("#dpPrice").textContent = me.daypass_price;
+  if (me.monthly_price) $("#moPrice").textContent = me.monthly_price;
+  if (me.x_handle) $("#xlink").innerHTML = ` on X: <a href="https://x.com/${esc(me.x_handle.replace("@", ""))}" rel="noopener">${esc(me.x_handle)}</a>`;
+}
+
+function renderAcct() {
+  const me = ST.me || {}, el = $("#acct");
+  if (me.pro) {
+    el.innerHTML = `<span class="who">${esc(me.preview ? "Owner preview" : (me.name || "Member"))}</span><a class="btn btn-line btn-sm" href="/auth/logout">Sign out</a>`;
+    $("#heroCtas").innerHTML = `<a class="btn btn-red" href="#board">Open tonight's board</a><a class="btn btn-line" href="#record">See every graded pick</a>`;
+    $("#after").innerHTML = `You're signed in${me.name ? " as " + esc(me.name) : ""} with full access.`;
+  } else if (me.logged_in) {
+    el.innerHTML = `<a class="plain" href="/auth/logout">Sign out</a><a class="btn btn-red btn-sm" href="#pricing">Get access</a>`;
+    $("#after").innerHTML = `You're signed in${me.name ? " as " + esc(me.name) : ""}, but this Whop account doesn't have a pass yet. Buy one above, then refresh this page.`;
+  } else {
+    el.innerHTML = `<a class="plain" href="/auth/login?next=/%23board">Sign in</a><a class="btn btn-red btn-sm" href="#pricing">Join</a>`;
+  }
+}
+
+function renderHero() {
+  const d = ST.picks, g = ST.games;
+  if (d) {
+    const bits = [`<span>${esc(fmtDate(d.date, { weekday: "long", month: "long", day: "numeric" }))}</span>`];
+    if (g && g.games) bits.push(`<span>${g.games.length} ${g.games.length === 1 ? "game" : "games"} tonight</span>`);
+    $("#when").innerHTML = bits.join("");
+  }
+  const box = $("#free3");
+  if (!d) { box.innerHTML = `<div class="err">Tonight's picks didn't load. Refresh to try again.</div>`; return; }
+  const goal = d.markets["Goal"] || [];
+  if (!goal.length) {
+    box.innerHTML = `<div class="empty">${g && g.games && !g.games.length ? "No NHL games tonight. The next slate's picks post the morning of." : "Tonight's picks post before the first puck drop. Check back soon."}</div>`;
+    $("#lockStrip").innerHTML = ""; return;
+  }
+  box.innerHTML = goal.slice(0, 3).map(r => `
+    <div class="pick">
+      <div class="rk">${r.rank}</div>
+      <div class="pct">${pct(r.p)}<small>to score</small></div>
+      <div><div class="nm">${esc(r.player)}</div>
+        <div class="meta"><span>${matchup(r)}</span><span>Fair odds <b>${esc(r.fair_odds)}</b></span></div></div>
+    </div>`).join("");
+  const L = d.locked || {}, nLock = (L["Goal"] || 0) + (L["1+ point"] || 0) + (L["3+ SOG"] || 0);
+  const nPar = ST.parlays ? (ST.parlays.locked || 0) : 0;
+  if (!d.pro && !d.past && nLock) {
+    $("#lockStrip").innerHTML = `<div class="lock-strip"><p>${nLock} more picks${nPar ? ` and ${nPar} parlays` : ""} are on tonight's member board.</p>
+      <div class="ctas"><a class="btn btn-red btn-sm" href="#pricing">Unlock tonight</a></div></div>`;
+  } else { $("#lockStrip").innerHTML = ""; }
+}
+
+/* ---------- the lamp wall ---------- */
+function renderRecord() {
+  const h = ST.hist && ST.hist.picks;
+  if (!h) { $("#wall").innerHTML = `<p class="err" style="color:#FFB3B3">The record didn't load. Refresh to try again.</p>`; return; }
+  const goals = h.filter(r => r.m === "Goal");
+  const nights = {};
+  goals.forEach(r => (nights[r.d] = nights[r.d] || []).push(r));
+  const dates = Object.keys(nights).sort();
+  const hits = goals.filter(r => r.res === "Hit").length, exp = goals.reduce((a, r) => a + r.p, 0);
+  $("#tally").innerHTML = dates.length ? `${hits} of ${goals.length} scored<small>The model expected ${exp.toFixed(1)}. Logged since ${esc(fmtDate(dates[0], { month: "short", day: "numeric" }))}.</small>` : `No graded picks yet<small>The first slate is graded the morning after it's played.</small>`;
+  if (dates.length) {
+    const last = nights[dates[dates.length - 1]], lh = last.filter(r => r.res === "Hit");
+    $("#lastnight").textContent = `${fmtDate(dates[dates.length - 1], { weekday: "long", month: "short", day: "numeric" })}: ${lh.length} of ${last.length} goal picks scored` +
+      (lh.length ? ` (${lh.slice(0, 4).map(r => r.n).join(", ")}${lh.length > 4 ? " and more" : ""}).` : ".");
+  }
+  const wall = $("#wall");
+  wall.innerHTML = dates.map(d => {
+    const col = nights[d].sort((a, b) => a.r - b.r);
+    return `<div class="night">${col.map(r => {
+      const label = `${fmtDate(d, { month: "short", day: "numeric" })}, pick ${r.r}: ${r.n}, ${r.t} ${r.o}, ${pct(r.p)} chance. ${r.res === "Hit" ? (r.s > 1 ? `Scored ${r.s}.` : "Scored.") : "Didn't score."}`;
+      return `<button class="lamp${r.res === "Hit" ? " on" : ""}" aria-label="${esc(label)}" data-info="${esc(label)}"></button>`;
+    }).join("")}<span class="d">${esc(fmtDate(d, { month: "short", day: "numeric" }))}</span></div>`;
+  }).join("");
+  const info = $("#lampinfo");
+  wall.addEventListener("pointerover", e => { const b = e.target.closest(".lamp"); if (b) info.textContent = b.dataset.info; });
+  wall.addEventListener("focusin", e => { const b = e.target.closest(".lamp"); if (b) info.textContent = b.dataset.info; });
+  wall.addEventListener("click", e => { const b = e.target.closest(".lamp"); if (b) info.textContent = b.dataset.info; });
+  const wrap = wall.parentElement; wrap.scrollLeft = wrap.scrollWidth;
+  lightUp(wall);
+
+  const rows = ["Goal", "1+ point", "3+ SOG"].map(m => {
+    const rs = h.filter(r => r.m === m), hh = rs.filter(r => r.res === "Hit").length, ee = rs.reduce((a, r) => a + r.p, 0);
+    const diff = hh - ee;
+    return `<tr><td>${m === "Goal" ? "Anytime goal" : m === "1+ point" ? "1+ point" : "3+ shots on goal"}</td><td>${rs.length}</td><td class="big">${hh} (${rs.length ? Math.round(100 * hh / rs.length) : 0}%)</td><td>${ee.toFixed(1)}</td><td class="${diff >= 2 ? "beat" : ""}">${diff >= 0 ? "+" : ""}${diff.toFixed(1)}</td></tr>`;
+  }).join("");
+  $("#mkts").innerHTML = `<caption>All three markets</caption><thead><tr><th>Market (top 10 a night)</th><th>Graded</th><th>Hit</th><th>Model expected</th><th>Versus model</th></tr></thead><tbody>${rows}</tbody>`;
+  const pl = ST.rec && ST.rec.parlays;
+  $("#parlayRec").innerHTML = pl && pl.length ? `<thead><tr><th>Parlay type</th><th>Graded</th><th>Won</th><th>Model expected</th></tr></thead><tbody>${pl.map(p => `<tr><td>${esc(p.type)}</td><td>${p.graded}</td><td class="big">${p.won}</td><td>${p.expected.toFixed(1)}</td></tr>`).join("")}</tbody>` : `<tbody><tr><td>The parlay record didn't load.</td></tr></tbody>`;
+}
+
+function lightUp(wall) {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const go = () => {
+    if (reduce) { wall.classList.remove("prep"); return; }
+    const on = [...wall.querySelectorAll(".lamp.on")];
+    on.forEach(l => l.style.transitionDelay = "0ms");
+    wall.querySelectorAll(".night").forEach((n, i) => n.querySelectorAll(".lamp.on").forEach(l => l.style.transitionDelay = (i * 70) + "ms"));
+    requestAnimationFrame(() => wall.classList.remove("prep"));
+  };
+  if (!("IntersectionObserver" in window)) return go();
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); go(); } }, { threshold: .35 });
+  io.observe(wall);
+}
+
+/* ---------- member board ---------- */
+function lockedPanel(what) {
+  const me = ST.me || {};
+  return `<div class="locked"><h3>${what} are for members</h3>
+    <p>A day pass unlocks tonight's full board for ${esc(me.daypass_price || "$4.99")}. Monthly is ${esc(me.monthly_price || "$14.99")} and covers every slate.</p>
+    <div class="ghost" aria-hidden="true"><div></div><div></div><div></div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-red" href="#pricing">See passes</a>${me.logged_in ? "" : `<a class="btn btn-line" href="/auth/login?next=/%23board">Sign in</a>`}</div></div>`;
+}
+
+function picksTable(m) {
+  const d = ST.picks; if (!d) return `<div class="err">Picks didn't load. Refresh to try again.</div>`;
+  const rows = d.markets[m] || [], locked = (d.locked || {})[m] || 0;
+  if (!rows.length && !locked) return `<div class="empty">Tonight's picks post before the first puck drop.</div>`;
+  const head = `<thead><tr><th class="l">#</th><th class="l">Player</th><th class="l">Matchup</th><th>Chance</th><th>Fair odds</th>${d.past ? "<th>Result</th>" : ""}</tr></thead>`;
+  const body = rows.map(r => `<tr><td class="l">${r.rank}</td><td class="nm l">${esc(r.player)}</td><td class="l">${matchup(r)}</td><td class="p">${pct(r.p)}</td><td>${esc(r.fair_odds)}</td>${d.past ? `<td class="${r.result === "Hit" ? "res-hit" : "res-miss"}">${esc(r.result)}</td>` : ""}</tr>`).join("");
+  let out = rows.length ? `<div class="tscroll"><table class="t">${head}<tbody>${body}</tbody></table></div>` : "";
+  if (locked) out += lockedPanel(`${locked} more ${m === "Goal" ? "goal" : m === "1+ point" ? "point" : "shot"} picks`);
+  return out;
+}
+
+function parlaysPanel() {
+  const d = ST.parlays; if (!d) return `<div class="err">Parlays didn't load. Refresh to try again.</div>`;
+  if (!d.parlays.length && d.locked) return lockedPanel(`Tonight's ${d.locked} parlays`);
+  if (!d.parlays.length) return `<div class="empty">Tonight's parlays post with the picks.</div>`;
+  return d.parlays.map(p => `<div class="parlay"><div><h4>${esc(p.type)}</h4><ul>${(p.legs || []).map(l => `<li>${esc(l.player)} <span class="tm">${esc(l.team)}</span> ${esc(MK[l.market] || l.market)}, ${pct(l.p)}</li>`).join("")}</ul></div>
+    <div class="px"><b>${pct(p.p)}</b><span class="muted">fair ${esc(p.fair_odds)}</span></div></div>`).join("");
+}
+
+async function allPanel(panel) {
+  if (!(ST.me && ST.me.pro)) { panel.innerHTML = lockedPanel("Every skater's numbers"); return; }
+  if (!ST.board || ST.board.market !== ST.boardMkt) {
+    panel.innerHTML = `<div class="empty">Loading every skater…</div>`;
+    try { ST.board = await api(`/api/board?market=${ST.boardMkt}`); } catch (e) { panel.innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+    if (ST.tab !== "all") return;
+  }
+  const b = ST.board, key = { goal: "p_goal", point: "p_point", sog: "p_sog3" }[ST.boardMkt], fk = { goal: "fair_goal", point: "fair_point", sog: "fair_sog3" }[ST.boardMkt];
+  const q = ST.q.trim().toLowerCase();
+  const rows = b.players.filter(p => !q || (p.name + " " + p.team + " " + p.opp).toLowerCase().includes(q));
+  const fo = v => v == null ? "" : (v > 0 ? "+" + v : String(v));
+  panel.innerHTML = `<div class="tools"><label class="sr" for="q">Find a player or team</label><input id="q" type="search" placeholder="Find a player or team" value="${esc(ST.q)}">
+    <label class="sr" for="mk">Market</label><select id="mk"><option value="goal">Sort by goal chance</option><option value="point">Sort by point chance</option><option value="sog">Sort by 3+ shots chance</option></select>
+    <span class="muted">${rows.length} skaters${b.lineups_note ? ". " + esc(b.lineups_note) : ""}</span></div>
+    <div class="tscroll"><table class="t"><thead><tr><th class="l">Player</th><th class="l">Matchup</th><th>Goal</th><th>Point</th><th>3+ shots</th><th>Fair odds</th><th class="l">Goalie faced</th><th class="l">Line</th></tr></thead><tbody>
+    ${rows.slice(0, 400).map(p => `<tr><td class="nm l">${esc(p.name)}${p.gtd ? ' <span class="muted">(game-time decision)</span>' : ""}</td><td class="l"><span class="tm">${esc(p.team)}</span> ${p.home ? "vs" : "@"} ${esc(p.opp)}</td>
+      <td class="${key === "p_goal" ? "p" : ""}">${p.p_goal != null ? pct(p.p_goal) : ""}</td><td class="${key === "p_point" ? "p" : ""}">${p.p_point != null ? pct(p.p_point) : ""}</td><td class="${key === "p_sog3" ? "p" : ""}">${p.p_sog3 != null ? pct(p.p_sog3) : ""}</td>
+      <td>${fo(p[fk])}</td><td class="l">${esc(p.opp_goalie || "")}${p.opp_goalie_status === "Model guess" ? ' <span class="muted">(projected)</span>' : ""}</td><td class="l">${esc((p.line || "").toUpperCase())}${p.pp_unit ? " " + esc(String(p.pp_unit).toUpperCase()) : ""}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  $("#mk").value = ST.boardMkt;
+  $("#mk").onchange = e => { ST.boardMkt = e.target.value; allPanel(panel); };
+  const qi = $("#q"); qi.oninput = e => { ST.q = e.target.value; const pos = e.target.selectionStart; allPanel(panel).then(() => { const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); }); };
+}
+
+function renderPanel() {
+  const panel = $("#panel");
+  document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === ST.tab)));
+  if (ST.tab === "parlays") panel.innerHTML = parlaysPanel();
+  else if (ST.tab === "all") allPanel(panel);
+  else panel.innerHTML = picksTable(ST.tab);
+}
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { ST.tab = b.dataset.tab; renderPanel(); }));
+document.querySelector(".tabs").addEventListener("keydown", e => {
+  if (!["ArrowRight", "ArrowLeft"].includes(e.key)) return;
+  const bs = [...document.querySelectorAll(".tabs button")], i = bs.findIndex(b => b.dataset.tab === ST.tab);
+  const n = bs[(i + (e.key === "ArrowRight" ? 1 : bs.length - 1)) % bs.length]; ST.tab = n.dataset.tab; renderPanel(); n.focus();
+});
+
+(async function init() {
+  const qs = new URLSearchParams(location.search);
+  const s = qs.get("signin");
+  if (s === "soon") toast("Member sign-in opens as soon as checkout is live.");
+  if (s === "failed") toast("Sign-in didn't finish. Try Sign in again.");
+  if (s === "cancelled") toast("Sign-in was cancelled.");
+  if (s) history.replaceState(null, "", location.pathname + location.hash);
+  if (location.pathname === "/terms") setTimeout(() => $("#terms").scrollIntoView(), 50);
+  const [me, picks, parlays, games, hist, rec] = await Promise.allSettled([api("/api/me"), api("/api/picks"), api("/api/parlays"), api("/api/games"), api("/api/history"), api("/api/record")]);
+  ST.me = me.value || { logged_in: false, pro: false }; ST.picks = picks.value || null; ST.parlays = parlays.value || null;
+  ST.games = games.value || null; ST.hist = hist.value || null; ST.rec = rec.value || null;
+  plans(); renderAcct(); renderHero(); renderRecord(); renderPanel();
+  if (ST.picks) $("#boardStamp").textContent = `Board for ${fmtDate(ST.picks.date, { weekday: "long", month: "short", day: "numeric" })}`;
+})();
+</script>
+</body>
+</html>

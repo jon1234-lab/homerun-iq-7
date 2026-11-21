@@ -675,6 +675,7 @@ def write_supabase_sql(out, RD, tracker, parlays, changelog, champs, snapshots, 
     logs = [{'log_date': c['date'], 'kind': c['kind'], 'market': c['market'], 'idea': c['idea'], 'champion': c.get('champion'),
              'champ_a': c.get('champ_A'), 'chal_a': c.get('chal_A'), 'champ_b': c.get('champ_B'), 'chal_b': c.get('chal_B'),
              'result': c.get('result')} for c in changelog if c['date'] >= since]
+    logs = list({(l['log_date'], l['kind'], l['market'], l['idea']): l for l in logs}.values())  # one row per test, or the upsert fails
     keep = [{'market': r['market'], 'player_id': int(r['playerId'])} for r in tracker if r['date'] == RD]
     state = f"""-- NHL props daily write for {RD} (idempotent upserts; no deletes)
 UPDATE public.nhl_props_picks t SET result = 'Replaced', updated_at = now()
