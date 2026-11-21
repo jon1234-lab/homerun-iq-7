@@ -221,25 +221,33 @@ table.t tr.sel td{background:#FFFBEA}
   box-shadow:0 26px 60px -34px rgba(15,42,71,.7)}
 .jumbo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:7px;background:var(--kick)}
 .jumbo .lastnight{font-weight:600}
-.wall-wrap{margin-top:18px;overflow-x:auto;padding:14px 0 6px;scrollbar-color:#3C5A80 transparent}
-.wall{display:flex;gap:14px;min-width:max-content;padding:4px 10px 0 6px}
-.night{display:flex;flex-direction:column;align-items:center;gap:10px}
-.night .d{margin-top:auto;padding-top:6px;font-size:12.5px;color:#A9BCD2;white-space:nowrap}
-.tok{appearance:none;border:0;padding:0;cursor:pointer;width:40px;height:40px;border-radius:50%;position:relative;display:grid;place-items:center;
-  background:var(--bg,#2A4566);color:var(--fg,#fff);font:700 12.5px/1 var(--sans);letter-spacing:.02em;box-shadow:0 0 0 2px var(--ring,#3C5A80);transition:opacity .3s ease, filter .3s ease}
-.tok.miss{opacity:.32;filter:grayscale(.55)}
-.tok.hit{box-shadow:0 0 0 2px var(--ring,#3C5A80),0 0 14px 2px rgba(22,163,74,.35)}
-.tok.hit::after{content:"";position:absolute;right:-4px;bottom:-4px;width:17px;height:17px;border-radius:50%;background:#16A34A url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/13px no-repeat;
-  box-shadow:0 0 0 2px var(--navy);transition:transform .25s ease}
-.tok:hover,.tok:focus-visible{opacity:1;filter:none;transform:scale(1.08)}
-.tok:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.wall-wrap{margin-top:22px;overflow-x:auto;padding:6px 0 6px;scrollbar-width:none;--fl:0px;--fr:0px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%)}
+.wall-wrap::-webkit-scrollbar{display:none}
+.wall-wrap.l{--fl:40px}.wall-wrap.r{--fr:40px}
+.wall{display:flex;gap:18px;min-width:max-content;padding:6px 8px 0}
+.night{display:flex;flex-direction:column;align-items:center;gap:12px}
+.night .d{margin-top:auto;padding-top:8px;font-size:14px;color:#A9BCD2;white-space:nowrap}
+.tok{appearance:none;border:0;padding:0;cursor:pointer;width:56px;height:56px;border-radius:50%;position:relative;display:block;background:#22355A;
+  box-shadow:0 0 0 2px #3A5175;transition:opacity .3s ease, filter .3s ease, box-shadow .3s ease, transform .15s ease}
+.tok svg{display:block;width:100%;height:100%}
+.tok text{font:700 15px/1 var(--sans);letter-spacing:.02em}
+.tok.miss{opacity:.5;filter:grayscale(1)}
+.tok.hit{box-shadow:0 0 0 3px #22C55E}
+.tok.hit::after{content:"";position:absolute;right:-5px;bottom:-5px;width:22px;height:22px;border-radius:50%;background:#22C55E url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat;
+  box-shadow:0 0 0 2.5px var(--navy);transition:transform .25s ease}
+.tok:hover,.tok:focus-visible{opacity:1;filter:none;transform:scale(1.06)}
+.tok:focus-visible{outline:2px solid #fff;outline-offset:4px}
 .wall.prep .tok.hit::after{transform:scale(0)}
-.wall.prep .tok.hit{box-shadow:0 0 0 2px var(--ring,#3C5A80)}
+.wall.prep .tok.hit{box-shadow:0 0 0 2px #3A5175}
+@media (max-width:560px){.jumbo{padding:22px 16px 30px}.wall{gap:7px;padding:6px 4px 0}.tok{width:46px;height:46px}.night{gap:10px}.night .d{font-size:13px}
+  .tok.hit::after{width:19px;height:19px;right:-4px;bottom:-4px;background-size:14px}}
 @media (prefers-reduced-motion: reduce){.tok,.tok.hit::after{transition:none}}
 .lampinfo{min-height:46px;margin-top:12px;color:#DCE6F2}
 .legend{display:flex;gap:18px;flex-wrap:wrap;color:#A9BCD2;font-size:13.5px;align-items:center}
-.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:7px;background:#2A4566;opacity:.6}
-.legend i.on{background:#16A34A;opacity:1}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:7px;background:#22355A;box-shadow:0 0 0 1.5px #3A5175;opacity:.6}
+.legend i.on{background:#22355A;box-shadow:0 0 0 2px #22C55E;opacity:1}
 .mkts{width:100%;border-collapse:collapse;font-size:15.5px}
 .mkts th,.mkts td{padding:13px 16px;border-bottom:1px solid #E8EEF3;text-align:right}
 .mkts th:first-child,.mkts td:first-child{text-align:left}
@@ -388,7 +396,8 @@ footer.foot nav a:hover{color:var(--ink)}
       <p class="lastnight" id="lastnight"></p>
       <div class="wall-wrap"><div class="wall prep" id="wall" role="group" aria-label="Goal picks by night, top pick at the top"></div></div>
       <p class="lampinfo" id="lampinfo">Hover or tap a player to see the pick.</p>
-      <div class="legend"><span><i class="on"></i>Scored</span><span><i></i>Didn't score</span><span>Each column is one night, best pick on top. Circles use team colors.</span></div>
+      <div class="legend"><span><i class="on"></i>Scored</span><span><i></i>Didn't score</span><span>Each column is one night, best pick on top. Jerseys show team colors.</span></div>
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><clipPath id="tokclip" clipPathUnits="objectBoundingBox"><circle cx=".5" cy=".5" r=".5"/></clipPath></svg>
     </div>
     <div class="recgrid">
       <div class="boardpanel"><h3>All three markets</h3><div class="tscroll"><table class="mkts" id="mkts"></table></div></div>
@@ -739,13 +748,18 @@ function renderRecord() {
   const wall = $("#wall");
   const ini = n => n.split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase();
   wall.innerHTML = dates.map(d => `<div class="night">${nights[d].sort((a, b) => a.r - b.r).map(r => {
-      const c = TEAM[r.t] || ["#2A4566", "#3C5A80", "#fff"];
+      const c = TEAM[r.t] || ["#5B7193", "#A9BCD2", "#fff"];
       const label = `${fmtDate(d, { month: "short", day: "numeric" })}, pick ${r.r}: ${r.n}, ${r.t} ${r.o}, ${pct0(r.p)} chance. ${r.res === "Hit" ? (r.s > 1 ? `Scored ${r.s}.` : "Scored.") : "Didn't score."}`;
-      return `<button class="tok ${r.res === "Hit" ? "hit" : "miss"}" style="--bg:${c[0]};--ring:${c[1]};--fg:${c[2]}" aria-label="${esc(label)}" data-info="${esc(label)}">${esc(ini(r.n))}</button>`;
+      return `<button class="tok ${r.res === "Hit" ? "hit" : "miss"}" aria-label="${esc(label)}" data-info="${esc(label)}">${jersey(c, ini(r.n))}</button>`;
     }).join("")}<span class="d">${esc(fmtDate(d, { month: "short", day: "numeric" }))}</span></div>`).join("");
   const info = $("#lampinfo"), show = e => { const b = e.target.closest(".tok"); if (b) info.textContent = b.dataset.info; };
   ["pointerover", "focusin", "click"].forEach(ev => wall.addEventListener(ev, show));
-  const wrap = wall.parentElement; wrap.scrollLeft = wrap.scrollWidth;
+  const wrap = wall.parentElement, fades = () => {
+    wrap.classList.toggle("l", wrap.scrollLeft > 4);
+    wrap.classList.toggle("r", wrap.scrollLeft + wrap.clientWidth < wrap.scrollWidth - 4);
+  };
+  wrap.addEventListener("scroll", fades, { passive: true }); addEventListener("resize", fades);
+  wrap.scrollLeft = wrap.scrollWidth; fades();
   lightUp(wall);
   const rows = ["Goal", "1+ point", "3+ SOG"].map(m => {
     const rs = h.filter(r => r.m === m), hh = rs.filter(r => r.res === "Hit").length, ee = rs.reduce((a, r) => a + r.p, 0), diff = hh - ee;
@@ -754,6 +768,14 @@ function renderRecord() {
   $("#mkts").innerHTML = `<thead><tr><th>Top 10 a night</th><th>Graded</th><th>Hit</th><th>Expected</th><th>Vs model</th></tr></thead><tbody>${rows}</tbody>`;
   const pl = ST.rec && ST.rec.parlays;
   $("#parlayRec").innerHTML = pl && pl.length ? `<thead><tr><th>Type</th><th>Graded</th><th>Won</th><th>Expected</th></tr></thead><tbody>${pl.map(p => `<tr><td>${esc(p.type)}</td><td>${p.graded}</td><td class="big">${p.won}</td><td>${p.expected.toFixed(1)}</td></tr>`).join("")}</tbody>` : `<tbody><tr><td>The parlay record didn't load.</td></tr></tbody>`;
+}
+/* a generic player card: initials over a jersey in team colors (no real photos) */
+function jersey(c, initials) {
+  return `<svg viewBox="0 0 48 48" aria-hidden="true"><g clip-path="url(#tokclip)"><rect width="48" height="48" fill="#22355A"/>` +
+    `<path d="M0 52C2 38.5 10.5 32.5 24 32.5S46 38.5 48 52Z" fill="${c[0]}"/>` +
+    `<path d="M3 42.5C7 35.8 14 32.5 24 32.5S41 35.8 45 42.5" fill="none" stroke="${c[1]}" stroke-width="1.6" opacity=".9"/>` +
+    `<path d="M19.5 32.8 24 37.8l4.5-5" fill="none" stroke="${c[1]}" stroke-width="2.2" stroke-linejoin="round"/></g>` +
+    `<text x="24" y="20.5" text-anchor="middle" dominant-baseline="middle" fill="#fff">${esc(initials)}</text></svg>`;
 }
 function lightUp(wall) {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
