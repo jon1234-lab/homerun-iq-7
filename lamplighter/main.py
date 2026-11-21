@@ -20,6 +20,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 import auth
 import board as B
 import nhl_data as D
+import jerseys as N
 import store
 import vsopp
 from page import HTML
@@ -260,6 +261,11 @@ def api_history():
         rows = _cached("history", store.history, 600)
     except Exception:
         raise HTTPException(503, "The track record is temporarily unavailable.")
+    try:  # sweater numbers for the jersey icons; the wall falls back to initials without them
+        num = N.finder(_cached("rosters", N.rosters, 12 * 3600))
+        rows = [{**r, "j": num(r["t"], r["n"])} for r in rows]
+    except Exception:
+        pass
     return _json({"picks": rows}, private=False, max_age=300)
 
 

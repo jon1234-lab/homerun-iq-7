@@ -152,7 +152,7 @@ def roster(team):
         for p in d.get(grp, []):
             nm = f"{p['firstName']['default']} {p['lastName']['default']}"
             out.append({"id": p["id"], "name": nm, "pos": p["positionCode"],
-                        "headshot": p.get("headshot")})
+                        "num": p.get("sweaterNumber")})
     return out
 
 
