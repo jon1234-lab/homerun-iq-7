@@ -114,7 +114,7 @@ nav.links a:hover{background:var(--ice-2);color:var(--ink)}
 .trio b{display:block;font:500 22px/1.2 var(--sans);margin-top:6px}
 @media (max-width:520px){.trio .caps{font-size:10px;letter-spacing:.08em}.trio div{padding:0 10px}.topcard{padding:24px 20px 30px}.bigp .v{font-size:68px}}
 .also{margin-top:22px;border-top:1px solid var(--hair);padding-top:14px}
-.also .r{display:grid;grid-template-columns:26px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 0}
+.also .r{display:grid;grid-template-columns:22px 30px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 0}
 .also .r .n{font-weight:600;display:block}.also .r .tmo{display:block;font-size:13px;color:var(--ink-3)}.also .r .p{font:400 28px/1 var(--serif)}.also .r .fo{color:var(--red);font-weight:600;font-size:14px;min-width:46px;text-align:right}
 .also .rk{font:400 22px/1 var(--serif);color:var(--blue)}
 .tm{display:inline-block;min-width:40px;padding:2px 7px;border-radius:6px;background:var(--ink);color:#fff;font:700 12px/1.45 var(--sans);text-align:center;letter-spacing:.05em}
@@ -167,7 +167,14 @@ table.t th{padding:16px 16px 12px;text-align:right;font:600 11px/1.3 var(--sans)
 table.t td{padding:14px 16px;border-bottom:1px solid #E8EEF3;text-align:right;white-space:nowrap}
 table.t .l{text-align:left}
 table.t tbody tr:hover td{background:#F8FBFD}
-.pl{display:flex;align-items:center;gap:12px}
+.jic{flex:none;position:relative;display:inline-block;width:42px;height:42px;border-radius:50%;background:#E9EFF5;box-shadow:0 0 0 1.5px #B8C8DA}
+.jic svg{display:block;width:100%;height:100%}
+.jic i{position:absolute;right:-7px;bottom:-4px;font:800 8.5px/1 var(--sans);font-style:normal;letter-spacing:.04em;padding:2.5px 3.5px;border-radius:4px;background:var(--jb);color:var(--jf);box-shadow:0 0 0 1.5px #fff}
+.jic.lg{width:62px;height:62px;box-shadow:0 0 0 2px var(--navy)}
+.jic.lg i{font-size:10.5px;padding:3px 5px;right:-9px;bottom:-3px}
+.jic.sm{width:30px;height:30px}
+.parlay li .jic.sm{width:26px;height:26px}
+.pl{display:flex;align-items:center;gap:14px}
 .pl .tm{min-width:44px}
 .pl b{display:block;font-weight:600;font-size:15.5px;white-space:normal}
 .pl small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px}
@@ -546,7 +553,7 @@ function renderHero() {
   const opp = r.opp.replace(/^(vs|@)\s*/, ""), at = r.opp.startsWith("@") ? "at" : "vs";
   card.innerHTML = `
     <div class="row1"><span class="caps">Top of the board</span><span class="caps">Anytime goal</span></div>
-    <div class="who"><span class="badge">${esc(r.team)}</span><div><div class="nm">${esc(r.player)}</div>
+    <div class="who">${jic(r.team, r.j, r.player, "lg")}<div><div class="nm">${esc(r.player)}</div>
       <div class="sub">${esc(r.team)} ${at} ${esc(opp)}${goalie ? ` · facing ${esc(goalie)}` : ""}</div></div></div>
     <div class="bigp"><span class="v">${pct(r.p)}</span><span class="f">${esc(r.fair_odds)} fair</span></div>
     <span class="bar"><i style="width:${Math.round(r.p * 100)}%"></i></span>
@@ -556,7 +563,7 @@ function renderHero() {
       <div><span class="caps">Ice time</span><b>${s.toi != null ? mins(s.toi) : "–"}</b></div>
     </div>
     ${goal.length > 1 ? `<div class="also"><span class="caps">Also free tonight</span>${goal.slice(1, 3).map(x => `
-      <div class="r"><span class="rk">${x.rank}</span><span><span class="n">${esc(x.player)}</span><span class="tmo">${esc(x.team)} ${esc(x.opp)}</span></span><span class="p">${pct0(x.p)}</span><span class="fo">${esc(x.fair_odds)}</span></div>`).join("")}</div>` : ""}`;
+      <div class="r"><span class="rk">${x.rank}</span>${jic(x.team, x.j, x.player, "sm", false)}<span><span class="n">${esc(x.player)}</span><span class="tmo">${esc(x.team)} ${esc(x.opp)}</span></span><span class="p">${pct0(x.p)}</span><span class="fo">${esc(x.fair_odds)}</span></div>`).join("")}</div>` : ""}`;
 }
 
 /* ---------- slate ---------- */
@@ -589,9 +596,9 @@ function rowsHTML(rows, key) {
     const v = p[key], goalie = (p.opp_goalie || "").replace(/\s*\*$/, "");
     const where = p.home === undefined ? p.opp : `${p.home ? "vs" : "at"} ${p.opp}`;
     const line = p.line ? String(p.line).toUpperCase() + (p.pp_unit ? " " + String(p.pp_unit).toUpperCase() : "") : "";
-    const meta = [where, p.pos, line].filter(Boolean).join(" · ");
+    const meta = [`${p.team} ${where}`, p.pos, line].filter(Boolean).join(" · ");
     const projected = p.opp_goalie_status === "Model guess" || (p.opp_goalie || "").endsWith("*");
-    return `<tr><td class="l"><div class="pl"><span class="tm">${esc(p.team)}</span><div><b>${esc(p.name)}${p.gtd ? ' <span class="muted" style="font-weight:500">(game-time decision)</span>' : ""}</b><small>${esc(meta)}</small></div></div></td>
+    return `<tr><td class="l"><div class="pl">${jic(p.team, p.j, p.name)}<div><b>${esc(p.name)}${p.gtd ? ' <span class="muted" style="font-weight:500">(game-time decision)</span>' : ""}</b><small>${esc(meta)}</small></div></div></td>
       <td><div class="ch"><b>${pct(v)}</b><span class="bar"><i style="width:${Math.round((v || 0) * 100)}%"></i></span></div></td>
       <td class="fo">${fair(v)}</td><td>${p.sog_proj != null ? Number(p.sog_proj).toFixed(1) : ""}</td>
       <td>${ST.m === "goal" ? xg(p.p_goal) : pct0(p.p_point)}</td><td>${mins(p.toi)}</td><td>${mins(p.pp_toi)}</td>
@@ -613,7 +620,7 @@ function parlaysHTML() {
   const nm = { "Goal": "goal", "1+ point": "1+ point", "3+ SOG": "3+ shots", "2+ SOG": "2+ shots" };
   return `<div class="parlays">${d.parlays.map(p => `<div class="parlay"><div class="h"><h4>${esc(p.type)}</h4><span class="px">${pct0(p.p)}</span></div>
     <div class="muted" style="font-size:13.5px">Fair odds <b style="color:var(--red)">${esc(p.fair_odds)}</b></div>
-    <ul>${(p.legs || []).map(l => `<li><span class="tm">${esc(l.team)}</span>${esc(l.player)} <span class="muted">${esc(nm[l.market] || l.market)}, ${pct0(l.p)}</span></li>`).join("")}</ul></div>`).join("")}</div>`;
+    <ul>${(p.legs || []).map(l => `<li>${jic(l.team, l.j, l.player, "sm", false)}${esc(l.player)} <span class="muted">${esc(l.team)}</span> <span class="muted">${esc(nm[l.market] || l.market)}, ${pct0(l.p)}</span></li>`).join("")}</ul></div>`).join("")}</div>`;
 }
 
 async function renderBoard() {
@@ -704,7 +711,7 @@ async function renderVs(panel) {
   const fmt = (key, r) => key === "toi" || key === "pptoi" ? (r.gp ? mins(r[key]) : "") : key === "ppg" ? (r.gp ? r.ppg.toFixed(2) : "") : (r.gp ? r[key] : "");
   const best = {}; VCOLS.forEach(([c]) => best[c] = Math.max(0, ...rows.map(r => r.gp ? (r[c] || 0) : 0)));
   const body = show.map(r => `<tr class="${VS.sel.has(r.id) ? "sel" : ""}"><td class="cb"><input type="checkbox" data-id="${r.id}" ${VS.sel.has(r.id) ? "checked" : ""} aria-label="Compare ${esc(r.name)}"></td>
-    <td class="l"><div class="pl"><span class="tm">${esc(r.team)}</span><div><b>${esc(r.name)}</b><small>${esc([r.pos, (r.home ? "vs " : "at ") + r.opp].filter(Boolean).join(" · "))}</small></div></div></td>
+    <td class="l"><div class="pl">${jic(r.team, r.j, r.name)}<div><b>${esc(r.name)}</b><small>${esc([r.pos, r.team + (r.home ? " vs " : " at ") + r.opp].filter(Boolean).join(" · "))}</small></div></div></td>
     <td>${r.p_goal != null ? pct0(r.p_goal) : ""}</td>
     ${VCOLS.map(([c]) => `<td class="${r.gp && best[c] && (r[c] || 0) === best[c] && c !== "gp" ? "hot" : ""}">${r.gp ? fmt(c, r) : (c === "gp" ? '<span class="muted">0</span>' : "")}</td>`).join("")}</tr>`).join("");
   panel.innerHTML = `<div class="vtools">
@@ -768,6 +775,12 @@ function renderRecord() {
   $("#mkts").innerHTML = `<thead><tr><th>Top 10 a night</th><th>Graded</th><th>Hit</th><th>Expected</th><th>Vs model</th></tr></thead><tbody>${rows}</tbody>`;
   const pl = ST.rec && ST.rec.parlays;
   $("#parlayRec").innerHTML = pl && pl.length ? `<thead><tr><th>Type</th><th>Graded</th><th>Won</th><th>Expected</th></tr></thead><tbody>${pl.map(p => `<tr><td>${esc(p.type)}</td><td>${p.graded}</td><td class="big">${p.won}</td><td>${p.expected.toFixed(1)}</td></tr>`).join("")}</tbody>` : `<tbody><tr><td>The parlay record didn't load.</td></tr></tbody>`;
+}
+/* jersey icon in a circle with a small team tag (board, top card, parlays) */
+function jic(team, num, name, size, tag = true) {
+  const c = TEAM[team] || ["#5B7193", "#A9BCD2", "#fff"];
+  const ini = (name || "").split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase();
+  return `<span class="jic ${size || ""}" style="--jb:${c[0]};--jf:${c[2] === c[0] ? "#fff" : c[2]}" aria-hidden="true">${jersey(c, num, ini)}${tag && team ? `<i>${esc(team)}</i>` : ""}</span>`;
 }
 /* a generic team jersey with the player's number (no real photos or logos) */
 const JPATH = "M18.6 10.2 12 12.4 5.2 18.2 7.6 29.2 12.6 27.6V39.6H35.4V27.6L40.4 29.2 42.8 18.2 36 12.4 29.4 10.2Q24 14.8 18.6 10.2Z";

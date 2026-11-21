@@ -172,8 +172,8 @@ def api_board(request: Request, date: str | None = None, market: str = "goal"):
         raise HTTPException(503, "Tonight's board is temporarily unavailable. Try again in a minute.")
     key = {"goal": "p_goal", "point": "p_point", "sog": "p_sog3"}[market]
     rows = sorted([p for p in b["players"] if p.get(key) is not None], key=lambda p: -p[key])
-    for r in rows:
-        r.pop("headshot", None)
+    num = _jnum()
+    rows = [{**{k: v for k, v in r.items() if k != "headshot"}, "j": num(r["team"], r["name"], r.get("player_id"))} for r in rows]
     return _json({**{k: b.get(k) for k in ("date", "games", "source", "generated_utc", "model", "lineups_note", "data_through")},
                   "market": market, "players": rows, "locked": 0, "pro": v["pro"], "past": past})
 
@@ -196,11 +196,13 @@ def api_picks(request: Request, date: str | None = None):
         out[mk], locked[mk] = _gate(rs, v["pro"], past, keep)
     stats = _snapshot_stats(date)
     priced = len(stats)
+    num = _jnum()
     for rs in out.values():   # only rows this viewer can already see get their supporting numbers
         for r in rs:
             st = stats.get(int(r["player_id"]))
             if st:
                 r["stats"] = st
+            r["j"] = num(r["team"], r["player"], r.get("player_id"))
     return _json({"date": date, "markets": out, "locked": locked, "pro": v["pro"], "past": past, "priced": priced})
 
 
@@ -223,8 +225,11 @@ def api_parlays(request: Request, date: str | None = None):
         rows = store.parlays(date)
     except Exception:
         raise HTTPException(503, "Parlays are temporarily unavailable.")
+    num = _jnum()
     for r in rows:
         r["p"] = float(r["p"])
+        for l in r.get("legs") or []:
+            l["j"] = num(l.get("team"), l.get("player"), l.get("player_id"))
     if v["pro"] or past:
         return _json({"date": date, "parlays": rows, "locked": 0, "pro": v["pro"], "past": past})
     teaser = [{"type": r["type"], "legs_n": r["legs_n"]} for r in rows]
@@ -232,6 +237,14 @@ def api_parlays(request: Request, date: str | None = None):
 
 
 _rec_cache, _rec_lock = {}, threading.Lock()
+
+
+def _jnum():
+    """Sweater-number lookup for the jersey icons; returns None for everyone if rosters can't load."""
+    try:
+        return N.finder(_cached("rosters", N.rosters, 12 * 3600))
+    except Exception:
+        return lambda *a, **k: None
 
 
 def _cached(key, fn, ttl):
@@ -261,11 +274,8 @@ def api_history():
         rows = _cached("history", store.history, 600)
     except Exception:
         raise HTTPException(503, "The track record is temporarily unavailable.")
-    try:  # sweater numbers for the jersey icons; the wall falls back to initials without them
-        num = N.finder(_cached("rosters", N.rosters, 12 * 3600))
-        rows = [{**r, "j": num(r["t"], r["n"])} for r in rows]
-    except Exception:
-        pass
+    num = _jnum()   # sweater numbers for the jersey icons; the wall falls back to initials without them
+    rows = [{**r, "j": num(r["t"], r["n"])} for r in rows]
     return _json({"picks": rows}, private=False, max_age=300)
 
 
@@ -282,7 +292,9 @@ def api_vsopp(request: Request, date: str | None = None, window: str = "3y"):
         out = vsopp.get(date, window, lambda: (B._props_board(date)[0] or []), lambda: D.schedule(date))
     except Exception:
         raise HTTPException(503, "Matchup history is still loading. Try again in a few seconds.")
-    return _json({**out, "locked": 0, "pro": v["pro"]})
+    num = _jnum()
+    rows = [{**r, "j": num(r.get("team"), r.get("name"), r.get("id"))} for r in out.get("rows", [])]
+    return _json({**out, "rows": rows, "locked": 0, "pro": v["pro"]})
 
 
 @app.get("/api/live")

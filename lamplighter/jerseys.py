@@ -18,7 +18,7 @@ def rosters():
     """{team: [(normalized full name, normalized last name, number)]} for every club."""
     def one(t):
         try:
-            return t, [(_norm(p["name"]), _norm(p["name"].split()[-1]), p["num"]) for p in D.roster(t) if p.get("num") is not None]
+            return t, [(_norm(p["name"]), _norm(p["name"].split()[-1]), p["num"], p.get("id")) for p in D.roster(t) if p.get("num") is not None]
         except Exception:
             return t, []
     with ThreadPoolExecutor(8) as ex:
@@ -29,14 +29,18 @@ def rosters():
 
 
 def finder(rs):
-    by_team, by_name, by_last = {}, {}, {}
+    by_team, by_name, by_last, by_id = {}, {}, {}, {}
     for t, ps in rs.items():
-        for full, last, num in ps:
+        for full, last, num, pid in ps:
             by_team[(t, full)] = num
+            if pid:
+                by_id[int(pid)] = num
             by_name.setdefault(full, set()).add(num)
             by_last.setdefault((t, last), set()).add(num)
 
-    def num(team, name):
+    def num(team, name, pid=None):
+        if pid and int(pid) in by_id:
+            return by_id[int(pid)]
         full = _norm(name)
         if (team, full) in by_team:
             return by_team[(team, full)]
