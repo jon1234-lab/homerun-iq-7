@@ -68,7 +68,9 @@ section[id]{scroll-margin-top:76px}
 header.top{position:sticky;top:0;z-index:30;background:rgba(243,247,250,.86);backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--hair)}
 .top .wrap{display:flex;align-items:center;gap:20px;height:68px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);white-space:nowrap}
-.brand svg{width:26px;height:26px;flex:none}
+.brand svg{width:34px;height:34px;flex:none}
+.brand .ti{position:relative;display:inline-block}
+.brand .ti::after{content:"";position:absolute;left:50%;top:.115em;width:.135em;height:.135em;margin-left:-.055em;border-radius:50%;background:#D7182A;box-shadow:0 0 .12em .02em rgba(255,59,48,.55)}
 .brand b{font:400 28px/1 var(--serif);letter-spacing:-.01em}
 .brand .caps{font-size:9.5px;margin-left:6px}
 nav.links{display:flex;gap:4px;margin-left:auto}
@@ -169,6 +171,8 @@ table.t .l{text-align:left}
 table.t tbody tr:hover td{background:#F8FBFD}
 .jic{flex:none;position:relative;display:inline-block;width:42px;height:42px;border-radius:50%;background:#E9EFF5;box-shadow:0 0 0 1.5px #B8C8DA}
 .jic svg{display:block;width:100%;height:100%}
+.jic text{font-family:var(--sans);font-weight:800}
+@media (max-width:560px){.pl .jic{width:36px;height:36px}.pl{gap:12px}}
 .jic i{position:absolute;right:-7px;bottom:-4px;font:800 8.5px/1 var(--sans);font-style:normal;letter-spacing:.04em;padding:2.5px 3.5px;border-radius:4px;background:var(--jb);color:var(--jf);box-shadow:0 0 0 1.5px #fff}
 .jic.lg{width:62px;height:62px;box-shadow:0 0 0 2px var(--navy)}
 .jic.lg i{font-size:10.5px;padding:3px 5px;right:-9px;bottom:-3px}
@@ -323,8 +327,8 @@ footer.foot nav a:hover{color:var(--ink)}
 <header class="top">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Lamplighter home">
-      <svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#C8102E" stroke-width="4.5" stroke-linecap="round"><path d="M32 3v8"/><path d="M11.5 11.5l5.5 5.5"/><path d="M52.5 11.5L47 17"/></g><path d="M15 45V37a17 17 0 0 1 34 0v8z" fill="#E0262F"/><path d="M23 35a10 10 0 0 1 7.5-8.6" stroke="#fff" stroke-opacity=".7" stroke-width="3.2" fill="none" stroke-linecap="round"/><rect x="10" y="45" width="44" height="8" rx="2" fill="#0E1F33"/><rect x="18" y="53" width="28" height="7" rx="1.6" fill="#0E1F33"/></svg>
-      <b>Lamplighter</b><span class="caps">NHL props model</span>
+      <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="39.6" fill="none" stroke="#D7182A" stroke-width="3.4"/><path d="M2.5 43.5H10.6M2.5 56.5H10.6" stroke="#D7182A" stroke-width="3.4" stroke-linecap="butt"/><path d="M89.4 43.5H97.5M89.4 56.5H97.5" stroke="#D7182A" stroke-width="3.4" stroke-linecap="butt"/><g transform="translate(50 50) scale(1.16) translate(-50 -55.5)"><defs><radialGradient id="ghdr" cx="50" cy="52" r="34" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FF3B30" stop-opacity=".55"/><stop offset=".55" stop-color="#FF3B30" stop-opacity=".18"/><stop offset="1" stop-color="#FF3B30" stop-opacity="0"/></radialGradient><linearGradient id="dhdr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF5A4E"/><stop offset="1" stop-color="#D7182A"/></linearGradient></defs><circle cx="50" cy="52" r="34" fill="url(#ghdr)"/><g stroke="#D7182A" stroke-width="3.8" stroke-linecap="round"><path d="M50.00 33.00L50.00 27.00"/><path d="M36.48 37.39L32.95 32.54"/><path d="M63.52 37.39L67.05 32.54"/><path d="M28.13 48.89L22.42 47.04"/><path d="M71.87 48.89L77.58 47.04"/></g><path d="M33 61V56a17 17 0 0 1 34 0v5z" fill="url(#dhdr)"/><path d="M40.5 54.5a10 10 0 0 1 6.5-8.2" stroke="#fff" stroke-opacity=".75" stroke-width="2.8" fill="none" stroke-linecap="round"/><rect x="29" y="61" width="42" height="6.5" rx="1.6" fill="#0F2A47"/><rect x="36.5" y="67.5" width="27" height="5.5" rx="1.2" fill="#0F2A47"/></g></svg>
+      <b>Lampl<span class="ti">ı</span>ghter</b><span class="caps">NHL props model</span>
     </a>
     <nav class="links" aria-label="Sections">
       <a href="#tonight">Tonight</a><a href="#board">Board</a><a href="#record">Record</a><a href="#model">The model</a><a href="#pricing">Pricing</a>
