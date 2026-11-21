@@ -373,6 +373,8 @@ footer.foot nav a:hover{color:var(--ink)}
 </style>
 </head>
 <body>
+<div class="sheet" id="sheet" hidden><div class="sheet-bg" data-close></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="bdTitle"><button class="sheet-x" type="button" data-close aria-label="Close breakdown">×</button><div id="sheetBody"></div></div></div>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Lamplighter home">
@@ -956,7 +958,5 @@ function lightUp(wall) {
   if (ST.picks && ST.picks.priced) $("#boardDesc").textContent = `${ST.picks.priced} skaters priced. Chance is the model's probability. Fair odds is its break-even price.`;
 })();
 </script>
-<div class="sheet" id="sheet" hidden><div class="sheet-bg" data-close></div>
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="bdTitle"><button class="sheet-x" type="button" data-close aria-label="Close breakdown">×</button><div id="sheetBody"></div></div></div>
 </body>
 </html>
