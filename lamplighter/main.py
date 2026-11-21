@@ -21,6 +21,7 @@ import auth
 import board as B
 import nhl_data as D
 import store
+import vsopp
 from page import HTML
 
 app = FastAPI(title="Lamplighter", docs_url=None, redoc_url=None, openapi_url=None)
@@ -260,6 +261,22 @@ def api_history():
     except Exception:
         raise HTTPException(503, "The track record is temporarily unavailable.")
     return _json({"picks": rows}, private=False, max_age=300)
+
+
+@app.get("/api/vsopp")
+def api_vsopp(request: Request, date: str | None = None, window: str = "3y"):
+    """Members: every skater's production against tonight's opponent (Frozen Tools-style)."""
+    date = _date(date)
+    if window not in vsopp.WINDOWS:
+        raise HTTPException(400, "window must be season, 3y or since2010")
+    v = auth.viewer(request.cookies)
+    if not (v["pro"] or is_past(date)):
+        return _json({"date": date, "window": window, "rows": [], "locked": 1, "pro": False})
+    try:
+        out = vsopp.get(date, window, lambda: (B._props_board(date)[0] or []), lambda: D.schedule(date))
+    except Exception:
+        raise HTTPException(503, "Matchup history is still loading. Try again in a few seconds.")
+    return _json({**out, "locked": 0, "pro": v["pro"]})
 
 
 @app.get("/api/live")

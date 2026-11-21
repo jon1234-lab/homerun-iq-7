@@ -146,12 +146,12 @@ nav.links a:hover{background:var(--ice-2);color:var(--ink)}
 .boardsec{padding:44px 0 64px}
 .boardsec .intro{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px 30px}
 .boardsec .intro p{color:var(--ink-2);margin-top:12px;max-width:44em}
-.mtabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:30px}
+.mtabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:30px}
 .mtabs button{appearance:none;border:1px solid var(--hair);background:var(--board);border-radius:999px;min-height:58px;padding:0 14px;cursor:pointer;
   font:600 15.5px/1.1 var(--sans);color:var(--ink);position:relative;overflow:hidden}
 .mtabs button:hover{border-color:#AFC0CF}
 .mtabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:inset 0 -5px 0 var(--kick)}
-@media (max-width:900px){.mtabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1100px){.mtabs{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:520px){.mtabs{grid-template-columns:repeat(2,minmax(0,1fr))}.mtabs button{min-height:50px;font-size:14.5px}}
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 0}
 .filters[hidden]{display:none}
@@ -198,6 +198,15 @@ td.fo{color:var(--red);font-weight:600}
 .parlay ul{list-style:none;margin:10px 0 0;padding:0;color:var(--ink-2);font-size:14.5px}
 .parlay li{padding:3px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .note{font-size:14.5px;color:var(--ink-3);margin-top:16px;max-width:60em}
+.vtools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 16px 4px}
+.vtools select{min-height:40px;border:1px solid var(--hair);border-radius:999px;padding:0 14px;font:500 14.5px var(--sans);color:var(--ink);background:#fff}
+.vtools .sp{margin-left:auto}
+table.t th button.sort{appearance:none;border:0;background:none;padding:0;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;cursor:pointer}
+table.t th button.sort[aria-sort]{color:var(--ink)}
+table.t td.cb,table.t th.cb{width:36px;padding-right:0}
+table.t input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer}
+table.t td.hot{color:var(--ink);font-weight:700}
+table.t tr.sel td{background:#FFFBEA}
 .err{padding:22px;color:var(--red-2);font-weight:600}
 
 /* record: the scoreboard */
@@ -351,6 +360,7 @@ footer.foot nav a:hover{color:var(--ink)}
       <button role="tab" data-m="sog3" aria-selected="false">3+ shots</button>
       <button role="tab" data-m="sog4" aria-selected="false">4+ shots</button>
       <button role="tab" data-m="parlays" aria-selected="false">Parlays</button>
+      <button role="tab" data-m="vsopp" aria-selected="false">Vs opponent</button>
     </div>
     <div class="filters" id="filters" hidden>
       <label class="sr" for="q">Search players</label><input id="q" type="search" placeholder="Search players">
@@ -465,6 +475,7 @@ const ST = { me: null, picks: null, parlays: null, games: null, hist: null, rec:
 const MKT = { goal: { label: "Anytime goal", key: "p_goal" }, point: { label: "1+ point", key: "p_point" }, sog2: { label: "2+ shots", key: "p_sog2" },
   sog3: { label: "3+ shots", key: "p_sog3" }, sog4: { label: "4+ shots", key: "p_sog4" } };
 const PER = 15;
+const VS = { window: "3y", data: {}, sort: "pts", dir: -1, minGp: 0, sel: new Set(), compare: false, page: 0 };
 const TEAM = { ANA:["#F47A38","#B9975B","#111"], BOS:["#FFB81C","#111","#111"], BUF:["#003087","#FFB81C","#fff"], CGY:["#C8102E","#F1BE48","#fff"],
   CAR:["#CE1126","#A4A9AD","#fff"], CHI:["#CF0A2C","#111","#fff"], COL:["#6F263D","#236192","#fff"], CBJ:["#002654","#CE1126","#fff"],
   DAL:["#006847","#8F8F8C","#fff"], DET:["#CE1126","#fff","#fff"], EDM:["#041E42","#FF4C00","#fff"], FLA:["#C8102E","#B9975B","#fff"],
@@ -601,6 +612,7 @@ async function renderBoard() {
   document.querySelectorAll(".mtabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.m === ST.m)));
   $("#filters").hidden = !(me.pro && ST.m !== "parlays");
   if (ST.m === "parlays") { panel.innerHTML = parlaysHTML(); return; }
+  if (ST.m === "vsopp") { renderVs(panel); return; }
   const key = MKT[ST.m].key;
   if (!me.pro) {
     const d = ST.picks, free = d ? (d.markets["Goal"] || []).length : 0;
@@ -635,11 +647,17 @@ document.querySelector(".mtabs").addEventListener("keydown", e => {
   const bs = [...document.querySelectorAll(".mtabs button")], i = bs.findIndex(b => b.dataset.m === ST.m);
   const n = bs[(i + (e.key === "ArrowRight" ? 1 : bs.length - 1)) % bs.length]; ST.m = n.dataset.m; ST.page = 0; renderBoard(); n.focus();
 });
-$("#q").addEventListener("input", e => { ST.q = e.target.value; ST.page = 0; renderBoard(); });
-$("#team").addEventListener("change", e => { ST.team = e.target.value; ST.page = 0; renderBoard(); });
+$("#q").addEventListener("input", e => { ST.q = e.target.value; ST.page = 0; VS.page = 0; renderBoard(); });
+$("#team").addEventListener("change", e => { ST.team = e.target.value; ST.page = 0; VS.page = 0; renderBoard(); });
 document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
-  ST.pos = b.dataset.pos; ST.page = 0; document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderBoard(); }));
+  ST.pos = b.dataset.pos; ST.page = 0; VS.page = 0; document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderBoard(); }));
 $("#csv").addEventListener("click", () => {
+  if (ST.m === "vsopp") {
+    const cols = ["name", "team", "opp", "pos", "p_goal", ...VCOLS.map(c => c[0])];
+    const out = [cols.join(",")].concat((ST.vsRows || []).map(r => cols.map(c => `"${String(c === "p_goal" ? (r.p_goal != null ? (r.p_goal * 100).toFixed(1) : "") : (r[c] ?? "")).replace(/"/g, '""')}"`).join(",")));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([out.join("\n")], { type: "text/csv" }));
+    a.download = `lamplighter-${(ST.picks || {}).date || "board"}-vs-opponent.csv`; a.click(); return;
+  }
   const key = MKT[ST.m].key;
   const lines = [["player", "team", "opp", "pos", MKT[ST.m].label, "fair_odds", "exp_shots", "toi", "pp_toi", "goalie_faced"].join(",")]
     .concat(ST.rows.map(p => [p.name, p.team, p.opp, p.pos, (p[key] * 100).toFixed(1), fair(p[key]), p.sog_proj, mins(p.toi), mins(p.pp_toi), (p.opp_goalie || "").replace(/\s*\*$/, "")]
@@ -647,6 +665,62 @@ $("#csv").addEventListener("click", () => {
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
   a.download = `lamplighter-${(ST.picks || {}).date || "board"}-${ST.m}.csv`; a.click();
 });
+
+
+/* ---------- production vs tonight's opponent (members) ---------- */
+const VCOLS = [["gp","GP"],["g","G"],["a","A"],["pts","PTS"],["ppg","P/GP"],["ppp","PPP"],["sog","SOG"],["pim","PIM"],["hit","HIT"],["blk","BLK"],["toi","TOI"],["pptoi","PP TOI"]];
+async function renderVs(panel) {
+  const me = ST.me || {};
+  if (!me.pro) { panel.innerHTML = lockCard("Matchup history is for members"); return; }
+  let d = VS.data[VS.window];
+  if (!d) {
+    panel.innerHTML = `<div class="empty" style="padding:22px">Pulling every skater's history against tonight's opponent…</div>`;
+    try { d = VS.data[VS.window] = await api(`/api/vsopp?window=${VS.window}`); } catch (e) { panel.innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+    if (ST.m !== "vsopp") return;
+    if (!ST.board) {   // fill the team filter if the skater board hasn't loaded yet
+      const teams = [...new Set(d.rows.map(r => r.team))].sort();
+      $("#team").innerHTML = `<option value="">All teams</option>` + teams.map(t => `<option>${esc(t)}</option>`).join(""); $("#team").value = ST.team;
+    }
+  }
+  const q = ST.q.trim().toLowerCase();
+  let rows = d.rows.map(r => ({ ...r, ppg: r.gp ? r.pts / r.gp : 0 })).filter(r =>
+    (!q || r.name.toLowerCase().includes(q)) && (!ST.team || r.team === ST.team) &&
+    (!ST.pos || (ST.pos === "D" ? r.pos === "D" : r.pos !== "D")) && (r.gp || 0) >= VS.minGp && (!VS.compare || VS.sel.has(r.id)));
+  const k = VS.sort;
+  rows.sort((a, b) => (VS.dir < 0 ? (b[k] ?? -1) - (a[k] ?? -1) : (a[k] ?? -1) - (b[k] ?? -1)) || (b.pts - a.pts));
+  ST.vsRows = rows;
+  const pages = Math.max(1, Math.ceil(rows.length / 25)); VS.page = Math.min(VS.page, pages - 1);
+  const show = rows.slice(VS.page * 25, VS.page * 25 + 25);
+  const th = (key, label) => `<th><button class="sort" data-sort="${key}" ${VS.sort === key ? `aria-sort="${VS.dir < 0 ? "descending" : "ascending"}"` : ""}>${label}${VS.sort === key ? (VS.dir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
+  const fmt = (key, r) => key === "toi" || key === "pptoi" ? (r.gp ? mins(r[key]) : "") : key === "ppg" ? (r.gp ? r.ppg.toFixed(2) : "") : (r.gp ? r[key] : "");
+  const best = {}; VCOLS.forEach(([c]) => best[c] = Math.max(0, ...rows.map(r => r.gp ? (r[c] || 0) : 0)));
+  const body = show.map(r => `<tr class="${VS.sel.has(r.id) ? "sel" : ""}"><td class="cb"><input type="checkbox" data-id="${r.id}" ${VS.sel.has(r.id) ? "checked" : ""} aria-label="Compare ${esc(r.name)}"></td>
+    <td class="l"><div class="pl"><span class="tm">${esc(r.team)}</span><div><b>${esc(r.name)}</b><small>${esc([r.pos, (r.home ? "vs " : "at ") + r.opp].filter(Boolean).join(" · "))}</small></div></div></td>
+    <td>${r.p_goal != null ? pct0(r.p_goal) : ""}</td>
+    ${VCOLS.map(([c]) => `<td class="${r.gp && best[c] && (r[c] || 0) === best[c] && c !== "gp" ? "hot" : ""}">${r.gp ? fmt(c, r) : (c === "gp" ? '<span class="muted">0</span>' : "")}</td>`).join("")}</tr>`).join("");
+  panel.innerHTML = `<div class="vtools">
+      <label class="sr" for="vw">Time range</label><select id="vw">${Object.entries({ season: "This season", "3y": "Last 3 seasons", since2010: "Since 2010-11" }).map(([v, l]) => `<option value="${v}" ${v === VS.window ? "selected" : ""}>${l}</option>`).join("")}</select>
+      <label class="sr" for="vg">Minimum games</label><select id="vg">${[0, 1, 3, 5, 10].map(n => `<option value="${n}" ${n === VS.minGp ? "selected" : ""}>${n ? `${n}+ games vs opponent` : "Any games"}</option>`).join("")}</select>
+      <button class="btn btn-line btn-sm" id="vcmp" ${VS.sel.size ? "" : 'aria-disabled="true"'}>${VS.compare ? "Show all" : `Compare selected (${VS.sel.size})`}</button>
+      ${VS.sel.size ? `<button class="btn btn-line btn-sm" id="vclr">Clear</button>` : ""}
+      <span class="muted sp">Tonight's skaters vs tonight's opponent, ${esc(d.window_label.toLowerCase())}</span></div>
+    ${show.length ? `<div class="tscroll"><table class="t"><thead><tr><th class="cb"></th><th class="l">Player</th>${th("p_goal", "Goal tonight")}${VCOLS.map(([c, l]) => th(c, l)).join("")}</tr></thead><tbody>${body}</tbody></table></div>` : `<div class="empty" style="padding:22px">No skaters match that filter.</div>`}
+    <div class="tfoot"><span class="muted">Showing ${show.length ? VS.page * 25 + 1 : 0}–${VS.page * 25 + show.length} of ${rows.length} skaters. Compare up to 15.</span>
+      <div class="pager">${[...new Set([0, VS.page - 1, VS.page, VS.page + 1, pages - 1])].filter(i => i >= 0 && i < pages).sort((a, b) => a - b).map(i => `<button data-vpg="${i}" ${i === VS.page ? 'aria-current="page"' : ""}>${i + 1}</button>`).join("")}</div></div>
+    <p class="note" style="padding:0 18px 12px">History against one team is a small sample. In our testing it didn't predict goals beyond what the model already uses, so treat it as context next to tonight's chance. ${d.failed_teams && d.failed_teams.length ? `Couldn't load ${esc(d.failed_teams.join(", "))} right now.` : ""}</p>`;
+  $("#vw").onchange = e => { VS.window = e.target.value; VS.page = 0; renderVs(panel); };
+  $("#vg").onchange = e => { VS.minGp = +e.target.value; VS.page = 0; renderVs(panel); };
+  const cmp = $("#vcmp"); if (cmp) cmp.onclick = () => { VS.compare = !VS.compare; VS.page = 0; renderVs(panel); };
+  const clr = $("#vclr"); if (clr) clr.onclick = () => { VS.sel.clear(); VS.compare = false; renderVs(panel); };
+  panel.querySelectorAll("button.sort").forEach(b => b.onclick = () => { const k2 = b.dataset.sort; if (VS.sort === k2) VS.dir = -VS.dir; else { VS.sort = k2; VS.dir = -1; } VS.page = 0; renderVs(panel); });
+  panel.querySelectorAll("[data-vpg]").forEach(b => b.onclick = () => { VS.page = +b.dataset.vpg; renderVs(panel); });
+  panel.querySelectorAll("input[type=checkbox][data-id]").forEach(c => c.onchange = () => {
+    const id = +c.dataset.id;
+    if (c.checked) { if (VS.sel.size >= 15) { c.checked = false; toast("You can compare up to 15 skaters."); return; } VS.sel.add(id); } else VS.sel.delete(id);
+    if (!VS.sel.size) VS.compare = false;
+    renderVs(panel);
+  });
+}
 
 /* ---------- the lamp wall ---------- */
 function renderRecord() {
