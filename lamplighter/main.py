@@ -23,6 +23,7 @@ import nhl_data as D
 import jerseys as N
 import store
 import vsopp
+import why as W
 from page import HTML
 
 app = FastAPI(title="Lamplighter", docs_url=None, redoc_url=None, openapi_url=None)
@@ -173,7 +174,9 @@ def api_board(request: Request, date: str | None = None, market: str = "goal"):
     key = {"goal": "p_goal", "point": "p_point", "sog": "p_sog3"}[market]
     rows = sorted([p for p in b["players"] if p.get(key) is not None], key=lambda p: -p[key])
     num = _jnum()
-    rows = [{**{k: v for k, v in r.items() if k != "headshot"}, "j": num(r["team"], r["name"], r.get("player_id"))} for r in rows]
+    wmap, wsl = _why_ctx(date)
+    rows = [{**{k: v for k, v in r.items() if k != "headshot"}, "j": num(r["team"], r["name"], r.get("player_id")),
+             "why": {m: W.reasons(wmap.get(int(r["player_id"])), m, wsl, pp_unit=r.get("pp_unit")) for m in W.MARKETS}} for r in rows]
     return _json({**{k: b.get(k) for k in ("date", "games", "source", "generated_utc", "model", "lineups_note", "data_through")},
                   "market": market, "players": rows, "locked": 0, "pro": v["pro"], "past": past})
 
@@ -197,12 +200,14 @@ def api_picks(request: Request, date: str | None = None):
     stats = _snapshot_stats(date)
     priced = len(stats)
     num = _jnum()
+    wmap, wsl = _why_ctx(date)
     for rs in out.values():   # only rows this viewer can already see get their supporting numbers
         for r in rs:
             st = stats.get(int(r["player_id"]))
             if st:
                 r["stats"] = st
             r["j"] = num(r["team"], r["player"], r.get("player_id"))
+            r["why"] = W.reasons(wmap.get(int(r["player_id"])), MKEY[r["market"]], wsl)
     return _json({"date": date, "markets": out, "locked": locked, "pro": v["pro"], "past": past, "priced": priced})
 
 
@@ -226,10 +231,14 @@ def api_parlays(request: Request, date: str | None = None):
     except Exception:
         raise HTTPException(503, "Parlays are temporarily unavailable.")
     num = _jnum()
+    wmap, wsl = _why_ctx(date)
+    by_name = {(x["team"], x["name"]): x for x in wmap.values()}
     for r in rows:
         r["p"] = float(r["p"])
         for l in r.get("legs") or []:
             l["j"] = num(l.get("team"), l.get("player"), l.get("player_id"))
+            w = W.reasons(by_name.get((l.get("team"), l.get("player"))), MKEY.get(l.get("market"), "goal"), wsl)
+            l["why"] = w["for"][:1]
     if v["pro"] or past:
         return _json({"date": date, "parlays": rows, "locked": 0, "pro": v["pro"], "past": past})
     teaser = [{"type": r["type"], "legs_n": r["legs_n"]} for r in rows]
@@ -237,6 +246,21 @@ def api_parlays(request: Request, date: str | None = None):
 
 
 _rec_cache, _rec_lock = {}, threading.Lock()
+
+
+def _why_ctx(date):
+    """{player_id: normalized row} plus the slate ranks, from the model's board snapshot for `date`."""
+    def build():
+        try:
+            rows, _ = B._props_board(date)
+        except Exception:
+            rows = None
+        n = [W.norm(r) for r in (rows or [])]
+        return {r["id"]: r for r in n}, W.Slate(n)
+    return _cached(("why", date), build, 300)
+
+
+MKEY = {"Goal": "goal", "1+ point": "point", "3+ SOG": "sog", "goal": "goal", "point": "point", "sog": "sog"}
 
 
 def _jnum():

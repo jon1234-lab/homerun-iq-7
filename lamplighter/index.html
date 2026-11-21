@@ -178,6 +178,19 @@ table.t tbody tr:hover td{background:#F8FBFD}
 .jic.lg i{font-size:10.5px;padding:3px 5px;right:-9px;bottom:-3px}
 .jic.sm{width:30px;height:30px}
 .parlay li .jic.sm{width:26px;height:26px}
+.whyb{appearance:none;border:1px solid var(--hair);background:#fff;border-radius:999px;font:600 12px/1 var(--sans);color:var(--blue);padding:6px 11px;margin-top:7px;cursor:pointer}
+.whyb::after{content:"";display:inline-block;width:6px;height:6px;margin-left:7px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .15s ease}
+.whyb[aria-expanded="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.whyb[aria-expanded="true"]::after{transform:translateY(1px) rotate(-135deg)}
+.whyb:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.whyrow td{white-space:normal;text-align:left;background:#F6F9FC;padding:12px 18px 16px}
+.whyrow .in{position:sticky;left:18px;max-width:min(62em,calc(100vw - 72px))}
+.whyl{margin:0;padding-left:18px;color:var(--ink-2);font-size:14.5px;line-height:1.45}
+.whyl li{margin:3px 0}
+.watch{margin:8px 0 0;color:var(--ink-2);font-size:14px;line-height:1.45}.watch b{color:var(--red);font-weight:600}
+.whybox{margin-top:20px;border-top:1px solid var(--hair);padding-top:16px}
+.whybox .whyl{margin-top:8px}
+.parlay li .lw{flex-basis:100%;padding-left:34px;font-size:13px;color:var(--ink-3)}
 .pl{display:flex;align-items:center;gap:14px}
 .pl .tm{min-width:44px}
 .pl b{display:block;font-weight:600;font-size:15.5px;white-space:normal}
@@ -592,6 +605,7 @@ function renderHero() {
       <div><span class="caps">Exp. goals</span><b>${xg(r.p)}</b></div>
       <div><span class="caps">Ice time</span><b>${s.toi != null ? mins(s.toi) : "–"}</b></div>
     </div>
+    ${r.why && r.why.for && r.why.for.length ? `<div class="whybox"><span class="caps">Why the model likes him</span>${whyList(r.why)}</div>` : ""}
     ${goal.length > 1 ? `<div class="also"><span class="caps">Also free tonight</span>${goal.slice(1, 3).map(x => `
       <div class="r"><span class="rk">${x.rank}</span>${jic(x.team, x.j, x.player, "sm", false)}<span><span class="n">${esc(x.player)}</span><span class="tmo">${esc(x.team)} ${esc(x.opp)}</span></span><span class="p">${pct0(x.p)}</span><span class="fo">${esc(x.fair_odds)}</span></div>`).join("")}</div>` : ""}`;
 }
@@ -620,6 +634,13 @@ function lockCard(title) {
     <div class="ctas"><a class="btn btn-kick" href="#pricing">See passes</a>${me.logged_in ? "" : `<a class="btn btn-line" href="/auth/login?next=/%23board">Sign in</a>`}</div></div></div>`;
 }
 
+const WM = { goal: "goal", point: "point", sog2: "sog", sog3: "sog", sog4: "sog" };
+function whyOf(p, mk) { const w = p && p.why; return !w ? null : (w.for ? w : w[mk]); }
+function whyList(w) {
+  if (!w || !(w.for || []).length) return "";
+  return `<ul class="whyl">${w.for.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` +
+    ((w.against || []).length ? `<p class="watch"><b>Watch out:</b> ${esc(w.against[0])}</p>` : "");
+}
 function rowsHTML(rows, key) {
   const head = `<thead><tr><th class="l">Player</th><th>${esc(MKT[ST.m].label)}</th><th>Fair odds</th><th>Exp. shots</th><th>${ST.m === "goal" ? "Exp. goals" : "1+ point"}</th><th>TOI</th><th>PP TOI</th><th class="l">Goalie faced</th></tr></thead>`;
   const body = rows.map(p => {
@@ -628,11 +649,13 @@ function rowsHTML(rows, key) {
     const line = p.line ? String(p.line).toUpperCase() + (p.pp_unit ? " " + String(p.pp_unit).toUpperCase() : "") : "";
     const meta = [`${p.team} ${where}`, p.pos, line].filter(Boolean).join(" · ");
     const projected = p.opp_goalie_status === "Model guess" || (p.opp_goalie || "").endsWith("*");
-    return `<tr><td class="l"><div class="pl">${jic(p.team, p.j, p.name)}<div><b>${esc(p.name)}${p.gtd ? ' <span class="muted" style="font-weight:500">(game-time decision)</span>' : ""}</b><small>${esc(meta)}</small></div></div></td>
+    const w = whyOf(p, WM[ST.m] || "goal");
+    return `<tr><td class="l"><div class="pl">${jic(p.team, p.j, p.name)}<div><b>${esc(p.name)}${p.gtd ? ' <span class="muted" style="font-weight:500">(game-time decision)</span>' : ""}</b><small>${esc(meta)}</small>${w ? `<button class="whyb" type="button" aria-expanded="false">Why</button>` : ""}</div></div></td>
       <td><div class="ch"><b>${pct(v)}</b><span class="bar"><i style="width:${Math.round((v || 0) * 100)}%"></i></span></div></td>
       <td class="fo">${fair(v)}</td><td>${p.sog_proj != null ? Number(p.sog_proj).toFixed(1) : ""}</td>
       <td>${ST.m === "goal" ? xg(p.p_goal) : pct0(p.p_point)}</td><td>${mins(p.toi)}</td><td>${mins(p.pp_toi)}</td>
-      <td class="l">${esc(goalie)}${goalie && projected ? ' <span class="muted">(projected)</span>' : ""}</td></tr>`;
+      <td class="l">${esc(goalie)}${goalie && projected ? ' <span class="muted">(projected)</span>' : ""}</td></tr>` +
+      (w ? `<tr class="whyrow" hidden><td colspan="8"><div class="in">${whyList(w)}</div></td></tr>` : "");
   }).join("");
   return `<div class="tscroll"><table class="t">${head}<tbody>${body}</tbody></table></div>`;
 }
@@ -640,7 +663,7 @@ function rowsHTML(rows, key) {
 function freeRows() {   // the three free goal picks, shaped like board rows
   const goal = (ST.picks && ST.picks.markets["Goal"]) || [];
   return goal.map(r => { const s = r.stats || {}; return { name: r.player, team: r.team, opp: r.opp, pos: s.pos, p_goal: r.p, p_point: s.p_point,
-    sog_proj: s.sog_proj, toi: s.toi, pp_toi: s.pp_toi, opp_goalie: s.opp_goalie }; });
+    sog_proj: s.sog_proj, toi: s.toi, pp_toi: s.pp_toi, opp_goalie: s.opp_goalie, j: r.j, why: r.why }; });
 }
 
 function parlaysHTML() {
@@ -650,7 +673,7 @@ function parlaysHTML() {
   const nm = { "Goal": "goal", "1+ point": "1+ point", "3+ SOG": "3+ shots", "2+ SOG": "2+ shots" };
   return `<div class="parlays">${d.parlays.map(p => `<div class="parlay"><div class="h"><h4>${esc(p.type)}</h4><span class="px">${pct0(p.p)}</span></div>
     <div class="muted" style="font-size:13.5px">Fair odds <b style="color:var(--red)">${esc(p.fair_odds)}</b></div>
-    <ul>${(p.legs || []).map(l => `<li>${jic(l.team, l.j, l.player, "sm", false)}${esc(l.player)} <span class="muted">${esc(l.team)}</span> <span class="muted">${esc(nm[l.market] || l.market)}, ${pct0(l.p)}</span></li>`).join("")}</ul></div>`).join("")}</div>`;
+    <ul>${(p.legs || []).map(l => `<li>${jic(l.team, l.j, l.player, "sm", false)}${esc(l.player)} <span class="muted">${esc(l.team)}</span> <span class="muted">${esc(nm[l.market] || l.market)}, ${pct0(l.p)}</span>${l.why && l.why.length ? `<span class="lw">${esc(l.why[0])}</span>` : ""}</li>`).join("")}</ul></div>`).join("")}</div>`;
 }
 
 async function renderBoard() {
@@ -688,6 +711,12 @@ async function renderBoard() {
   panel.querySelectorAll("[data-pg]").forEach(b => b.onclick = () => { ST.page = +b.dataset.pg; renderBoard(); $("#board").scrollIntoView({ block: "start" }); });
 }
 document.querySelectorAll(".mtabs button").forEach(b => b.addEventListener("click", () => { ST.m = b.dataset.m; ST.page = 0; renderBoard(); }));
+$("#panel").addEventListener("click", e => {
+  const b = e.target.closest(".whyb"); if (!b) return;
+  const tr = b.closest("tr").nextElementSibling; if (!tr || !tr.classList.contains("whyrow")) return;
+  const open = b.getAttribute("aria-expanded") !== "true";
+  b.setAttribute("aria-expanded", String(open)); tr.hidden = !open;
+});
 document.querySelector(".mtabs").addEventListener("keydown", e => {
   if (!["ArrowRight", "ArrowLeft"].includes(e.key)) return;
   const bs = [...document.querySelectorAll(".mtabs button")], i = bs.findIndex(b => b.dataset.m === ST.m);
@@ -705,8 +734,9 @@ $("#csv").addEventListener("click", () => {
     a.download = `lamplighter-${(ST.picks || {}).date || "board"}-vs-opponent.csv`; a.click(); return;
   }
   const key = MKT[ST.m].key;
-  const lines = [["player", "team", "opp", "pos", MKT[ST.m].label, "fair_odds", "exp_shots", "toi", "pp_toi", "goalie_faced"].join(",")]
-    .concat(ST.rows.map(p => [p.name, p.team, p.opp, p.pos, (p[key] * 100).toFixed(1), fair(p[key]), p.sog_proj, mins(p.toi), mins(p.pp_toi), (p.opp_goalie || "").replace(/\s*\*$/, "")]
+  const lines = [["player", "team", "opp", "pos", MKT[ST.m].label, "fair_odds", "exp_shots", "toi", "pp_toi", "goalie_faced", "why"].join(",")]
+    .concat(ST.rows.map(p => [p.name, p.team, p.opp, p.pos, (p[key] * 100).toFixed(1), fair(p[key]), p.sog_proj, mins(p.toi), mins(p.pp_toi), (p.opp_goalie || "").replace(/\s*\*$/, ""),
+      (w => w ? [...w.for, ...(w.against || []).map(t => "Watch out: " + t)].join(" ") : "")(whyOf(p, WM[ST.m] || "goal"))]
     .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")));
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
   a.download = `lamplighter-${(ST.picks || {}).date || "board"}-${ST.m}.csv`; a.click();
