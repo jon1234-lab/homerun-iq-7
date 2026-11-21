@@ -297,7 +297,7 @@ async function loadMe() {
 function lockCard(n, what) {
   const me = ST.me || {};
   const cta = me.logged_in
-    ? `<a class="btn pri" href="${esc(me.checkout_url || "/pricing")}">Get GoalIQ Pro</a><small>$14.99/month · cancel anytime</small>`
+    ? `<a class="btn pri" href="${esc(me.checkout_url || "/pricing")}">Get GoalIQ Pro</a><small>$14.99/month or $4.99 for 3 days</small>`
     : `<a class="btn pri" href="/pricing" data-link>Get GoalIQ Pro</a><small>$14.99/month · ${me.signin_ready ? `<a href="/auth/login?next=${encodeURIComponent(location.pathname)}">already a member? Sign in</a>` : "cancel anytime"}</small>`;
   return `<div class="lockcard"><div><h3>${esc(what)}</h3><p>${n ? `${n} more ${n === 1 ? "row is" : "rows are"} locked for this date.` : "This is part of GoalIQ Pro."} Free accounts see the top 3 goal picks every night.</p>
     <ul><li>Every skater, every game</li><li>Points and shots-on-goal boards</li><li>All 30 Best Bets each night</li><li>Model parlays with fair odds</li></ul></div>
@@ -586,9 +586,9 @@ function how() {
 function pricing() {
   const me = ST.me || {};
   const cta = me.pro ? `<a class="btn" href="/" data-link>You're on Pro. Go to tonight's board</a>`
-    : me.checkout_url ? `<a class="btn pri" href="${esc(me.checkout_url)}">Subscribe for $14.99/month</a>` : `<span class="note">Subscriptions open soon.</span>`;
+    : me.checkout_url ? `<a class="btn pri" href="${esc(me.checkout_url)}">Choose monthly or a 3-day pass</a>` : `<span class="note">Subscriptions open soon.</span>`;
   $("#view").innerHTML = `<div class="prose"><h1 class="page">GoalIQ Pro</h1><p class="sub">Everything the model sees, every night of the NHL season.</p></div>
-  <div class="price-card"><div class="p">$14.99<small> / month</small></div>
+  <div class="price-card"><div class="p">$14.99<small> / month</small></div><p class="note" style="margin:6px 0 0">Or try everything for 3 days for $4.99, one time.</p>
     <ul><li>Full boards for anytime goals, points and shots on goal</li><li>All 30 Best Bets each night, graded</li><li>Model parlays with fair odds</li><li>Live goal alerts on the board</li><li>Cancel anytime from your Whop account</li></ul>
     ${cta}
     ${!me.logged_in && me.signin_ready ? `<p class="note" style="margin-top:12px">Already subscribed? <a href="/auth/login?next=/">Sign in with Whop</a>.</p>` : ""}
