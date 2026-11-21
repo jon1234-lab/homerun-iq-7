@@ -24,6 +24,7 @@ import jerseys as N
 import store
 import vsopp
 import why as W
+import breakdown as BD
 from page import HTML
 
 app = FastAPI(title="Lamplighter", docs_url=None, redoc_url=None, openapi_url=None)
@@ -301,6 +302,35 @@ def api_history():
     num = _jnum()   # sweater numbers for the jersey icons; the wall falls back to initials without them
     rows = [{**r, "j": num(r["t"], r["n"])} for r in rows]
     return _json({"picks": rows}, private=False, max_age=300)
+
+
+@app.get("/api/why")
+def api_why(request: Request, pid: int, market: str = "goal", k: int = 3, date: str | None = None):
+    """The full write-up for one pick. Free viewers get it for tonight's free goal picks; members for everyone."""
+    date = _date(date)
+    if market not in ("goal", "point", "sog"):
+        raise HTTPException(400, "market must be goal, point or sog")
+    k = min(4, max(2, int(k)))
+    v = auth.viewer(request.cookies)
+    if not (v["pro"] or is_past(date)):
+        try:
+            free = {int(r["player_id"]) for r in sorted((r for r in store.picks(date) if r["market"] == "Goal"),
+                                                        key=lambda r: r["rank"])[:FREE_TOP]}
+        except Exception:
+            free = set()
+        if not (market == "goal" and pid in free):
+            return _json({"locked": 1, "pro": False})
+    try:
+        b = B.build(date)
+    except Exception:
+        raise HTTPException(503, "Tonight's board is temporarily unavailable. Try again in a minute.")
+    num = _jnum()
+    built = [{**r, "j": num(r["team"], r["name"], r.get("player_id"))} for r in b["players"]]
+    wmap, wsl = _why_ctx(date)
+    out = _cached(("bd", date, pid, market, k), lambda: BD.build(date, pid, market, k, built, wmap.get(pid), wsl), 600)
+    if not out:
+        raise HTTPException(404, "That skater isn't on tonight's board.")
+    return _json({**out, "locked": 0})
 
 
 @app.get("/api/vsopp")
