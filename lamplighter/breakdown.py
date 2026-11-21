@@ -327,7 +327,7 @@ def build(date, pid, market, k, built, wrow, slate):
 
     # ---------- summary paragraph
     s = []
-    rk = f", {_ord(rank)} on tonight's slate" if rank else ""
+    rk = (", the best on tonight's slate" if rank == 1 else f", {_ord(rank)} on tonight's slate") if rank else ""
     s.append(f"{name} is a {p * 100:.1f}% chance to {verb} tonight (fair odds {fair(p)}{rk}).")
     drivers = []
     if wrow:
