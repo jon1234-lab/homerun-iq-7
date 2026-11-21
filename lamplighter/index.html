@@ -213,20 +213,24 @@ td.fo{color:var(--red);font-weight:600}
 .jumbo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:7px;background:var(--kick)}
 .jumbo .lastnight{font-weight:600}
 .wall-wrap{margin-top:18px;overflow-x:auto;padding:14px 0 6px;scrollbar-color:#3C5A80 transparent}
-.wall{display:flex;gap:16px;min-width:max-content}
-.night{display:flex;flex-direction:column;align-items:center;gap:9px}
+.wall{display:flex;gap:14px;min-width:max-content;padding:4px 10px 0 6px}
+.night{display:flex;flex-direction:column;align-items:center;gap:10px}
 .night .d{margin-top:auto;padding-top:6px;font-size:12.5px;color:#A9BCD2;white-space:nowrap}
-.lamp{appearance:none;border:0;padding:0;cursor:pointer;width:30px;height:21px;border-radius:15px 15px 3px 3px;background:var(--lamp-off);position:relative}
-.lamp::after{content:"";position:absolute;left:-2px;right:-2px;bottom:-3px;height:3px;border-radius:2px;background:#0A1E35}
-.lamp.on{background:var(--lamp-on);box-shadow:0 0 12px 2px rgba(255,59,48,.55),0 0 2px rgba(255,210,200,.9) inset}
-.lamp:focus-visible{outline:2px solid #fff;outline-offset:3px}
-.wall.prep .lamp.on{background:var(--lamp-off);box-shadow:none}
-.wall .lamp.on{transition:background .25s ease, box-shadow .35s ease}
-@media (prefers-reduced-motion: reduce){.wall .lamp.on{transition:none}}
+.tok{appearance:none;border:0;padding:0;cursor:pointer;width:40px;height:40px;border-radius:50%;position:relative;display:grid;place-items:center;
+  background:var(--bg,#2A4566);color:var(--fg,#fff);font:700 12.5px/1 var(--sans);letter-spacing:.02em;box-shadow:0 0 0 2px var(--ring,#3C5A80);transition:opacity .3s ease, filter .3s ease}
+.tok.miss{opacity:.32;filter:grayscale(.55)}
+.tok.hit{box-shadow:0 0 0 2px var(--ring,#3C5A80),0 0 14px 2px rgba(22,163,74,.35)}
+.tok.hit::after{content:"";position:absolute;right:-4px;bottom:-4px;width:17px;height:17px;border-radius:50%;background:#16A34A url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/13px no-repeat;
+  box-shadow:0 0 0 2px var(--navy);transition:transform .25s ease}
+.tok:hover,.tok:focus-visible{opacity:1;filter:none;transform:scale(1.08)}
+.tok:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.wall.prep .tok.hit::after{transform:scale(0)}
+.wall.prep .tok.hit{box-shadow:0 0 0 2px var(--ring,#3C5A80)}
+@media (prefers-reduced-motion: reduce){.tok,.tok.hit::after{transition:none}}
 .lampinfo{min-height:46px;margin-top:12px;color:#DCE6F2}
 .legend{display:flex;gap:18px;flex-wrap:wrap;color:#A9BCD2;font-size:13.5px;align-items:center}
-.legend i{display:inline-block;width:16px;height:12px;border-radius:8px 8px 2px 2px;vertical-align:-1px;margin-right:7px;background:var(--lamp-off)}
-.legend i.on{background:var(--lamp-on);box-shadow:0 0 8px rgba(255,59,48,.6)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:7px;background:#2A4566;opacity:.6}
+.legend i.on{background:#16A34A;opacity:1}
 .mkts{width:100%;border-collapse:collapse;font-size:15.5px}
 .mkts th,.mkts td{padding:13px 16px;border-bottom:1px solid #E8EEF3;text-align:right}
 .mkts th:first-child,.mkts td:first-child{text-align:left}
@@ -366,15 +370,15 @@ footer.foot nav a:hover{color:var(--ink)}
     <div class="head">
       <div>
         <h2>Every pick, graded <em>in public.</em></h2>
-        <p>Before puck drop we log the model's ten likeliest goal scorers. The next morning they're graded from NHL box scores. A lit lamp means he scored.</p>
+        <p>Before puck drop we log the model's ten likeliest goal scorers. The next morning they're graded from NHL box scores. A green check means he scored.</p>
       </div>
       <div class="tally" id="tally"></div>
     </div>
     <div class="jumbo">
       <p class="lastnight" id="lastnight"></p>
       <div class="wall-wrap"><div class="wall prep" id="wall" role="group" aria-label="Goal picks by night, top pick at the top"></div></div>
-      <p class="lampinfo" id="lampinfo">Hover or tap a lamp to see the pick.</p>
-      <div class="legend"><span><i class="on"></i>Scored</span><span><i></i>Didn't score</span><span>Each column is one night, best pick on top</span></div>
+      <p class="lampinfo" id="lampinfo">Hover or tap a player to see the pick.</p>
+      <div class="legend"><span><i class="on"></i>Scored</span><span><i></i>Didn't score</span><span>Each column is one night, best pick on top. Circles use team colors.</span></div>
     </div>
     <div class="recgrid">
       <div class="boardpanel"><h3>All three markets</h3><div class="tscroll"><table class="mkts" id="mkts"></table></div></div>
@@ -461,6 +465,14 @@ const ST = { me: null, picks: null, parlays: null, games: null, hist: null, rec:
 const MKT = { goal: { label: "Anytime goal", key: "p_goal" }, point: { label: "1+ point", key: "p_point" }, sog2: { label: "2+ shots", key: "p_sog2" },
   sog3: { label: "3+ shots", key: "p_sog3" }, sog4: { label: "4+ shots", key: "p_sog4" } };
 const PER = 15;
+const TEAM = { ANA:["#F47A38","#B9975B","#111"], BOS:["#FFB81C","#111","#111"], BUF:["#003087","#FFB81C","#fff"], CGY:["#C8102E","#F1BE48","#fff"],
+  CAR:["#CE1126","#A4A9AD","#fff"], CHI:["#CF0A2C","#111","#fff"], COL:["#6F263D","#236192","#fff"], CBJ:["#002654","#CE1126","#fff"],
+  DAL:["#006847","#8F8F8C","#fff"], DET:["#CE1126","#fff","#fff"], EDM:["#041E42","#FF4C00","#fff"], FLA:["#C8102E","#B9975B","#fff"],
+  LAK:["#111111","#A2AAAD","#fff"], MIN:["#154734","#DDCBA4","#fff"], MTL:["#AF1E2D","#192168","#fff"], NSH:["#FFB81C","#041E42","#041E42"],
+  NJD:["#CE1126","#111","#fff"], NYI:["#00539B","#F47D30","#fff"], NYR:["#0038A8","#CE1126","#fff"], OTT:["#111111","#C52032","#fff"],
+  PHI:["#F74902","#111","#fff"], PIT:["#111111","#FCB514","#FCB514"], SJS:["#006D75","#EA7200","#fff"], SEA:["#001628","#99D9D9","#99D9D9"],
+  STL:["#002F87","#FCB514","#fff"], TBL:["#002868","#fff","#fff"], TOR:["#00205B","#fff","#fff"], UTA:["#090909","#69B3E7","#fff"],
+  VAN:["#00205B","#00843D","#fff"], VGK:["#333F48","#B4975A","#B4975A"], WSH:["#041E42","#C8102E","#fff"], WPG:["#041E42","#004C97","#fff"] };
 
 async function api(path) {
   const r = await fetch(path, { credentials: "same-origin" });
@@ -651,11 +663,13 @@ function renderRecord() {
       (lh.length ? ` (${lh.slice(0, 4).map(r => r.n).join(", ")}${lh.length > 4 ? " and more" : ""}).` : ".");
   }
   const wall = $("#wall");
+  const ini = n => n.split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase();
   wall.innerHTML = dates.map(d => `<div class="night">${nights[d].sort((a, b) => a.r - b.r).map(r => {
+      const c = TEAM[r.t] || ["#2A4566", "#3C5A80", "#fff"];
       const label = `${fmtDate(d, { month: "short", day: "numeric" })}, pick ${r.r}: ${r.n}, ${r.t} ${r.o}, ${pct0(r.p)} chance. ${r.res === "Hit" ? (r.s > 1 ? `Scored ${r.s}.` : "Scored.") : "Didn't score."}`;
-      return `<button class="lamp${r.res === "Hit" ? " on" : ""}" aria-label="${esc(label)}" data-info="${esc(label)}"></button>`;
+      return `<button class="tok ${r.res === "Hit" ? "hit" : "miss"}" style="--bg:${c[0]};--ring:${c[1]};--fg:${c[2]}" aria-label="${esc(label)}" data-info="${esc(label)}">${esc(ini(r.n))}</button>`;
     }).join("")}<span class="d">${esc(fmtDate(d, { month: "short", day: "numeric" }))}</span></div>`).join("");
-  const info = $("#lampinfo"), show = e => { const b = e.target.closest(".lamp"); if (b) info.textContent = b.dataset.info; };
+  const info = $("#lampinfo"), show = e => { const b = e.target.closest(".tok"); if (b) info.textContent = b.dataset.info; };
   ["pointerover", "focusin", "click"].forEach(ev => wall.addEventListener(ev, show));
   const wrap = wall.parentElement; wrap.scrollLeft = wrap.scrollWidth;
   lightUp(wall);
@@ -671,7 +685,7 @@ function lightUp(wall) {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const go = () => {
     if (reduce) { wall.classList.remove("prep"); return; }
-    wall.querySelectorAll(".night").forEach((n, i) => n.querySelectorAll(".lamp.on").forEach(l => l.style.transitionDelay = (i * 70) + "ms"));
+    wall.querySelectorAll(".night").forEach((n, i) => n.querySelectorAll(".tok.hit").forEach(l => l.style.setProperty("transition-delay", (i * 70) + "ms")));
     requestAnimationFrame(() => wall.classList.remove("prep"));
   };
   if (!("IntersectionObserver" in window)) return go();
