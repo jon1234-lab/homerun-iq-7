@@ -143,8 +143,13 @@ def api_games(date: str | None = None):
         games = D.schedule(date)
     except Exception:
         raise HTTPException(503, "The NHL schedule is temporarily unavailable.")
-    out = {"date": date, "games": [{"away": g["away"], "home": g["home"], "start_utc": g["start_utc"], "state": g["state"]}
-                                   for g in games]}
+    try:
+        sg = D.starting_goalies(date) if games else {}
+    except Exception:
+        sg = {}
+    gl = lambda t: {"name": (sg.get(t) or {}).get("name"), "status": (sg.get(t) or {}).get("status")}
+    out = {"date": date, "games": [{"away": g["away"], "home": g["home"], "start_utc": g["start_utc"], "state": g["state"],
+                                    "goalies": {g["away"]: gl(g["away"]), g["home"]: gl(g["home"])}} for g in games]}
     with _games_lock:
         _games_cache[date] = (time.time(), out)
     return _json(out, private=False)
@@ -187,7 +192,24 @@ def api_picks(request: Request, date: str | None = None):
             r["p"] = float(r["p"])
         keep = FREE_TOP if mk == "Goal" else 0
         out[mk], locked[mk] = _gate(rs, v["pro"], past, keep)
-    return _json({"date": date, "markets": out, "locked": locked, "pro": v["pro"], "past": past})
+    stats = _snapshot_stats(date)
+    priced = len(stats)
+    for rs in out.values():   # only rows this viewer can already see get their supporting numbers
+        for r in rs:
+            st = stats.get(int(r["player_id"]))
+            if st:
+                r["stats"] = st
+    return _json({"date": date, "markets": out, "locked": locked, "pro": v["pro"], "past": past, "priced": priced})
+
+
+def _snapshot_stats(date):
+    """Per-player numbers from the model's board snapshot for `date` (fast: one cached read, no lineup fetches)."""
+    try:
+        rows, _ = B._props_board(date)
+    except Exception:
+        return {}
+    keep = ("pos", "sog_proj", "toi", "pp_toi", "xg60", "opp_goalie", "p_point", "p_sog2", "p_sog3")
+    return {int(r["playerId"]): {k: r.get(k) for k in keep} for r in (rows or [])}
 
 
 @app.get("/api/parlays")
@@ -266,6 +288,11 @@ def favicon():
 @app.get("/og.png")
 def og():
     return _static("og.png", "image/png")
+
+
+@app.get("/ice.svg")
+def ice():
+    return _static("ice.svg", "image/svg+xml")
 
 
 @app.get("/apple-touch-icon.png")
